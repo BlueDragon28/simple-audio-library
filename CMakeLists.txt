@@ -9,7 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include/)
 
 set(PROJECT_SOURCES
-    "src/RingBuffer.cpp")
+    "src/RingBuffer.cpp"
+    "src/AbstractAudioFile.cpp")
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
