@@ -33,15 +33,47 @@ public:
     */
     bool isOpen() const;
 
+    /*
+    Read data from the file and put it into
+    the temporaty buffer.
+    */
+    void readFromFile();
+
 protected:
     /*
     Mark the file has ready to stream.
     */
     void fileOpened(bool value = true);
 
+    /*
+    Pure virtual method who read from the audio
+    file and put the data into the temporary buffer.
+    */
+    virtual void readDataFromFile() = 0;
+
+    /*
+    Resize the temporary buffer.
+    */
+    void resizeTmpBuffer(size_t size);
+
+    /*
+    Return a pointer to the ptr buffer.
+    */
+    char* tmpBufferPtr();
+
 private:
     std::string m_filePath;
     bool m_isOpen;
+
+    /*
+    Temprary buffer where data is writen
+    in wait to be put into the ring buffer.
+    */
+    char* m_tmpBuffer;
+    size_t m_tmpTailPos;
+    size_t m_tmpWritePos;
+    size_t m_tmpSizeDataWritten;
+    size_t m_tmpSize;
 };
 }
 
