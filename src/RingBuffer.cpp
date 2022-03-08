@@ -8,7 +8,6 @@ RingBuffer::RingBuffer() :
     m_size(0),
     m_tailPos(0),
     m_headPos(0),
-    m_readAvailable(0),
     m_writeAvailable(0)
 {}
 
@@ -17,7 +16,6 @@ RingBuffer::RingBuffer(size_t bufferSize) :
     m_size(bufferSize),
     m_tailPos(0),
     m_headPos(0),
-    m_readAvailable(0),
     m_writeAvailable(bufferSize)
 {
     if (bufferSize > 0)
@@ -48,26 +46,26 @@ into the *buffer. Return how many bytes readed.
 size_t RingBuffer::read(char* buffer, size_t size)
 {
     if (!buffer || !m_data || m_size == 0 || 
-        size == 0 || m_readAvailable == 0)
+        size == 0 || m_writeAvailable == m_size)
         return 0;
     
-    size_t readSize = size;
-    if (size > m_readAvailable)
-        readSize = m_readAvailable;
+    size_t readAvailable = m_size - m_writeAvailable;
+    if (size > m_writeAvailable)
+        size = m_writeAvailable;
     
-    if (readSize > m_size-m_tailPos)
+    if (size > m_size-m_tailPos)
     {
         int lenght = m_size-m_tailPos;
         memcpy(buffer, m_data+m_tailPos, lenght);
         memcpy(buffer+lenght, m_data, size-lenght);
     }
     else
-        memcpy(buffer, m_data+m_tailPos, readSize);
+        memcpy(buffer, m_data+m_tailPos, size);
     
-    m_readAvailable -= readSize;
-    m_writeAvailable += readSize;
+    m_tailPos = (m_tailPos + size) % m_size;
+    m_writeAvailable += size;
 
-    return readSize;
+    return size;
 }
 
 /*
@@ -80,23 +78,22 @@ size_t RingBuffer::write(const char* buffer, size_t size)
         size == 0 || m_writeAvailable == 0)
         return 0;
     
-    size_t writeSize = size;
     if (size > m_writeAvailable)
-        writeSize = m_writeAvailable;
+        size = m_writeAvailable;
     
-    if (writeSize > m_size-m_headPos)
+    if (size > m_size-m_headPos)
     {
         int lenght = m_size-m_headPos;
         memcpy(m_data+m_headPos, buffer, lenght);
-        memcpy(m_data, buffer+lenght, writeSize-lenght);
+        memcpy(m_data, buffer+lenght, size-lenght);
     }
     else
-        memcpy(m_data+m_headPos, buffer, writeSize);
+        memcpy(m_data+m_headPos, buffer, size);
     
-    m_readAvailable += writeSize;
-    m_writeAvailable -= writeSize;
+    m_headPos = (m_headPos + size) % m_size;
+    m_writeAvailable -= size;
 
-    return writeSize;
+    return size;
 }
 
 size_t RingBuffer::size() const

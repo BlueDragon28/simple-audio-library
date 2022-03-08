@@ -38,7 +38,6 @@ private:
     size_t m_size;
     size_t m_tailPos;
     size_t m_headPos;
-    size_t m_readAvailable;
     size_t m_writeAvailable;
 };
 }
