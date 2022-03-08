@@ -30,6 +30,8 @@ RingBuffer::~RingBuffer()
 /*
 Resize the circular buffer to *bufferSize.
 Remove remove any data inside the circular buffer.
+This function is not thread safe, so be carefull when
+calling it.
 */
 void RingBuffer::resizeBuffer(size_t bufferSize)
 {

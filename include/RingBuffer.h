@@ -2,6 +2,7 @@
 #define SIMPLE_AUDIO_LIBRARY_CIRCULAR_BUFFER_H_
 
 #include <cstddef>
+#include <atomic>
 
 namespace SAL
 {
@@ -28,6 +29,8 @@ public:
     /*
     Resize the circular buffer to *bufferSize.
     Remove remove any data inside the circular buffer.
+    This function is not thread safe, so be carefull when
+    calling it.
     */
     void resizeBuffer(size_t bufferSize);
 
@@ -35,10 +38,10 @@ public:
 
 private:
     char* m_data;
-    size_t m_size;
-    size_t m_tailPos;
-    size_t m_headPos;
-    size_t m_writeAvailable;
+    std::atomic<size_t> m_size;
+    std::atomic<size_t> m_tailPos;
+    std::atomic<size_t> m_headPos;
+    std::atomic<size_t> m_writeAvailable;
 };
 }
 
