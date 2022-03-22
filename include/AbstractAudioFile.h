@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <string>
+#include "RingBuffer.h"
 
 namespace SAL
 {
@@ -39,6 +40,11 @@ public:
     */
     void readFromFile();
 
+    /*
+    Flush the temporary data into the ring buffer.
+    */
+    void flush();
+
 protected:
     /*
     Mark the file has ready to stream.
@@ -74,6 +80,9 @@ private:
     size_t m_tmpWritePos;
     size_t m_tmpSizeDataWritten;
     size_t m_tmpSize;
+
+    // Ring buffer
+    RingBuffer m_ringBuffer;
 };
 }
 

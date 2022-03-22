@@ -59,7 +59,7 @@ the temporaty buffer.
 */
 void AbstractAudioFile::readFromFile()
 {
-    if (!m_isOpen)
+    if (!m_isOpen || !m_tmpBuffer)
         return;
     
     if (m_tmpTailPos == m_tmpSizeDataWritten)
@@ -97,5 +97,17 @@ void AbstractAudioFile::resizeTmpBuffer(size_t size)
 char* AbstractAudioFile::tmpBufferPtr()
 {
     return m_tmpBuffer;
+}
+
+/*
+Flush the temporary data into the ring buffer.
+*/
+void AbstractAudioFile::flush()
+{
+    if (m_tmpTailPos == m_tmpSizeDataWritten || !m_tmpBuffer)
+        return;
+    
+    size_t nbWrited = m_ringBuffer.write(m_tmpBuffer+m_tmpTailPos, m_tmpSizeDataWritten-m_tmpTailPos);
+    m_tmpTailPos += nbWrited;
 }
 }
