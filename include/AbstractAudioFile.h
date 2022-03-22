@@ -45,6 +45,41 @@ public:
     */
     void flush();
 
+    /*
+    Sample rate of the stream.
+    */
+    size_t sampleRate() const;
+
+    /*
+    Number of channels of the stream.
+    */
+    int numChannels() const;
+
+    /*
+    Number of bytes per sample of the stream.
+    */
+    int bytesPerSample() const;
+
+    /*
+    Number of bits per sample of the stream.
+    */
+    int bitsPerSample() const;
+
+    /*
+    Size in bytes of the audio data.
+    */
+    size_t streamSizeInBytes() const;
+
+    /*
+    Size in samples of the audio data.
+    */
+    size_t streamSizeInSamples() const;
+
+    /*
+    Size in frames of the audio data.
+    */
+    size_t streamSize() const;
+
 protected:
     /*
     Mark the file has ready to stream.
@@ -67,7 +102,29 @@ protected:
     */
     char* tmpBufferPtr();
 
+    /*
+    Update sample rate.
+    */
+    void setSampleRate(size_t sampleRate);
+
+    /*
+    Update number of channels.
+    */
+    void setNumChannels(int numChannels);
+
+    /*
+    Update bytes per sample.
+    */
+    void setBytesPerSample(int bytesPerSample);
+
+    /*
+    Update size of the stream in bytes.
+    */
+    void setSizeStream(size_t sizeStream);
+
 private:
+    void updateStreamSizeInfo();
+
     std::string m_filePath;
     bool m_isOpen;
 
@@ -83,6 +140,14 @@ private:
 
     // Ring buffer
     RingBuffer m_ringBuffer;
+
+    // Audio file info.
+    size_t m_sampleRate;
+    int m_numChannels;
+    int m_bytesPerSample;
+    size_t m_sizeStream;
+    size_t m_sizeStreamInSamples;
+    size_t m_sizeStreamInFrames;
 };
 }
 
