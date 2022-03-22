@@ -110,9 +110,21 @@ void AbstractAudioFile::resizeTmpBuffer(size_t size)
         m_tmpWritePos = size;
 }
 
-char* AbstractAudioFile::tmpBufferPtr()
+/*
+Insert data into the tmp buffer.
+*/
+void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
 {
-    return m_tmpBuffer;
+    if (!m_tmpBuffer)
+        return;
+    
+    if (m_tmpWritePos + size > m_tmpSize)
+        resizeTmpBuffer(m_tmpWritePos + size);
+    
+    memcpy(m_tmpBuffer+m_tmpWritePos, buffer, size);
+
+    m_tmpWritePos += size;
+    m_tmpSizeDataWritten += size;
 }
 
 /*

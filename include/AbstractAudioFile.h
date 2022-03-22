@@ -93,14 +93,9 @@ protected:
     virtual void readDataFromFile() = 0;
 
     /*
-    Resize the temporary buffer.
+    Insert data into the tmp buffer.
     */
-    void resizeTmpBuffer(size_t size);
-
-    /*
-    Return a pointer to the ptr buffer.
-    */
-    char* tmpBufferPtr();
+    void insertDataInfoTmpBuffer(char* buffer, size_t size);
 
     /*
     Update sample rate.
@@ -124,6 +119,11 @@ protected:
 
 private:
     void updateStreamSizeInfo();
+    
+    /*
+    Resize the temporary buffer.
+    */
+    void resizeTmpBuffer(size_t size);
 
     std::string m_filePath;
     bool m_isOpen;
