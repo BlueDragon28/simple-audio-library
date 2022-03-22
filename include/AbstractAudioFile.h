@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <string>
+#include <atomic>
 #include "RingBuffer.h"
 
 namespace SAL
@@ -119,7 +120,7 @@ protected:
 
 private:
     void updateStreamSizeInfo();
-    
+
     /*
     Resize the temporary buffer.
     */
@@ -142,12 +143,12 @@ private:
     RingBuffer m_ringBuffer;
 
     // Audio file info.
-    size_t m_sampleRate;
-    int m_numChannels;
-    int m_bytesPerSample;
-    size_t m_sizeStream;
-    size_t m_sizeStreamInSamples;
-    size_t m_sizeStreamInFrames;
+    std::atomic<size_t> m_sampleRate;
+    std::atomic<int> m_numChannels;
+    std::atomic<int> m_bytesPerSample;
+    std::atomic<size_t> m_sizeStream;
+    std::atomic<size_t> m_sizeStreamInSamples;
+    std::atomic<size_t> m_sizeStreamInFrames;
 };
 }
 
