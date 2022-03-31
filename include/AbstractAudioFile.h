@@ -89,6 +89,21 @@ public:
     */
     size_t read(char* data, size_t sizeInFrames);
 
+    /*
+    Return the position of the stream in frames.
+    */
+    size_t streamPos() const;
+
+    /*
+    Return the position of the stream in samples.
+    */
+    size_t streamPosInSamples() const;
+
+    /*
+    Return the position of the stream in bytes.
+    */
+    size_t streamPosInBytes() const;
+
 protected:
     /*
     Mark the file has ready to stream.
@@ -134,6 +149,7 @@ protected:
 
 private:
     void updateStreamSizeInfo();
+    void updateStreamPosInfo();
 
     /*
     Resize the temporary buffer.
@@ -164,6 +180,11 @@ private:
     std::atomic<size_t> m_sizeStream;
     std::atomic<size_t> m_sizeStreamInSamples;
     std::atomic<size_t> m_sizeStreamInFrames;
+
+    // Stream location.
+    std::atomic<size_t> m_streamPos;
+    std::atomic<size_t> m_streamPosInSamples;
+    std::atomic<size_t> m_streamPosInFrames;
 };
 }
 

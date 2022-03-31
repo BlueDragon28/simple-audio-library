@@ -23,7 +23,12 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
     m_bytesPerSample(0),
     m_sizeStream(0),
     m_sizeStreamInSamples(0),
-    m_sizeStreamInFrames(0)
+    m_sizeStreamInFrames(0),
+
+    // Stream location
+    m_streamPos(0),
+    m_streamPosInSamples(0),
+    m_streamPosInFrames(0)
 {}
 
 AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
@@ -253,15 +258,21 @@ Extract data from the audio files.
 */
 size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
 {
-    if (!m_isOpen || m_ringBuffer.size() == 0)
+    if (!m_isOpen || m_ringBuffer.size() == 0 || m_streamPos == m_sizeStream)
         return 0;
     
     size_t sizeInBytes = sizeInFrames * numChannels() * bytesPerSample();
     size_t bytesReaded = m_ringBuffer.read(data, sizeInBytes);
+    m_streamPos += bytesReaded;
+    updateStreamPosInfo();
+
+    size_t bytesReadedInFrames;
     if (bytesReaded != 0)
-        return bytesReaded / numChannels() / bytesPerSample();
+        bytesReadedInFrames = bytesReaded / numChannels() / bytesPerSample();
     else
-        return 0;
+        bytesReadedInFrames = 0;
+
+    return bytesReadedInFrames;
 }
 
 /*
@@ -272,5 +283,35 @@ void AbstractAudioFile::updateBuffersSize()
 {
     resizeTmpBuffer(sampleRate() * numChannels() * bytesPerSample());
     m_ringBuffer.resizeBuffer(sampleRate() * numChannels() * bytesPerSample() * 5);
+}
+
+void AbstractAudioFile::updateStreamPosInfo()
+{
+    m_streamPosInSamples = m_streamPos * bytesPerSample();
+    m_streamPosInFrames = m_streamPosInSamples * numChannels();
+}
+
+/*
+Return the position of the stream in frames.
+*/
+size_t AbstractAudioFile::streamPos() const 
+{
+    return m_streamPosInFrames;
+}
+
+/*
+Return the position of the stream in samples.
+*/
+size_t AbstractAudioFile::streamPosInSamples() const
+{
+    return m_streamPosInSamples;
+}
+
+/*
+Return the position of the stream in bytes.
+*/
+size_t AbstractAudioFile::streamPosInBytes() const
+{
+    return m_streamPos;
 }
 }
