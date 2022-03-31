@@ -138,6 +138,7 @@ private:
     size_t m_tmpWritePos;
     size_t m_tmpSizeDataWritten;
     size_t m_tmpSize;
+    size_t m_tmpMinimumSize;
 
     // Ring buffer
     RingBuffer m_ringBuffer;

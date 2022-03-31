@@ -15,6 +15,7 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
     m_tmpWritePos(0),
     m_tmpSizeDataWritten(0),
     m_tmpSize(0),
+    m_tmpMinimumSize(0),
 
     // Audio file info
     m_sampleRate(0),
@@ -78,8 +79,16 @@ void AbstractAudioFile::readFromFile()
     if (!m_isOpen || !m_tmpBuffer)
         return;
     
-    if (m_tmpTailPos == m_tmpSizeDataWritten)
+    if (m_tmpWritePos < m_tmpMinimumSize)
+    {
+        if (m_tmpTailPos == m_tmpSizeDataWritten)
+        {
+            m_tmpTailPos = 0;
+            m_tmpWritePos = 0;
+            m_tmpSizeDataWritten = 0;
+        }
         readDataFromFile();
+    }
 }
 
 /*
