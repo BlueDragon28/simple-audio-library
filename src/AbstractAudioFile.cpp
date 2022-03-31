@@ -244,4 +244,23 @@ void AbstractAudioFile::updateStreamSizeInfo()
     m_sizeStreamInSamples = m_sizeStream / m_bytesPerSample;
     m_sizeStreamInFrames = m_sizeStream / m_bytesPerSample / m_numChannels;
 }
+
+/*
+Extract data from the audio files.
+- data = a pointer to a sound buffer.
+- sizeInFrames = the size of the buffers in frames.
+- return the size of data read in frames.
+*/
+size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
+{
+    if (!m_isOpen || m_ringBuffer.size() == 0)
+        return 0;
+    
+    size_t sizeInBytes = sizeInFrames * numChannels() * bytesPerSample();
+    size_t bytesReaded = m_ringBuffer.read(data, sizeInBytes);
+    if (bytesReaded != 0)
+        return bytesReaded / numChannels() / bytesPerSample();
+    else
+        return 0;
+}
 }

@@ -81,6 +81,14 @@ public:
     */
     size_t streamSize() const;
 
+    /*
+    Extract data from the audio files.
+    - data = a pointer to a sound buffer.
+    - sizeInFrames = the size of the buffers in frames.
+    - return the size of data read in frames.
+    */
+    size_t read(char* data, size_t sizeInFrames);
+
 protected:
     /*
     Mark the file has ready to stream.
