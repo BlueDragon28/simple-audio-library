@@ -32,21 +32,7 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
 {}
 
 AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
-    m_filePath(filePath),
-    m_isOpen(false),
-    m_tmpBuffer(nullptr),
-    m_tmpTailPos(0),
-    m_tmpWritePos(0),
-    m_tmpSizeDataWritten(0),
-    m_tmpSize(0),
-
-    // Audio file info
-    m_sampleRate(0),
-    m_numChannels(0),
-    m_bytesPerSample(0),
-    m_sizeStream(0),
-    m_sizeStreamInSamples(0),
-    m_sizeStreamInFrames(0)
+    AbstractAudioFile(filePath.c_str())
 {}
 
 AbstractAudioFile::~AbstractAudioFile()
