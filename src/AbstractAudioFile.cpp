@@ -263,4 +263,14 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     else
         return 0;
 }
+
+/*
+Update the buffers size when the 
+audio file header is readed.
+*/
+void AbstractAudioFile::updateBuffersSize()
+{
+    resizeTmpBuffer(sampleRate() * numChannels() * bytesPerSample());
+    m_ringBuffer.resizeBuffer(sampleRate() * numChannels() * bytesPerSample() * 5);
+}
 }

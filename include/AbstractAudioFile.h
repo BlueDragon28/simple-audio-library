@@ -126,6 +126,12 @@ protected:
     */
     void setSizeStream(size_t sizeStream);
 
+    /*
+    Update the buffers size when the 
+    audio file header is readed.
+    */
+    void updateBuffersSize();
+
 private:
     void updateStreamSizeInfo();
 
