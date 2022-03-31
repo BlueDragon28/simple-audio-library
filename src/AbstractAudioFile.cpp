@@ -300,4 +300,13 @@ size_t AbstractAudioFile::streamPosInBytes() const
 {
     return m_streamPos;
 }
+
+/*
+Reset stream position.
+*/
+void AbstractAudioFile::resetStreamPosition()
+{
+    m_streamPos = 0;
+    updateStreamPosInfo();
+}
 }

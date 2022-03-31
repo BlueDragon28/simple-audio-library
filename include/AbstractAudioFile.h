@@ -142,6 +142,11 @@ protected:
     void setSizeStream(size_t sizeStream);
 
     /*
+    Reset stream position.
+    */
+    void resetStreamPosition();
+
+    /*
     Update the buffers size when the 
     audio file header is readed.
     */
