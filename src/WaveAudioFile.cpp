@@ -1,6 +1,5 @@
 #include "WaveAudioFile.h"
 #include <cstring>
-#include <iostream>
 
 namespace SAL
 {
@@ -118,7 +117,7 @@ void WaveAudioFile::open()
             return;
         
         // If next identifier is "LIST" identifier.
-        if (strcmp(nextIdentifier, "LIST") != 0)
+        if (strcmp(nextIdentifier, "LIST") == 0)
         {
             // "LIST" size.
             int listSize = 0;
@@ -138,6 +137,8 @@ void WaveAudioFile::open()
             if (m_audioFile.fail())
                 return;
         }
+        else
+            return;
 
         // "data" identifier.
         if (strcmp(nextIdentifier, "data") != 0 || m_audioFile.fail())
