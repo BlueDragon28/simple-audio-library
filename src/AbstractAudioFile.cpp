@@ -238,6 +238,8 @@ void AbstractAudioFile::setSizeStream(size_t sizeStream)
 
 void AbstractAudioFile::updateStreamSizeInfo()
 {
+    if (m_sizeStream == 0 || m_bytesPerSample == 0 || m_numChannels == 0)
+        return;
     m_sizeStreamInSamples = m_sizeStream / m_bytesPerSample;
     m_sizeStreamInFrames = m_sizeStream / m_bytesPerSample / m_numChannels;
 }
