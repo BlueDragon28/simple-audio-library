@@ -309,4 +309,12 @@ void AbstractAudioFile::resetStreamPosition()
     m_streamPos = 0;
     updateStreamPosInfo();
 }
+
+/*
+Minimum size recommanded for the temporary buffer.
+*/
+size_t AbstractAudioFile::minimumSizeTemporaryBuffer() const
+{
+    return m_tmpMinimumSize;
+}
 }

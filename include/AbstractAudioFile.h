@@ -152,6 +152,11 @@ protected:
     */
     void updateBuffersSize();
 
+    /*
+    Minimum size recommanded for the temporary buffer.
+    */
+    size_t minimumSizeTemporaryBuffer() const;
+
 private:
     void updateStreamSizeInfo();
     void updateStreamPosInfo();
