@@ -36,6 +36,11 @@ public:
     bool isOpen() const;
 
     /*
+    Is the stream has reached the end.
+    */
+    bool isEnded() const;
+
+    /*
     Read data from the file and put it into
     the temporaty buffer.
     */
@@ -203,6 +208,9 @@ private:
 
     // Indicate no more data need to be readed.
     bool m_endFile;
+
+    // Is the stream has reached the end.
+    bool m_isEnded;
 };
 }
 

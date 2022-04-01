@@ -31,7 +31,10 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
     m_streamPosInFrames(0),
 
     // Indicate no more data need to be readed.
-    m_endFile(false)
+    m_endFile(false),
+
+    // Is the stream has reached the end.
+    m_isEnded(false)
 {}
 
 AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
@@ -255,6 +258,9 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     m_streamPos += bytesReaded;
     updateStreamPosInfo();
 
+    if (m_streamPos == m_sizeStream)
+        m_isEnded = true;
+
     size_t bytesReadedInFrames;
     if (bytesReaded != 0)
         bytesReadedInFrames = bytesReaded / numChannels() / bytesPerSample();
@@ -324,5 +330,10 @@ size_t AbstractAudioFile::minimumSizeTemporaryBuffer() const
 void AbstractAudioFile::endFile(bool value)
 {
     m_endFile = value;
+}
+
+bool AbstractAudioFile::isEnded() const
+{
+    return m_isEnded;
 }
 }
