@@ -182,13 +182,22 @@ void WaveAudioFile::readDataFromFile()
     if (m_readPos + minimumSizeTemporaryBuffer() > streamSizeInBytes())
         readSize = streamSizeInBytes() - m_readPos;
     
+    if (readSize == 0 || readSize > streamSizeInBytes())
+    {
+        endFile();
+        return;
+    }
+    
     char data[readSize];
     memset(data, 0, readSize);
 
     m_audioFile.read(data, readSize);
 
     if (m_audioFile.fail())
+    {
+        endFile();
         return;
+    }
 
     insertDataInfoTmpBuffer(data, readSize);
 }

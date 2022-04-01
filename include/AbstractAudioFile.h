@@ -157,6 +157,11 @@ protected:
     */
     size_t minimumSizeTemporaryBuffer() const;
 
+    /*
+    No more data to read.
+    */
+    void endFile(bool value = true);
+
 private:
     void updateStreamSizeInfo();
     void updateStreamPosInfo();
@@ -195,6 +200,9 @@ private:
     std::atomic<size_t> m_streamPos;
     std::atomic<size_t> m_streamPosInSamples;
     std::atomic<size_t> m_streamPosInFrames;
+
+    // Indicate no more data need to be readed.
+    bool m_endFile;
 };
 }
 

@@ -28,7 +28,10 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
     // Stream location
     m_streamPos(0),
     m_streamPosInSamples(0),
-    m_streamPosInFrames(0)
+    m_streamPosInFrames(0),
+
+    // Indicate no more data need to be readed.
+    m_endFile(false)
 {}
 
 AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
@@ -67,7 +70,7 @@ the temporaty buffer.
 */
 void AbstractAudioFile::readFromFile()
 {
-    if (!m_isOpen || !m_tmpBuffer)
+    if (!m_isOpen || !m_tmpBuffer || m_endFile)
         return;
     
     if (m_tmpWritePos < m_tmpMinimumSize)
@@ -316,5 +319,10 @@ Minimum size recommanded for the temporary buffer.
 size_t AbstractAudioFile::minimumSizeTemporaryBuffer() const
 {
     return m_tmpMinimumSize;
+}
+
+void AbstractAudioFile::endFile(bool value)
+{
+    m_endFile = value;
 }
 }
