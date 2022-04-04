@@ -177,14 +177,14 @@ ring buffer.
 */
 void WaveAudioFile::readDataFromFile()
 {
-    if (!m_audioFile.is_open() || !isOpen() || streamSizeInBytes() == 0)
+    if (!m_audioFile.is_open() || streamSizeInBytes() == 0)
         return;
     
     size_t readSize = minimumSizeTemporaryBuffer();
     if (streamPosInBytes() + readSize > streamSizeInBytes())
         readSize = streamSizeInBytes() - streamPosInBytes();
     
-    if (readSize == 0 || streamPosInBytes() + readSize > streamSizeInBytes())
+    if (streamPosInBytes() + readSize > streamSizeInBytes())
     {
         endFile();
         return;

@@ -75,17 +75,16 @@ void AbstractAudioFile::readFromFile()
 {
     if (!m_isOpen || m_endFile)
         return;
+
+    if (m_tmpTailPos == m_tmpSizeDataWritten)
+    {
+        m_tmpTailPos = 0;
+        m_tmpWritePos = 0;
+        m_tmpSizeDataWritten = 0;
+    }
     
     if (m_tmpWritePos < m_tmpMinimumSize)
-    {
-        if (m_tmpTailPos == m_tmpSizeDataWritten)
-        {
-            m_tmpTailPos = 0;
-            m_tmpWritePos = 0;
-            m_tmpSizeDataWritten = 0;
-        }
         readDataFromFile();
-    }
 }
 
 /*
