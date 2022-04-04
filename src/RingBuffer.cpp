@@ -38,7 +38,13 @@ void RingBuffer::resizeBuffer(size_t bufferSize)
     delete[] m_data;
     m_data = nullptr;
     if (bufferSize > 0)
-        m_data = new char[bufferSize];
+    {
+        m_size = bufferSize;
+        m_data = new char[m_size];
+        m_tailPos = 0;
+        m_headPos = 0;
+        m_writeAvailable = (size_t)m_size;
+    }
 }
 
 /*
