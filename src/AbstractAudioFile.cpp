@@ -73,7 +73,7 @@ the temporaty buffer.
 */
 void AbstractAudioFile::readFromFile()
 {
-    if (!m_isOpen || !m_tmpBuffer || m_endFile)
+    if (!m_isOpen || m_endFile)
         return;
     
     if (m_tmpWritePos < m_tmpMinimumSize)
@@ -121,7 +121,7 @@ Insert data into the tmp buffer.
 */
 void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
 {
-    if (!m_tmpBuffer)
+    if (size == 0)
         return;
     
     if (m_tmpWritePos + size > m_tmpSize)
