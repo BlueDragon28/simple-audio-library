@@ -157,6 +157,7 @@ void WaveAudioFile::open()
         setSampleRate(sampleRate);
         setBytesPerSample(bitsPerSample/8);
         setSizeStream(audioDataSize);
+        updateBuffersSize();
         fileOpened();
     }
 }
