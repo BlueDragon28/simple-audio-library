@@ -327,7 +327,7 @@ Minimum size recommanded for the temporary buffer.
 */
 size_t AbstractAudioFile::minimumSizeTemporaryBuffer() const
 {
-    return m_tmpMinimumSize;
+    return m_tmpMinimumSize - m_tmpTailPos;
 }
 
 void AbstractAudioFile::endFile(bool value)
