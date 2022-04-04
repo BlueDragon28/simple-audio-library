@@ -8,7 +8,8 @@ Opening a file *filePath and prepare it
 for streaming.
 */
 WaveAudioFile::WaveAudioFile(const char* filePath) :
-    AbstractAudioFile(filePath)
+    AbstractAudioFile(filePath),
+    m_readPos(0)
 {
     open();
 }
@@ -179,16 +180,16 @@ void WaveAudioFile::readDataFromFile()
 {
     if (!m_audioFile.is_open() || streamSizeInBytes() == 0)
         return;
-    
-    size_t readSize = minimumSizeTemporaryBuffer();
-    if (streamPosInBytes() + readSize > streamSizeInBytes())
-        readSize = streamSizeInBytes() - streamPosInBytes();
-    
-    if (streamPosInBytes() + readSize > streamSizeInBytes())
+
+    if (m_readPos == streamSizeInBytes())
     {
         endFile();
         return;
     }
+    
+    size_t readSize = minimumSizeTemporaryBuffer();
+    if (m_readPos + readSize > streamSizeInBytes())
+        readSize = streamSizeInBytes() - m_readPos;
     
     char data[readSize];
     memset(data, 0, readSize);
@@ -202,5 +203,7 @@ void WaveAudioFile::readDataFromFile()
     }
 
     insertDataInfoTmpBuffer(data, readSize);
+
+    m_readPos += readSize;
 }
 }
