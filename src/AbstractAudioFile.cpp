@@ -254,7 +254,8 @@ Extract data from the audio files.
 */
 size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
 {
-    if (!m_isOpen || m_ringBuffer.size() == 0 || m_streamPos == m_sizeStream)
+    if (!m_isOpen || m_ringBuffer.size() == 0 || 
+        m_streamPos == m_sizeStream || m_isEnded)
         return 0;
     
     size_t sizeInBytes = sizeInFrames * numChannels() * bytesPerSample();
