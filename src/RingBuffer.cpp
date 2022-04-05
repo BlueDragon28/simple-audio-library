@@ -58,8 +58,8 @@ size_t RingBuffer::read(char* buffer, size_t size)
         return 0;
     
     size_t readAvailable = m_size - m_writeAvailable;
-    if (size > m_writeAvailable)
-        size = m_writeAvailable;
+    if (size > readAvailable)
+        size = readAvailable;
     
     if (size > m_size-m_tailPos)
     {
@@ -100,7 +100,6 @@ size_t RingBuffer::write(const char* buffer, size_t size)
     
     m_headPos = (m_headPos + size) % m_size;
     m_writeAvailable -= size;
-
     return size;
 }
 
