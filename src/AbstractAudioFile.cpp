@@ -284,8 +284,8 @@ void AbstractAudioFile::updateBuffersSize()
 
 void AbstractAudioFile::updateStreamPosInfo()
 {
-    m_streamPosInSamples = m_streamPos * bytesPerSample();
-    m_streamPosInFrames = m_streamPosInSamples * numChannels();
+    m_streamPosInSamples = m_streamPos / bytesPerSample();
+    m_streamPosInFrames = m_streamPosInSamples / numChannels();
 }
 
 /*
