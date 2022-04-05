@@ -175,7 +175,8 @@ protected:
 
     /*
     Increment the position of the reading position
-    of the audio data.
+    of the audio data and set endFile to true when the data
+    has reach the end of the file.
     */
     void incrementReadPos(size_t size);
 

@@ -179,12 +179,6 @@ void WaveAudioFile::readDataFromFile()
 {
     if (!m_audioFile.is_open() || streamSizeInBytes() == 0)
         return;
-
-    if (readPos() == streamSizeInBytes())
-    {
-        endFile();
-        return;
-    }
     
     size_t readSize = minimumSizeTemporaryBuffer();
     if (readPos() + readSize > streamSizeInBytes())

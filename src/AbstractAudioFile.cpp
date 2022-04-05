@@ -354,12 +354,17 @@ size_t AbstractAudioFile::readPos() const
 
 /*
 Increment the position of the reading position
-of the audio data.*/
+of the audio data and set endFile to true when the data
+has reach the end of the file.
+*/
 void AbstractAudioFile::incrementReadPos(size_t size)
 {
     if (size == 0)
         return;
     
     m_readPos += size;
+
+    if (m_readPos >= streamSizeInBytes())
+        endFile();
 }
 }
