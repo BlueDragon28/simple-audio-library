@@ -41,7 +41,6 @@ private:
 
     // Audio file stream interface.
     std::ifstream m_audioFile;
-    size_t m_readPos;
 };
 }
 

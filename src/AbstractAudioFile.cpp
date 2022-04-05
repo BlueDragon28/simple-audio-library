@@ -34,7 +34,10 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
     m_endFile(false),
 
     // Is the stream has reached the end.
-    m_isEnded(false)
+    m_isEnded(false),
+
+    // Streaming pos from audio file.
+    m_readPos(0)
 {}
 
 AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
@@ -337,5 +340,25 @@ void AbstractAudioFile::endFile(bool value)
 bool AbstractAudioFile::isEnded() const
 {
     return m_isEnded;
+}
+
+/*
+Position of the reading of the audio data
+from the audio file.
+*/
+size_t AbstractAudioFile::readPos() const
+{
+    return m_readPos;
+}
+
+/*
+Increment the position of the reading position
+of the audio data.*/
+void AbstractAudioFile::incrementReadPos(size_t size)
+{
+    if (size == 0)
+        return;
+    
+    m_readPos += size;
 }
 }

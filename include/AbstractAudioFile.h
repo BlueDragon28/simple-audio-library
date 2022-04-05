@@ -167,6 +167,18 @@ protected:
     */
     void endFile(bool value = true);
 
+    /*
+    Position of the reading of the audio data
+    from the audio file.
+    */
+    size_t readPos() const;
+
+    /*
+    Increment the position of the reading position
+    of the audio data.
+    */
+    void incrementReadPos(size_t size);
+
 private:
     void updateStreamSizeInfo();
     void updateStreamPosInfo();
@@ -211,6 +223,9 @@ private:
 
     // Is the stream has reached the end.
     bool m_isEnded;
+
+    // Streaming pos from audio file.
+    size_t m_readPos;
 };
 }
 
