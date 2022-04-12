@@ -54,6 +54,22 @@ private:
     */
     void pushFile();
 
+    /*
+    Check what type is the file and opening it.
+    */
+    AbstractAudioFile* detectAndOpenFile(const std::string& filePath);
+
+    /*
+    Reset stream info.
+    */
+    void resetStreamInfo();
+
+    /*
+    Check if the audio file (file) have the info than the
+    currently played file.
+    */
+    bool checkStreamInfo(const AbstractAudioFile* const  file) const;
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     /*
@@ -70,6 +86,14 @@ private:
 
     // Maximum of same stream in the m_queueOpenedFile queue.
     std::atomic<int> m_maxInStreamQueue;
+
+    /*
+    Stream info.
+    */
+    std::atomic<short> m_numChannels;
+    std::atomic<size_t> m_sampleRate;
+    std::atomic<int> m_bytesPerSample;
+    std::atomic<SampleType> m_sampleType;
 };
 }
 
