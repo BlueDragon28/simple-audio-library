@@ -235,7 +235,7 @@ private:
     bool m_endFile;
 
     // Is the stream has reached the end.
-    bool m_isEnded;
+    std::atomic<bool> m_isEnded;
 
     // Streaming pos from audio file.
     size_t m_readPos;
