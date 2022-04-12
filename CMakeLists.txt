@@ -6,6 +6,10 @@ project(simple-audio-library
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# PortAudio
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
+
 include_directories(include/)
 
 set(PROJECT_SOURCES
@@ -15,4 +19,5 @@ set(PROJECT_SOURCES
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
+target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
