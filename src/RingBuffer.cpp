@@ -22,6 +22,19 @@ RingBuffer::RingBuffer(size_t bufferSize) :
         m_data = new char[m_size];
 }
 
+RingBuffer::RingBuffer(const RingBuffer& other)
+{
+    m_size = (size_t)other.m_size;
+    m_tailPos = (size_t)other.m_tailPos;
+    m_headPos = (size_t)other.m_headPos;
+    m_writeAvailable = (size_t)other.m_writeAvailable;
+    if (other.m_data && m_size > 0)
+    {
+        m_data = new char[m_size];
+        memcpy(m_data, other.m_data, m_size);
+    }
+}
+
 RingBuffer::~RingBuffer()
 {
     delete[] m_data;

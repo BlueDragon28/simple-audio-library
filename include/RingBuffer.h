@@ -14,6 +14,7 @@ class RingBuffer
 public:
     RingBuffer();
     RingBuffer(size_t bufferSize);
+    RingBuffer(const RingBuffer& other);
     ~RingBuffer();
 
     /*
