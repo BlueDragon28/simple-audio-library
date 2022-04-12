@@ -11,6 +11,7 @@ Interface to stream a Wave audio file.
 */
 class WaveAudioFile : public AbstractAudioFile
 {
+    WaveAudioFile(const WaveAudioFile& other) = delete;
 public:
     /*
     Opening a file *filePath and prepare it

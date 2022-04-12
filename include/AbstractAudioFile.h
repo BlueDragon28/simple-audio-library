@@ -18,6 +18,7 @@ to rewrite it in all the file class.
 */
 class AbstractAudioFile
 {
+    AbstractAudioFile(const AbstractAudioFile& other) = delete;
 public:
     /*
     Opening a file *filePath and prepare it
