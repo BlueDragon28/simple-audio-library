@@ -24,6 +24,7 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
     m_sizeStream(0),
     m_sizeStreamInSamples(0),
     m_sizeStreamInFrames(0),
+    m_sampleType(SampleType::UNKNOWN),
 
     // Stream location
     m_streamPos(0),
@@ -366,5 +367,21 @@ void AbstractAudioFile::incrementReadPos(size_t size)
 
     if (m_readPos >= streamSizeInBytes())
         endFile();
+}
+
+/*
+Sample type if it's an integer or floating point number.
+*/
+SampleType AbstractAudioFile::sampleType() const
+{
+    return m_sampleType;
+}
+
+/*
+Set sampleType, if it's a integer or a floating point number.
+*/
+void AbstractAudioFile::setSampleType(SampleType type)
+{
+    m_sampleType = type;
 }
 }

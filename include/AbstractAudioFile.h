@@ -5,6 +5,7 @@
 #include <string>
 #include <atomic>
 #include "RingBuffer.h"
+#include "Common.h"
 
 namespace SAL
 {
@@ -109,6 +110,11 @@ public:
     */
     size_t streamPosInBytes() const;
 
+    /*
+    Sample type if it's an integer or floating point number.
+    */
+    SampleType sampleType() const;
+
 protected:
     /*
     Mark the file has ready to stream.
@@ -180,6 +186,11 @@ protected:
     */
     void incrementReadPos(size_t size);
 
+    /*
+    Set sampleType, if it's a integer or a floating point number.
+    */
+    void setSampleType(SampleType type);
+
 private:
     void updateStreamSizeInfo();
     void updateStreamPosInfo();
@@ -213,6 +224,7 @@ private:
     std::atomic<size_t> m_sizeStream;
     std::atomic<size_t> m_sizeStreamInSamples;
     std::atomic<size_t> m_sizeStreamInFrames;
+    std::atomic<SampleType> m_sampleType;
 
     // Stream location.
     std::atomic<size_t> m_streamPos;
