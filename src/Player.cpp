@@ -90,7 +90,11 @@ void Player::play()
 Pause the stream.
 */
 void Player::pause()
-{}
+{
+    if (m_paStream)
+        Pa_StopStream(m_paStream.get());
+    m_isPlaying = false;
+}
 
 /*
 Stop playing and delete the queues.
