@@ -75,6 +75,28 @@ private:
     */
     bool createStream();
 
+    /*
+    Static C callback use to make a bridge between
+    PortAudio and this class.
+    */
+    static int staticPortAudioStreamCallback(
+        const void* inputBuffer,
+        void* outputBuffer,
+        unsigned long framesPerBuffer,
+        const PaStreamCallbackTimeInfo* timeInfo,
+        PaStreamCallbackFlags flags,
+        void* data);
+    
+    /*
+    Stream callback used to collect audio stream
+    from the audio file interface and sending it to
+    PortAudio.
+    */
+    int streamCallback(
+        const void* inputBuffer,
+        void* outputBuffer,
+        unsigned long framesPerBuffer);
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     /*

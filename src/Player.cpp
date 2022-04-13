@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cstring>
+#include <functional>
 
 #include "WaveAudioFile.h"
 
@@ -292,7 +293,7 @@ bool Player::createStream()
         (double)m_sampleRate,
         6144,
         paNoFlag,
-        nullptr,
+        staticPortAudioStreamCallback,
         this);
     
     if (err != paNoError)
@@ -302,5 +303,30 @@ bool Player::createStream()
         (pStream, Pa_CloseStream);
     
     return true;
+}
+
+/*
+Static C callback use to make a bridge between
+PortAudio and this class.
+*/
+int Player::staticPortAudioStreamCallback(
+    const void* inputBuffer,
+    void* outputBuffer,
+    unsigned long framesPerBuffer,
+    const PaStreamCallbackTimeInfo* timeInfo,
+    PaStreamCallbackFlags flags,
+    void* data)
+{
+    Player* pPlayer = static_cast<Player*>(data);
+    return std::invoke(&Player::streamCallback, pPlayer,
+        inputBuffer, outputBuffer, framesPerBuffer);
+}
+
+int Player::streamCallback(
+    const void* inputBuffer,
+    void* outputBuffer,
+    unsigned long framesPerBuffer)
+{
+    return paContinue;
 }
 }
