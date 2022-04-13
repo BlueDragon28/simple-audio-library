@@ -192,7 +192,8 @@ void Player::resetStreamInfo()
 {
     Pa_StopStream(m_paStream.get());
     m_paStream.reset();
-    m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
+    if (!m_queueOpenedFile.empty())
+        m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
     m_numChannels = 0;
     m_sampleRate = 0;
     m_bytesPerSample = 0;
@@ -299,6 +300,8 @@ bool Player::createStream()
     if (err != paNoError)
         return false;
     
+    Pa_SetStreamFinishedCallback(pStream, Player::staticPortAudioEndStream);
+    
     m_paStream = std::unique_ptr<PaStream, decltype(&Pa_CloseStream)>
         (pStream, Pa_CloseStream);
     
@@ -322,11 +325,31 @@ int Player::staticPortAudioStreamCallback(
         inputBuffer, outputBuffer, framesPerBuffer);
 }
 
+void Player::staticPortAudioEndStream(void* data)
+{
+    Player* pPlayer = static_cast<Player*>(data);
+    std::invoke(&Player::streamEndCallback, pPlayer);
+}
+
+/*
+Stream callback used to collect audio stream
+from the audio file interface and sending it to
+PortAudio.
+*/
 int Player::streamCallback(
     const void* inputBuffer,
     void* outputBuffer,
     unsigned long framesPerBuffer)
 {
     return paContinue;
+}
+
+/*
+    When the stream reach end, this member function
+is called.
+*/
+void Player::streamEndCallback()
+{
+    resetStreamInfo();
 }
 }

@@ -86,6 +86,7 @@ private:
         const PaStreamCallbackTimeInfo* timeInfo,
         PaStreamCallbackFlags flags,
         void* data);
+    static void staticPortAudioEndStream(void* data);
     
     /*
     Stream callback used to collect audio stream
@@ -96,6 +97,12 @@ private:
         const void* inputBuffer,
         void* outputBuffer,
         unsigned long framesPerBuffer);
+
+    /*
+    When the stream reach end, this member function
+    is called.
+    */
+    void streamEndCallback();
 
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
