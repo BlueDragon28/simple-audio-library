@@ -70,6 +70,11 @@ private:
     */
     bool checkStreamInfo(const AbstractAudioFile* const  file) const;
 
+    /*
+    Create the PaStream.
+    */
+    bool createStream();
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     /*
