@@ -78,22 +78,34 @@ bool Player::isPlaying() const
         return false;
 }
 
+/*
+Remove ended file from m_queueOpenedFile and
+add file from m_queueFilePath if m_queueOpenedFile
+is empty or if they have the same stream info
+then the same file in m_queueOpenedFile.
+*/
 void Player::pushFile()
 {
-    if (m_queueOpenedFile.size() >= m_maxInStreamQueue)
+    if (m_queueOpenedFile.size() >= m_maxInStreamQueue ||
+        m_queueFilePath.size() == 0)
         return;
 
-    AbstractAudioFile* pAudioFile = 
-        detectAndOpenFile(m_queueFilePath.at(0));
+    std::unique_ptr<AbstractAudioFile> pAudioFile(
+        detectAndOpenFile(m_queueFilePath.at(0)));
+    
+    if (!pAudioFile)
+    {
+        m_queueFilePath.erase(m_queueFilePath.begin());
+        return;
+    }
 
     if (!m_queueOpenedFile.empty())
     {
-        if (!checkStreamInfo(pAudioFile))
+        if (!checkStreamInfo(pAudioFile.get()))
             return;
     }
 
-    std::unique_ptr<AbstractAudioFile> pStream(pAudioFile);
-    m_queueOpenedFile.push_back(std::move(pStream));
+    m_queueOpenedFile.push_back(std::move(pAudioFile));
 }
 
 /*
