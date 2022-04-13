@@ -187,6 +187,7 @@ void Player::resetStreamInfo()
 {
     Pa_StopStream(m_paStream.get());
     m_paStream.reset();
+    m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
     m_numChannels = 0;
     m_sampleRate = 0;
     m_bytesPerSample = 0;
@@ -222,7 +223,7 @@ bool Player::createStream()
     if (m_paStream)
         m_paStream.reset();
     
-    if (m_queueFilePath.empty())
+    if (m_queueOpenedFile.empty())
         return false;
     
     std::unique_ptr<AbstractAudioFile>& audioFile =
@@ -237,7 +238,6 @@ bool Player::createStream()
         m_bytesPerSample == 0 || m_sampleType == SampleType::UNKNOWN)
     {
         resetStreamInfo();
-        m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
         return false;
     }
 
@@ -259,7 +259,6 @@ bool Player::createStream()
         else
         {
             resetStreamInfo();
-            m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
             return false;
         }
     }
@@ -270,14 +269,12 @@ bool Player::createStream()
         else
         {
             resetStreamInfo();
-            m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
             return false;
         }
     }
     else
     {
         resetStreamInfo();
-        m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
         return false;
     }
     outParams.suggestedLatency = Pa_GetDeviceInfo(defaultOutputDevice)->defaultHighOutputLatency;
