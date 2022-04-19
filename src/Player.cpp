@@ -345,6 +345,32 @@ int Player::streamCallback(
     void* outputBuffer,
     unsigned long framesPerBuffer)
 {
+    if (!m_queueOpenedFile.empty())
+        return paComplete;
+
+    size_t framesWrited = 0;
+
+    for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
+    {
+        while (framesWrited < framesPerBuffer && !audioFile->isEnded())
+        {
+            framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*m_bytesPerSample,
+                framesPerBuffer-framesWrited*m_bytesPerSample);
+
+            if (framesWrited < framesPerBuffer)
+            {
+                audioFile->readFromFile();
+                audioFile->flush();
+            }
+        }
+
+        if (framesWrited == framesPerBuffer)
+            break;
+    }
+
+    if (framesWrited < framesPerBuffer)
+        return paComplete;
+
     return paContinue;
 }
 
