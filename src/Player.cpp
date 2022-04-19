@@ -152,6 +152,7 @@ void Player::pushFile()
     }
 
     m_queueOpenedFile.push_back(std::move(pAudioFile));
+    m_queueFilePath.erase(m_queueFilePath.begin());
 }
 
 /*
