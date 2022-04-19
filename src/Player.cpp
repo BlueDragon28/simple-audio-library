@@ -299,7 +299,10 @@ bool Player::createStream()
         this);
     
     if (err != paNoError)
+    {
+        resetStreamInfo();
         return false;
+    }
     
     Pa_SetStreamFinishedCallback(pStream, Player::staticPortAudioEndStream);
     
