@@ -48,7 +48,7 @@ void Player::open(const std::string& filePath, bool clearQueue)
 
     pushFile();
 
-    if (isCurrentPlaying)
+    if (clearQueue && isCurrentPlaying)
         play();
 }
 
