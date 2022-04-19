@@ -356,4 +356,17 @@ void Player::streamEndCallback()
 {
     resetStreamInfo();
 }
+
+/*
+Read audio data from file and push it
+into the ring buffer.
+*/
+void Player::update()
+{
+    for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
+    {
+        audioFile->readFromFile();
+        audioFile->flush();
+    }
+}
 }

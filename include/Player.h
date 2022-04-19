@@ -45,6 +45,12 @@ public:
     */
     bool isPlaying() const;
 
+    /*
+    Read audio data from file and push it
+    into the ring buffer.
+    */
+    void update();
+
 private:
     /*
     Remove ended file from m_queueOpenedFile and
