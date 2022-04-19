@@ -77,6 +77,7 @@ the temporaty buffer.
 */
 void AbstractAudioFile::readFromFile()
 {
+    std::lock_guard<std::mutex> lock(m_readFromFileMutex);
     if (!m_isOpen || m_endFile)
         return;
 
@@ -141,6 +142,7 @@ Flush the temporary data into the ring buffer.
 */
 void AbstractAudioFile::flush()
 {
+    std::lock_guard<std::mutex> lock(m_readFromFileMutex);
     if (m_tmpTailPos == m_tmpSizeDataWritten || !m_tmpBuffer)
         return;
     

@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <string>
 #include <atomic>
+#include <mutex>
 #include "RingBuffer.h"
 #include "Common.h"
 
@@ -203,6 +204,11 @@ private:
 
     std::string m_filePath;
     bool m_isOpen;
+
+    /*
+    Making readFromFile and Flush thread safe.
+    */
+    std::mutex m_readFromFileMutex;
 
     /*
     Temprary buffer where data is writen
