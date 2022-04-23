@@ -272,7 +272,7 @@ bool Player::createStream()
     if (m_sampleType == SampleType::INT)
     {
         if (m_bytesPerSample == 1)
-            outParams.sampleFormat = paInt8;
+            outParams.sampleFormat = paUInt8;
         else if (m_bytesPerSample == 2)
             outParams.sampleFormat = paInt16;
         else if (m_bytesPerSample == 3)
