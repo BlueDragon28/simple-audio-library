@@ -46,6 +46,12 @@ public:
     bool isPlaying() const;
 
     /*
+    Return true if any of the opened file
+    are ready.
+    */
+    bool isFileReady() const;
+
+    /*
     Read audio data from file and push it
     into the ring buffer and push file from
     m_queueFilePath to m_queueOpenedFile.

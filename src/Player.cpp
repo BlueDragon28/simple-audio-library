@@ -125,6 +125,20 @@ bool Player::isPlaying() const
 }
 
 /*
+Return true if any of the opened file
+are ready.
+*/
+bool Player::isFileReady() const
+{
+    for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
+    {
+        if (file->isOpen() && !file->isEnded())
+            return true;
+    }
+    return false;
+}
+
+/*
 Remove ended file from m_queueOpenedFile and
 add file from m_queueFilePath if m_queueOpenedFile
 is empty or if they have the same stream info
