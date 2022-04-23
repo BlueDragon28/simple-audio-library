@@ -385,7 +385,8 @@ void Player::streamEndCallback()
 
 /*
 Read audio data from file and push it
-into the ring buffer.
+into the ring buffer and push file from
+m_queueFilePath to m_queueOpenedFile.
 */
 void Player::update()
 {
@@ -394,5 +395,7 @@ void Player::update()
         audioFile->readFromFile();
         audioFile->flush();
     }
+
+    pushFile();
 }
 }
