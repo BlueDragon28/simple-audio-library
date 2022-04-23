@@ -396,7 +396,7 @@ is called.
 */
 void Player::streamEndCallback()
 {
-    resetStreamInfo();
+    stop();
 }
 
 /*
