@@ -44,6 +44,8 @@ void Player::open(const std::string& filePath, bool clearQueue)
         stop();
 
     bool isExisting = std::filesystem::exists(filePath);
+    if (!isExisting)
+        return;
     m_queueFilePath.push_back(filePath);
 
     pushFile();
