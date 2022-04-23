@@ -186,13 +186,13 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath)
         file.read(headIdentifier, 4);
 
         // Check if it's an audio file.
-        if (strcmp(headIdentifier, "RIFF") != 0)
+        if (strcmp(headIdentifier, "RIFF") == 0)
         {
             file.seekg(8);
             char waveIdentifier[5];
             memset(waveIdentifier, 0, sizeof(waveIdentifier));
             file.read(waveIdentifier, 4);
-            if (strcmp(waveIdentifier, "WAVE") != 0)
+            if (strcmp(waveIdentifier, "WAVE") == 0)
             {
                 pAudioFile = new WaveAudioFile(filePath);
                 return pAudioFile;
