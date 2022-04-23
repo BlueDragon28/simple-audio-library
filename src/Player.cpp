@@ -206,8 +206,8 @@ void Player::resetStreamInfo()
 {
     Pa_StopStream(m_paStream.get());
     m_paStream.reset();
-    if (!m_queueOpenedFile.empty())
-        m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
+    m_queueFilePath.clear();
+    m_queueOpenedFile.clear();
     m_numChannels = 0;
     m_sampleRate = 0;
     m_bytesPerSample = 0;
