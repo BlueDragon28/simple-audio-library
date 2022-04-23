@@ -361,7 +361,7 @@ int Player::streamCallback(
     void* outputBuffer,
     unsigned long framesPerBuffer)
 {
-    if (!m_queueOpenedFile.empty())
+    if (m_queueOpenedFile.empty())
         return paComplete;
 
     size_t framesWrited = 0;
