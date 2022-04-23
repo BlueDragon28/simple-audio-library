@@ -371,7 +371,7 @@ int Player::streamCallback(
         while (framesWrited < framesPerBuffer && !audioFile->isEnded())
         {
             framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*m_bytesPerSample,
-                framesPerBuffer-framesWrited*m_bytesPerSample);
+                framesPerBuffer-framesWrited);
 
             if (framesWrited < framesPerBuffer)
             {
