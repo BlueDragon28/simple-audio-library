@@ -120,7 +120,7 @@ bool Player::isPlaying() const
         if (m_queueOpenedFile.at(m_queueOpenedFile.size()-1)->isEnded())
             return false;
         else
-            return false;
+            return true;
     }
     else
         return false;
