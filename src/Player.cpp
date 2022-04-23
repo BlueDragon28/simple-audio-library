@@ -104,9 +104,6 @@ Stop playing and delete the queues.
 */
 void Player::stop()
 {
-    Pa_CloseStream(m_paStream.get());
-    m_paStream.reset();
-    m_isPlaying = false;
     resetStreamInfo();
 }
 
@@ -215,6 +212,7 @@ void Player::resetStreamInfo()
     m_sampleRate = 0;
     m_bytesPerSample = 0;
     m_sampleType = SampleType::UNKNOWN;
+    m_isPlaying = false;
 }
 
 /*
