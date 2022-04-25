@@ -443,11 +443,29 @@ void Player::update()
         audioFile->flush();
     }
 
+    clearUnneededStream();
     pushFile();
 }
 
 bool Player::isPaused() const
 {
     return m_isPaused;
+}
+
+/*
+Remove the ended stream of m_queueOpenedFile.
+*/
+void Player::clearUnneededStream()
+{
+    std::lock_guard<std::mutex> openedFileMutex(
+        m_queueOpenedFileMutex);
+    
+    while (m_queueOpenedFile.size() > 0)
+    {
+        if (!m_queueOpenedFile.at(0)->isEnded())
+            break;
+        else
+            m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
+    }
 }
 }

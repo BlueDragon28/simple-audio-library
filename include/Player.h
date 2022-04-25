@@ -95,6 +95,11 @@ private:
     bool createStream();
 
     /*
+    Remove the ended stream of m_queueOpenedFile.
+    */
+    void clearUnneededStream();
+
+    /*
     Static C callback use to make a bridge between
     PortAudio and this class.
     */
