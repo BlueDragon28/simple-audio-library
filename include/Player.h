@@ -46,6 +46,11 @@ public:
     bool isPlaying() const;
 
     /*
+    Return true if the stream is paused and not stopped.
+    */
+    bool isPaused() const;
+
+    /*
     Return true if any of the opened file
     are ready.
     */
@@ -141,6 +146,7 @@ private:
     std::atomic<size_t> m_sampleRate;
     std::atomic<int> m_bytesPerSample;
     std::atomic<SampleType> m_sampleType;
+    std::atomic<bool> m_isPaused;
 };
 }
 

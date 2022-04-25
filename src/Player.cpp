@@ -16,7 +16,10 @@ Player::Player() :
     m_isPlaying(false),
 
     // Maximum of same stream in the m_queueOpenedFile queue.
-    m_maxInStreamQueue(2)
+    m_maxInStreamQueue(2),
+
+    // Indicate if the stream is paused and not stopped.
+    m_isPaused(false)
 {}
 
 Player::~Player()
@@ -67,6 +70,7 @@ void Player::play()
         PaError err = Pa_StartStream(m_paStream.get());
         if (err == paNoError)
             m_isPlaying = true;
+        m_isPaused = false;
     }
     else
     {
@@ -94,6 +98,7 @@ Pause the stream.
 */
 void Player::pause()
 {
+    m_isPaused = true;
     if (m_paStream)
         Pa_StopStream(m_paStream.get());
     m_isPlaying = false;
@@ -213,6 +218,7 @@ void Player::resetStreamInfo()
     m_bytesPerSample = 0;
     m_sampleType = SampleType::UNKNOWN;
     m_isPlaying = false;
+    m_isPaused = false;
 }
 
 /*
@@ -400,7 +406,8 @@ is called.
 */
 void Player::streamEndCallback()
 {
-    stop();
+    if (!m_isPaused)
+        stop();
 }
 
 /*
@@ -417,5 +424,10 @@ void Player::update()
     }
 
     pushFile();
+}
+
+bool Player::isPaused() const
+{
+    return m_isPaused;
 }
 }
