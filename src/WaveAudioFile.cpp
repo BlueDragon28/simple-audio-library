@@ -69,7 +69,7 @@ void WaveAudioFile::open()
         if ((pcmFormat != 1 && pcmFormat != 3 && pcmFormat != 65534) || m_audioFile.fail())
             return;
         SampleType pcmFormatType;
-        if (pcmFormat == 1)
+        if (pcmFormat == 1 || pcmFormat == 65534)
             pcmFormatType = SampleType::INT;
         else if (pcmFormat == 3)
             pcmFormatType = SampleType::FLOAT;
