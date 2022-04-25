@@ -119,6 +119,28 @@ void WaveAudioFile::open()
         m_audioFile.read(nextIdentifier, 4);
         if (m_audioFile.fail())
             return;
+
+        // Read "fact" section if available.
+        if (strcmp(nextIdentifier, "fact") == 0)
+        {
+            // "fact" size.
+            int factSize = 0;
+            m_audioFile.read((char*)&factSize, 4);
+            if (factSize <= 0 || m_audioFile.fail())
+                return;
+            
+            // Reading the fact section without processing it.
+            char factData[factSize+1];
+            memset(factData, 0, factSize+1);
+            m_audioFile.read(factData, factSize);
+            if (m_audioFile.fail())
+                return;
+            
+            // Read the identifier of the next section.
+            m_audioFile.read(nextIdentifier, 4);
+            if (m_audioFile.fail())
+                return;
+        }
         
         // If next identifier is "LIST" identifier.
         if (strcmp(nextIdentifier, "LIST") == 0)
