@@ -7,6 +7,7 @@
 #include <string>
 #include <memory>
 #include <atomic>
+#include <mutex>
 
 namespace SAL
 {
@@ -124,14 +125,17 @@ private:
 
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
+    std::mutex m_queueFilePathMutex;
     /*
     Current streamed file and the next file that have the same
     channels, bit depth, samplerate, sampleType.
     */
     std::vector<std::unique_ptr<AbstractAudioFile>> m_queueOpenedFile;
+    std::mutex m_queueOpenedFileMutex;
 
     // PortAudio stream interface.
     std::unique_ptr<PaStream, decltype(&Pa_CloseStream)> m_paStream;
+    std::mutex m_paStreamMutex;
 
     // If the stream is playing or not.
     std::atomic<bool> m_isPlaying;
