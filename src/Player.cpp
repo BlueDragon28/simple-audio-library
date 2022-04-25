@@ -383,7 +383,13 @@ int Player::streamCallback(
     }
 
     if (framesWrited < framesPerBuffer)
+    {
+        memset(
+            static_cast<char*>(outputBuffer)+framesWrited*m_bytesPerSample,
+            0,
+            (framesPerBuffer-framesWrited)*m_bytesPerSample);
         return paComplete;
+    }
 
     return paContinue;
 }
