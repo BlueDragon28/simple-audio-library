@@ -285,7 +285,7 @@ bool Player::createStream()
     }
     else if (m_sampleType == SampleType::FLOAT)
     {
-        if (m_bytesPerSample == 32)
+        if (m_bytesPerSample == 4)
             outParams.sampleFormat = paFloat32;
         else
         {
