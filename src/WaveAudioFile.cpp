@@ -66,13 +66,13 @@ void WaveAudioFile::open()
         // PCM format
         unsigned short pcmFormat = 0;
         m_audioFile.read((char*)&pcmFormat, 2);
-        if ((pcmFormat != 1 && pcmFormat != 3 && pcmFormat != 65534) || m_audioFile.fail())
+        if ((pcmFormat != 1 /*&& pcmFormat != 3*/ && pcmFormat != 65534) || m_audioFile.fail())
             return;
         SampleType pcmFormatType;
         if (pcmFormat == 1 || pcmFormat == 65534)
             pcmFormatType = SampleType::INT;
-        else if (pcmFormat == 3)
-            pcmFormatType = SampleType::FLOAT;
+        /*else if (pcmFormat == 3)
+            pcmFormatType = SampleType::FLOAT;*/
         
         // Channels
         short channels = 0;
