@@ -64,9 +64,9 @@ void WaveAudioFile::open()
             return;
         
         // PCM format
-        short pcmFormat = 0;
+        unsigned short pcmFormat = 0;
         m_audioFile.read((char*)&pcmFormat, 2);
-        if ((pcmFormat != 1 && pcmFormat != 3) || m_audioFile.fail())
+        if ((pcmFormat != 1 && pcmFormat != 3 && pcmFormat != 65534) || m_audioFile.fail())
             return;
         SampleType pcmFormatType;
         if (pcmFormat == 1)
