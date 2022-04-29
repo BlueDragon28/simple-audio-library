@@ -3,9 +3,12 @@
 
 namespace SAL
 {
-PortAudioRAII::PortAudioRAII()
+PortAudioRAII::PortAudioRAII() :
+    m_isInit(false)
 {
-    Pa_Initialize();
+    PaError err = Pa_Initialize();
+    if (err == paNoError)
+        m_isInit = true;
 }
 
 PortAudioRAII::~PortAudioRAII()
