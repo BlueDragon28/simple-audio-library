@@ -38,12 +38,19 @@ public:
 
 private:
     std::queue<EventData> m_queue;
-    std::mutex m_queueMutex;
+    mutable std::mutex m_queueMutex;
 };
 
-inline bool EventList::containEvent() const {return !m_queue.empty();}
+inline bool EventList::containEvent() const 
+{
+    std::scoped_lock lock(m_queueMutex);
+    return !m_queue.empty();
+}
 inline void EventList::push(EventType type, EventVariant data)
-    {m_queue.push({type, data});}
+{
+    std::scoped_lock lock(m_queueMutex);
+    m_queue.push({type, data});
+}
 }
 
 #endif // SIMPLE_AUDIO_LIBRARY_EVENTLIST_H_

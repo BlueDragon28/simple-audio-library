@@ -16,6 +16,7 @@ EventData EventList::get()
 {
     if (containEvent())
     {
+        std::scoped_lock lock(m_queueMutex);
         EventData data = m_queue.front();
         m_queue.pop();
         return data;
