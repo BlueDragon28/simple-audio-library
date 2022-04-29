@@ -114,6 +114,10 @@ Stop playing and delete the queues.
 */
 void Player::stop()
 {
+    std::lock_guard<std::mutex> queueFilePathLock(
+        m_queueFilePathMutex);
+    m_queueFilePath.clear();
+    m_isPlaying = false;
     resetStreamInfo();
 }
 
