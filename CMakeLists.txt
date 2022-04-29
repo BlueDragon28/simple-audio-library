@@ -16,7 +16,8 @@ set(PROJECT_SOURCES
     "src/RingBuffer.cpp"
     "src/AbstractAudioFile.cpp"
     "src/WaveAudioFile.cpp"
-    "src/Player.cpp")
+    "src/Player.cpp"
+    "src/EventList.cpp")
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
