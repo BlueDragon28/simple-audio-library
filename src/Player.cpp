@@ -442,14 +442,26 @@ m_queueFilePath to m_queueOpenedFile.
 */
 void Player::update()
 {
+    m_queueOpenedFileMutex.lock();
     for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
     {
         audioFile->readFromFile();
         audioFile->flush();
     }
+    m_queueOpenedFileMutex.unlock();
 
     clearUnneededStream();
     pushFile();
+
+    m_queueFilePathMutex.lock();
+    m_queueOpenedFileMutex.lock();
+    if (m_isPlaying && m_queueFilePath.empty() && m_queueOpenedFile.empty())
+    {
+        m_isPlaying = false;
+        m_isPaused = false;
+    }
+    m_queueOpenedFileMutex.unlock();
+    m_queueFilePathMutex.unlock();
 }
 
 bool Player::isPaused() const
