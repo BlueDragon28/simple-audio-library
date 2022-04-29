@@ -127,6 +127,7 @@ Return true if the stream if playing.
 */
 bool Player::isPlaying() const
 {
+    std::scoped_lock lock(m_queueOpenedFileMutex);
     if (m_isPlaying && !m_queueOpenedFile.empty())
     {
         if (m_queueOpenedFile.at(m_queueOpenedFile.size()-1)->isEnded())

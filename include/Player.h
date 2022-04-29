@@ -136,7 +136,7 @@ private:
     channels, bit depth, samplerate, sampleType.
     */
     std::vector<std::unique_ptr<AbstractAudioFile>> m_queueOpenedFile;
-    std::mutex m_queueOpenedFileMutex;
+    mutable std::mutex m_queueOpenedFileMutex;
 
     // PortAudio stream interface.
     std::unique_ptr<PaStream, decltype(&Pa_CloseStream)> m_paStream;
