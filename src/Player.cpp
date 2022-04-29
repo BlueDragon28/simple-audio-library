@@ -218,21 +218,22 @@ Reset stream info.
 */
 void Player::resetStreamInfo()
 {
-    std::lock_guard<std::mutex> filePathMutex(
-        m_queueFilePathMutex);
     std::lock_guard<std::mutex> openedFileMutex(
         m_queueOpenedFileMutex);
     std::lock_guard<std::mutex> streamLock(m_paStreamMutex);
     Pa_StopStream(m_paStream.get());
     m_paStream.reset();
-    m_queueFilePath.clear();
     m_queueOpenedFile.clear();
     m_numChannels = 0;
     m_sampleRate = 0;
     m_bytesPerSample = 0;
     m_sampleType = SampleType::UNKNOWN;
-    m_isPlaying = false;
     m_isPaused = false;
+    if (m_isPlaying)
+    {
+        if (m_queueFilePath.empty())
+            m_isPlaying = false;
+    }
 }
 
 /*
@@ -427,7 +428,7 @@ is called.
 void Player::streamEndCallback()
 {
     if (!m_isPaused)
-        stop();
+        resetStreamInfo();
 }
 
 /*
