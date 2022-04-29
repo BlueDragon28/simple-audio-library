@@ -49,9 +49,11 @@ void Player::open(const std::string& filePath, bool clearQueue)
     bool isExisting = std::filesystem::exists(filePath);
     if (!isExisting)
         return;
-    m_queueFilePathMutex.lock();
-    m_queueFilePath.push_back(filePath);
-    m_queueFilePathMutex.unlock();
+    
+    {
+        std::scoped_lock lock(m_queueFilePathMutex);
+        m_queueFilePath.push_back(filePath);
+    }
 
     pushFile();
 
@@ -67,7 +69,7 @@ void Player::play()
     if (m_isPlaying)
         return;
     
-    std::lock_guard<std::mutex> streamLock(m_paStreamMutex);
+    std::scoped_lock lock(m_paStreamMutex);
     
     if (m_paStream)
     {
@@ -102,7 +104,7 @@ Pause the stream.
 */
 void Player::pause()
 {
-    std::lock_guard<std::mutex> streamLock(m_paStreamMutex);
+    std::scoped_lock lock(m_paStreamMutex);
     m_isPaused = true;
     if (m_paStream)
         Pa_StopStream(m_paStream.get());
@@ -114,8 +116,7 @@ Stop playing and delete the queues.
 */
 void Player::stop()
 {
-    std::lock_guard<std::mutex> queueFilePathLock(
-        m_queueFilePathMutex);
+    std::scoped_lock lock(m_queueFilePathMutex);
     m_queueFilePath.clear();
     m_isPlaying = false;
     resetStreamInfo();
@@ -159,10 +160,7 @@ then the same file in m_queueOpenedFile.
 */
 void Player::pushFile()
 {
-    std::lock_guard<std::mutex> filePathMutex(
-        m_queueFilePathMutex);
-    std::lock_guard<std::mutex> openedFileMutex(
-        m_queueOpenedFileMutex);
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_queueOpenedFile.size() >= m_maxInStreamQueue ||
         m_queueFilePath.size() == 0)
         return;
@@ -222,9 +220,7 @@ Reset stream info.
 */
 void Player::resetStreamInfo()
 {
-    std::lock_guard<std::mutex> openedFileMutex(
-        m_queueOpenedFileMutex);
-    std::lock_guard<std::mutex> streamLock(m_paStreamMutex);
+    std::scoped_lock lock(m_queueOpenedFileMutex, m_paStreamMutex);
     Pa_StopStream(m_paStream.get());
     m_paStream.reset();
     m_queueOpenedFile.clear();
@@ -266,7 +262,7 @@ Create the PaStream.
 */
 bool Player::createStream()
 {
-    std::lock_guard<std::mutex> openedFileMutex(
+    std::scoped_lock openedFileMutex(
         m_queueOpenedFileMutex);
     if (m_paStream)
         m_paStream.reset();
@@ -386,10 +382,7 @@ int Player::streamCallback(
     void* outputBuffer,
     unsigned long framesPerBuffer)
 {
-    std::lock_guard<std::mutex> filePathMutex(
-        m_queueFilePathMutex);
-    std::lock_guard<std::mutex> openedFileMutex(
-        m_queueOpenedFileMutex);
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_queueOpenedFile.empty())
         return paComplete;
 
@@ -442,26 +435,24 @@ m_queueFilePath to m_queueOpenedFile.
 */
 void Player::update()
 {
-    m_queueOpenedFileMutex.lock();
-    for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
     {
-        audioFile->readFromFile();
-        audioFile->flush();
+        std::scoped_lock lock(m_queueOpenedFileMutex);
+        for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
+        {
+            audioFile->readFromFile();
+            audioFile->flush();
+        }
     }
-    m_queueOpenedFileMutex.unlock();
 
     clearUnneededStream();
     pushFile();
 
-    m_queueFilePathMutex.lock();
-    m_queueOpenedFileMutex.lock();
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_isPlaying && m_queueFilePath.empty() && m_queueOpenedFile.empty())
     {
         m_isPlaying = false;
         m_isPaused = false;
     }
-    m_queueOpenedFileMutex.unlock();
-    m_queueFilePathMutex.unlock();
 }
 
 bool Player::isPaused() const
@@ -474,8 +465,7 @@ Remove the ended stream of m_queueOpenedFile.
 */
 void Player::clearUnneededStream()
 {
-    std::lock_guard<std::mutex> openedFileMutex(
-        m_queueOpenedFileMutex);
+    std::scoped_lock lock(m_queueOpenedFileMutex);
     
     while (m_queueOpenedFile.size() > 0)
     {
