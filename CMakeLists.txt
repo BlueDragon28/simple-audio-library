@@ -17,7 +17,8 @@ set(PROJECT_SOURCES
     "src/AbstractAudioFile.cpp"
     "src/WaveAudioFile.cpp"
     "src/Player.cpp"
-    "src/EventList.cpp")
+    "src/EventList.cpp"
+    "src/PortAudioRAII.cpp")
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
