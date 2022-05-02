@@ -23,7 +23,7 @@ public:
     /*
     Push an event into the queue.
     */
-    void push(EventType type, const EventVariant& data);
+    void push(EventType type, const EventVariant& data = EventVariant());
 
     /*
     Retrieve an event (if available) and

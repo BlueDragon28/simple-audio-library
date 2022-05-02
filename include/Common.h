@@ -16,7 +16,11 @@ enum class SampleType
 enum class EventType
 {
     INVALID,
-    OPEN_FILE
+    OPEN_FILE,
+    PLAY,
+    PAUSE,
+    STOP,
+    QUIT
 };
 
 struct LoadFile

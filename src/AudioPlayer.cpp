@@ -39,7 +39,7 @@ AudioPlayer::~AudioPlayer()
 
 void AudioPlayer::open(const std::string& filePath, bool clearQueue)
 {
-    if (!m_isInit)
+    if (!isRunning())
         return;
     
     LoadFile loadFile = { filePath, clearQueue };
@@ -90,6 +90,31 @@ void AudioPlayer::processEvents()
                 continue;
             }
             m_player->open(fileInfo.filePath, fileInfo.clearQueue);
+        } break;
+
+        // Play
+        case EventType::PLAY:
+        {
+            m_player->play();
+        } break;
+
+        // Pause
+        case EventType::PAUSE:
+        {
+            m_player->pause();
+        } break;
+
+        // Stop
+        case EventType::STOP:
+        {
+            m_player->stop();
+        } break;
+
+        // Quit
+        case EventType::QUIT:
+        {
+            m_player->stop();
+            m_isRunning = false;
         } break;
         
         // Invalid event.

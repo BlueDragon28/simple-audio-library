@@ -60,6 +60,26 @@ public:
     */
     void open(const std::string& filePath, bool clearQueue);
 
+    /*
+    Play the audio stream.
+    */
+    inline void play() noexcept;
+
+    /*
+    Pause the audio stream.
+    */
+    inline void pause() noexcept;
+
+    /*
+    Stop the audio stream and clear file queue.
+    */
+    inline void stop() noexcept;
+
+    /*
+    Stop the loop of AudioPlayer and stop playing audio stream.
+    */
+    inline void quit() noexcept;
+
 private:
     /*
     This loop is executed in another thread
@@ -147,6 +167,42 @@ inline void AudioPlayer::destroy(AudioPlayer* ptr)
 {
     doNotReset = true;
     delete ptr;
+}
+
+/*
+Play the audio stream.
+*/
+inline void AudioPlayer::play() noexcept
+{
+    if (isRunning())
+        m_events.push(EventType::PLAY);
+}
+
+/*
+Pause the audio stream.
+*/
+inline void AudioPlayer::pause() noexcept
+{
+    if (isRunning())
+        m_events.push(EventType::PAUSE);
+}
+
+/*
+Stop the audio stream and clear file queue.
+*/
+inline void AudioPlayer::stop() noexcept
+{
+    if (isRunning())
+        m_events.push(EventType::STOP);
+}
+
+/*
+Stop the loop of AudioPlayer and stop playing audio stream.
+*/
+inline void AudioPlayer::quit() noexcept
+{
+    if (isRunning())
+        m_events.push(EventType::QUIT);
 }
 }
 
