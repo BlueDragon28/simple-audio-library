@@ -10,7 +10,8 @@ bool AudioPlayer::doNotReset = false;
 
 AudioPlayer::AudioPlayer() :
     m_isInit(false),
-    m_isRunning(false)
+    m_isRunning(false),
+    m_sleepTime(50)
 {
     m_pa = std::unique_ptr<PortAudioRAII>(new PortAudioRAII());
     if (m_pa->isInit())
@@ -59,6 +60,9 @@ void AudioPlayer::loop()
     {
         // Processing events.
         processEvents();
+
+        // Wait time before next iteration.
+        std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
     }
 }
 

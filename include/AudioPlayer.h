@@ -81,6 +81,8 @@ private:
 
     bool m_isInit;
     bool m_isRunning;
+    // Time in milliseconds the loop will wait after each iteration.
+    int m_sleepTime;
     std::unique_ptr<PortAudioRAII> m_pa;
     std::unique_ptr<Player> m_player;
 
