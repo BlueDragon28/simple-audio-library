@@ -23,7 +23,7 @@ public:
     /*
     Push an event into the queue.
     */
-    void push(EventType type, EventVariant data);
+    void push(EventType type, const EventVariant& data);
 
     /*
     Retrieve an event (if available) and
@@ -46,7 +46,7 @@ inline bool EventList::containEvent() const
     std::scoped_lock lock(m_queueMutex);
     return !m_queue.empty();
 }
-inline void EventList::push(EventType type, EventVariant data)
+inline void EventList::push(EventType type, const EventVariant& data)
 {
     std::scoped_lock lock(m_queueMutex);
     m_queue.push({type, data});
