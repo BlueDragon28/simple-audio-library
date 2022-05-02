@@ -70,6 +70,11 @@ private:
     void loop();
 
     /*
+    Process the event send by the user.
+    */
+    void processEvents();
+
+    /*
     The thread where the loop is executed.
     */
     std::thread m_loopThread;

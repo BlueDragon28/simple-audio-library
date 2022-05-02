@@ -34,14 +34,14 @@ public:
     /*
     Return true if queue is not empty.
     */
-    inline bool containEvent() const;
+    inline bool containEvents() const;
 
 private:
     std::queue<EventData> m_queue;
     mutable std::mutex m_queueMutex;
 };
 
-inline bool EventList::containEvent() const 
+inline bool EventList::containEvents() const 
 {
     std::scoped_lock lock(m_queueMutex);
     return !m_queue.empty();

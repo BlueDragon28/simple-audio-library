@@ -14,7 +14,7 @@ remove it from the queue.
 */
 EventData EventList::get()
 {
-    if (containEvent())
+    if (containEvents())
     {
         std::scoped_lock lock(m_queueMutex);
         EventData data = m_queue.front();

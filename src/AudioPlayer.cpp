@@ -57,6 +57,44 @@ void AudioPlayer::loop()
     
     while (isRunning())
     {
+        // Processing events.
+        processEvents();
+    }
+}
+
+/*
+Process the event send by the user.
+*/
+void AudioPlayer::processEvents()
+{
+    while (m_events.containEvents())
+    {
+        EventData event = m_events.get();
+
+        switch (event.type)
+        {
+        // Open a file
+        case EventType::OPEN_FILE:
+        {
+            LoadFile fileInfo;
+            try
+            {
+                fileInfo = std::get<LoadFile>(event.data);
+            }
+            catch (const std::bad_variant_access&)
+            {
+                continue;
+            }
+            m_player->open(fileInfo.filePath, fileInfo.clearQueue);
+        } break;
+        
+        // Invalid event.
+        case EventType::INVALID:
+        default:
+        {
+            continue;
+        } break;
+        }
     }
 }
 }
