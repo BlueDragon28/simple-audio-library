@@ -44,6 +44,12 @@ public:
     inline bool isInit() const;
 
     /*
+    Return true if the PortAudio API is initialized
+    and if the processing loop is running.
+    */
+    inline bool isRunning() const;
+
+    /*
     Event to send to be processed.
     */
 
@@ -55,6 +61,19 @@ public:
     void open(const std::string& filePath, bool clearQueue);
 
 private:
+    /*
+    This loop is executed in another thread
+    and wait until the user want the api to stop.
+    The loop process every event and send them to
+    the Player and update the audio buffers.
+    */
+    void loop();
+
+    /*
+    The thread where the loop is executed.
+    */
+    std::thread m_loopThread;
+
     bool m_isInit;
     bool m_isRunning;
     std::unique_ptr<PortAudioRAII> m_pa;
@@ -86,6 +105,18 @@ private:
 Return true if the PortAudio API is initialized.
 */
 inline bool AudioPlayer::isInit() const { return m_isInit; }
+
+/*
+Return true if the PortAudio API is initialized
+and if the processing loop is running.
+*/
+inline bool AudioPlayer::isRunning() const
+{
+    if (isInit())
+        return m_isRunning;
+    else
+        return false;
+}
 
 /*
 Create or return the existing instance

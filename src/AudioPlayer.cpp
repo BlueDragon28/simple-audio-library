@@ -16,8 +16,9 @@ AudioPlayer::AudioPlayer() :
     if (m_pa->isInit())
     {
         m_isInit = true;
-        m_isRunning = false;
+        m_isRunning = true;
         m_player = std::unique_ptr<Player>(new Player());
+        m_loopThread = std::thread(&AudioPlayer::loop, this);
     }
 }
 
@@ -28,6 +29,11 @@ AudioPlayer::~AudioPlayer()
     // by itself.
     if (!doNotReset)
         obj.release();
+
+    // Stopping the loop and wait for the thread to stop.
+    m_isRunning = false;
+    if (m_loopThread.joinable())
+        m_loopThread.join();
 }
 
 void AudioPlayer::open(const std::string& filePath, bool clearQueue)
@@ -37,5 +43,20 @@ void AudioPlayer::open(const std::string& filePath, bool clearQueue)
     
     LoadFile loadFile = { filePath, clearQueue };
     m_events.push(EventType::OPEN_FILE, loadFile);
+}
+
+/*
+Add a file into the playing list.
+filePath: the file path to open.
+clearQueue: stop file played and clear queue.
+*/
+void AudioPlayer::loop()
+{
+    if (!m_isInit)
+        return;
+    
+    while (isRunning())
+    {
+    }
 }
 }
