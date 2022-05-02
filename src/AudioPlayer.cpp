@@ -1,4 +1,5 @@
 #include "AudioPlayer.h"
+#include "Common.h"
 #include <chrono>
 
 namespace SAL
@@ -27,5 +28,14 @@ AudioPlayer::~AudioPlayer()
     // by itself.
     if (!doNotReset)
         obj.release();
+}
+
+void AudioPlayer::open(const std::string& filePath, bool clearQueue)
+{
+    if (!m_isInit)
+        return;
+    
+    LoadFile loadFile = { filePath, clearQueue };
+    m_events.push(EventType::OPEN_FILE, loadFile);
 }
 }

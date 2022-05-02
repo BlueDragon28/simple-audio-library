@@ -1,7 +1,6 @@
 #ifndef SIMPLE_AUDIO_LIBRARY_AUDIOPLAYER_H_
 #define SIMPLE_AUDIO_LIBRARY_AUDIOPLAYER_H_
 
-#include "Common.h"
 #include "Player.h"
 #include "EventList.h"
 #include "PortAudioRAII.h"
@@ -44,11 +43,29 @@ public:
     */
     inline bool isInit() const;
 
+    /*
+    Event to send to be processed.
+    */
+
+    /*
+    Add a file into the playing list.
+    filePath: the file path to open.
+    clearQueue: stop file played and clear queue.
+    */
+    void open(const std::string& filePath, bool clearQueue);
+
 private:
     bool m_isInit;
     bool m_isRunning;
     std::unique_ptr<PortAudioRAII> m_pa;
     std::unique_ptr<Player> m_player;
+
+    /*
+    An event list to store in an array
+    all the event of the user to process them
+    in the main loop.
+    */
+    EventList m_events;
 
     /*
     Only one instance of AudioPlayer is possible.

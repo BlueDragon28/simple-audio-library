@@ -19,8 +19,14 @@ enum class EventType
     OPEN_FILE
 };
 
+struct LoadFile
+{
+    std::string filePath;
+    bool clearQueue;
+};
+
 typedef std::variant<std::monostate,
-                 std::string> EventVariant;
+                 LoadFile> EventVariant;
 
 struct EventData
 {
