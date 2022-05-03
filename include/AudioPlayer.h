@@ -171,7 +171,7 @@ Is files are ready to be playing or playing.
 */
 inline bool AudioPlayer::isReady() const
 {
-    if (!isRunning())
+    if (isRunning())
         return m_player->isFileReady();
     else
         return false;
