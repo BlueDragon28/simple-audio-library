@@ -128,6 +128,7 @@ void AudioPlayer::processEvents()
         } break;
         
         // Invalid event.
+        case EventType::WAIT_EVENT:
         case EventType::INVALID:
         default:
         {
@@ -135,5 +136,47 @@ void AudioPlayer::processEvents()
         } break;
         }
     }
+}
+
+/*
+Return true if the player is playing.
+*/
+bool AudioPlayer::isPlaying()
+{
+    if (isRunning())
+    {
+        /*
+        Push an wait event id into the event queue
+        and wait until it disappear.
+        */
+        int maxID = m_events.maxWaitEvent()+1;
+        m_events.push(EventType::WAIT_EVENT, maxID);
+        while (m_events.isWaitEventIDPresent(maxID))
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
+        return m_player->isPlaying();
+    }
+    else
+        return false;
+}
+
+/*
+Is files are ready to be playing or playing.
+*/
+bool AudioPlayer::isReady()
+{
+    if (isRunning())
+    {
+        /*
+        Push an wait event id into the event queue
+        and wait until it disappear.
+        */
+        int maxID = m_events.maxWaitEvent()+1;
+        m_events.push(EventType::WAIT_EVENT, maxID);
+        while (m_events.isWaitEventIDPresent(maxID))
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
+        return m_player->isFileReady();
+    }
+    else
+        return false;
 }
 }

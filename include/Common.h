@@ -20,7 +20,8 @@ enum class EventType
     PLAY,
     PAUSE,
     STOP,
-    QUIT
+    QUIT,
+    WAIT_EVENT
 };
 
 struct LoadFile
@@ -30,6 +31,7 @@ struct LoadFile
 };
 
 typedef std::variant<std::monostate,
+                 int,
                  LoadFile> EventVariant;
 
 struct EventData

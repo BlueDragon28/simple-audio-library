@@ -4,7 +4,7 @@
 #include "Common.h"
 #include <string>
 #include <variant>
-#include <queue>
+#include <list>
 #include <mutex>
 
 namespace SAL
@@ -36,8 +36,18 @@ public:
     */
     inline bool containEvents() const;
 
+    /*
+    Return the max ID of WAIT_EVENT event.
+    */
+    int maxWaitEvent() const;
+
+    /*
+    Return true if WAIT_EVENT ID is in the queue.
+    */
+    bool isWaitEventIDPresent(int id) const;
+
 private:
-    std::queue<EventData> m_queue;
+    std::list<EventData> m_queue;
     mutable std::mutex m_queueMutex;
 };
 
@@ -49,7 +59,7 @@ inline bool EventList::containEvents() const
 inline void EventList::push(EventType type, const EventVariant& data)
 {
     std::scoped_lock lock(m_queueMutex);
-    m_queue.push({type, data});
+    m_queue.push_back({type, data});
 }
 }
 

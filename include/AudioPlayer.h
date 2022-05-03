@@ -52,12 +52,12 @@ public:
     /*
     Return true if the player is playing.
     */
-    inline bool isPlaying() const;
+    bool isPlaying();
 
     /*
     Is files are ready to be playing or playing.
     */
-    inline bool isReady() const;
+    bool isReady();
 
     /*
     Event to send to be processed.
@@ -112,7 +112,7 @@ private:
     bool m_isInit;
     bool m_isRunning;
     // Time in milliseconds the loop will wait after each iteration.
-    int m_sleepTime;
+    std::atomic<int> m_sleepTime;
     std::unique_ptr<PortAudioRAII> m_pa;
     std::unique_ptr<Player> m_player;
 
@@ -151,28 +151,6 @@ inline bool AudioPlayer::isRunning() const
 {
     if (isInit())
         return m_isRunning;
-    else
-        return false;
-}
-
-/*
-Return true if the player is playing.
-*/
-inline bool AudioPlayer::isPlaying() const
-{
-    if (isRunning())
-        return m_player->isPlaying();
-    else
-        return false;
-}
-
-/*
-Is files are ready to be playing or playing.
-*/
-inline bool AudioPlayer::isReady() const
-{
-    if (isRunning())
-        return m_player->isFileReady();
     else
         return false;
 }
