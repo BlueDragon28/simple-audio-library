@@ -100,6 +100,12 @@ private:
     void clearUnneededStream();
 
     /*
+    Recreate the PortAudio stream for new files
+    with different stream info.
+    */
+    void recreateStream();
+
+    /*
     Static C callback use to make a bridge between
     PortAudio and this class.
     */

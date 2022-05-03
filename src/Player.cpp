@@ -232,7 +232,7 @@ void Player::resetStreamInfo()
     m_isPaused = false;
     if (m_isPlaying)
     {
-        if (m_queueFilePath.empty())
+        if (m_queueFilePath.empty() && m_queueOpenedFile.empty())
             m_isPlaying = false;
     }
 }
@@ -447,6 +447,7 @@ void Player::update()
 
     clearUnneededStream();
     pushFile();
+    recreateStream();
 
     std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_isPlaying && m_queueFilePath.empty() && m_queueOpenedFile.empty())
@@ -474,6 +475,35 @@ void Player::clearUnneededStream()
             break;
         else
             m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
+    }
+}
+
+/*
+Recreate the PortAudio stream for new files
+with different stream info.
+*/
+void Player::recreateStream()
+{
+    if (!m_isPlaying)
+        return;
+    
+    if (!m_paStream)
+    {
+        if (!m_queueOpenedFile.empty())
+        {
+            if (!createStream())
+            {
+                resetStreamInfo();
+                m_isPlaying = false;
+            }
+            
+            std::scoped_lock lock(m_paStreamMutex);
+            PaError err = Pa_StartStream(m_paStream.get());
+            if (err == paNoError)
+                m_isPlaying = true;
+            else
+                m_isPaused = false;
+        }
     }
 }
 }
