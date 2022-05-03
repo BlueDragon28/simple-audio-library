@@ -2,6 +2,9 @@
 #include "Common.h"
 #include <chrono>
 
+#define SLEEP_PLAYING 10
+#define SLEEP_PAUSED 50
+
 namespace SAL
 {
 AudioPlayer::AudioPlayerPtr AudioPlayer::obj =
@@ -11,7 +14,7 @@ bool AudioPlayer::doNotReset = false;
 AudioPlayer::AudioPlayer() :
     m_isInit(false),
     m_isRunning(false),
-    m_sleepTime(50)
+    m_sleepTime(SLEEP_PAUSED)
 {
     m_pa = std::unique_ptr<PortAudioRAII>(new PortAudioRAII());
     if (m_pa->isInit())
@@ -96,18 +99,21 @@ void AudioPlayer::processEvents()
         case EventType::PLAY:
         {
             m_player->play();
+            m_sleepTime = SLEEP_PLAYING;
         } break;
 
         // Pause
         case EventType::PAUSE:
         {
             m_player->pause();
+            m_sleepTime = SLEEP_PAUSED;
         } break;
 
         // Stop
         case EventType::STOP:
         {
             m_player->stop();
+            m_sleepTime = SLEEP_PAUSED;
         } break;
 
         // Quit
