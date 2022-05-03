@@ -55,6 +55,11 @@ public:
     inline bool isPlaying() const;
 
     /*
+    Is files are ready to be playing or playing.
+    */
+    inline bool isReady() const;
+
+    /*
     Event to send to be processed.
     */
 
@@ -157,6 +162,17 @@ inline bool AudioPlayer::isPlaying() const
 {
     if (isRunning())
         return m_player->isPlaying();
+    else
+        return false;
+}
+
+/*
+Is files are ready to be playing or playing.
+*/
+inline bool AudioPlayer::isReady() const
+{
+    if (!isRunning())
+        return m_player->isFileReady();
     else
         return false;
 }
