@@ -68,7 +68,7 @@ public:
     filePath: the file path to open.
     clearQueue: stop file played and clear queue.
     */
-    void open(const std::string& filePath, bool clearQueue);
+    void open(const std::string& filePath, bool clearQueue = false);
 
     /*
     Play the audio stream.
