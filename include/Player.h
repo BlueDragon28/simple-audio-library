@@ -106,6 +106,18 @@ private:
     void recreateStream();
 
     /*
+    Update audio stream buffer.
+    Read from the audio files and push the data
+    into the ring buffer.
+    */
+    void updateStreamBuffer();
+
+    /*
+    Set m_isPlaying to false if there is no audio file to stream.
+    */
+    void checkIfNoStream();
+
+    /*
     Static C callback use to make a bridge between
     PortAudio and this class.
     */

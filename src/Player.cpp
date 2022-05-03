@@ -436,25 +436,11 @@ m_queueFilePath to m_queueOpenedFile.
 */
 void Player::update()
 {
-    {
-        std::scoped_lock lock(m_queueOpenedFileMutex);
-        for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
-        {
-            audioFile->readFromFile();
-            audioFile->flush();
-        }
-    }
-
+    updateStreamBuffer();
     clearUnneededStream();
     pushFile();
     recreateStream();
-
-    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
-    if (m_isPlaying && m_queueFilePath.empty() && m_queueOpenedFile.empty())
-    {
-        m_isPlaying = false;
-        m_isPaused = false;
-    }
+    checkIfNoStream();
 }
 
 bool Player::isPaused() const
@@ -504,6 +490,36 @@ void Player::recreateStream()
             else
                 m_isPaused = false;
         }
+    }
+}
+
+/*
+Update audio stream buffer.
+Read from the audio files and push the data
+into the ring buffer.
+*/
+void Player::updateStreamBuffer()
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
+    {
+        audioFile->readFromFile();
+        audioFile->flush();
+    }
+}
+
+/*
+Update audio stream buffer.
+Read from the audio files and push the data
+into the ring buffer.
+*/
+void Player::checkIfNoStream()
+{
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
+    if (m_isPlaying && m_queueFilePath.empty() && m_queueOpenedFile.empty())
+    {
+        m_isPlaying = false;
+        m_isPaused = false;
     }
 }
 }
