@@ -50,6 +50,11 @@ public:
     inline bool isRunning() const;
 
     /*
+    Return true if the player is playing.
+    */
+    inline bool isPlaying() const;
+
+    /*
     Event to send to be processed.
     */
 
@@ -141,6 +146,17 @@ inline bool AudioPlayer::isRunning() const
 {
     if (isInit())
         return m_isRunning;
+    else
+        return false;
+}
+
+/*
+Return true if the player is playing.
+*/
+inline bool AudioPlayer::isPlaying() const
+{
+    if (isRunning())
+        return m_player->isPlaying();
     else
         return false;
 }
