@@ -96,8 +96,8 @@ void WaveAudioFile::open()
         short bitsPerSample = 0;
         m_audioFile.read((char*)&bitsPerSample, 2);
         if (bitsPerSample != 8 && bitsPerSample != 16 && 
-            bitsPerSample != 24 && bitsPerSample != 32 &&
-            bitsPerSample != 64 || m_audioFile.fail())
+            bitsPerSample != 24 && bitsPerSample != 32 ||
+            m_audioFile.fail())
             return;
         
         // Read extra bytes.
