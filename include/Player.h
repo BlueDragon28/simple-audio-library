@@ -58,6 +58,16 @@ public:
     bool isFileReady() const;
 
     /*
+    Return stream size in frames.
+    */
+    size_t streamSizeInFrames() const;
+
+    /*
+    Return stream pos in frames.
+    */
+    size_t streamPosInFrames() const;
+
+    /*
     Read audio data from file and push it
     into the ring buffer and push file from
     m_queueFilePath to m_queueOpenedFile.

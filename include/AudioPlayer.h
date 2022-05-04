@@ -60,6 +60,16 @@ public:
     bool isReady();
 
     /*
+    Return stream size in frames.
+    */
+    inline size_t streamSizeInFrames() const noexcept;
+
+    /*
+    Return stream pos in frames.
+    */
+    inline size_t streamPosInFrames() const noexcept;
+
+    /*
     Event to send to be processed.
     */
 
@@ -153,6 +163,26 @@ inline bool AudioPlayer::isRunning() const
         return m_isRunning;
     else
         return false;
+}
+
+/*
+Return stream size in frames.
+*/
+inline size_t AudioPlayer::streamSizeInFrames() const noexcept
+{
+    if (m_player)
+        return m_player->streamSizeInFrames();
+    return 0;
+}
+
+/*
+Return stream pos in frames.
+*/
+inline size_t AudioPlayer::streamPosInFrames() const noexcept
+{
+    if (m_player)
+        return m_player->streamPosInFrames();
+    return 0;
 }
 
 /*
