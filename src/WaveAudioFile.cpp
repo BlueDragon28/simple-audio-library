@@ -68,11 +68,6 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&pcmFormat, 2);
         if ((pcmFormat != 1 /*&& pcmFormat != 3*/ && pcmFormat != 65534) || m_audioFile.fail())
             return;
-        SampleType pcmFormatType;
-        if (pcmFormat == 1 || pcmFormat == 65534)
-            pcmFormatType = SampleType::INT;
-        /*else if (pcmFormat == 3)
-            pcmFormatType = SampleType::FLOAT;*/
         
         // Channels
         short channels = 0;
@@ -175,6 +170,18 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&audioDataSize, 4);
         if (audioDataSize == 0 || audioDataSize > fileSize || m_audioFile.fail())
             return;
+        
+        // PCM format
+        SampleType pcmFormatType;
+        if (pcmFormat == 1 || pcmFormat == 65534)
+        {
+            if (bitsPerSample > 8)
+                pcmFormatType = SampleType::INT;
+            else
+                pcmFormatType = SampleType::UINT;
+        }
+        /*else if (pcmFormat == 3)
+            pcmFormatType = SampleType::FLOAT;*/
         
         // Then the data will be streamed.
 

@@ -294,13 +294,23 @@ bool Player::createStream()
     if (m_sampleType == SampleType::INT)
     {
         if (m_bytesPerSample == 1)
-            outParams.sampleFormat = paUInt8;
+            outParams.sampleFormat = paInt8;
         else if (m_bytesPerSample == 2)
             outParams.sampleFormat = paInt16;
         else if (m_bytesPerSample == 3)
             outParams.sampleFormat = paInt24;
         else if (m_bytesPerSample == 4)
             outParams.sampleFormat = paInt32;
+        else
+        {
+            resetStreamInfo();
+            return false;
+        }
+    }
+    else if (m_sampleType == SampleType::UINT)
+    {
+        if (m_bytesPerSample == 1)
+            outParams.sampleFormat = paUInt8;
         else
         {
             resetStreamInfo();

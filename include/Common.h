@@ -8,9 +8,10 @@ namespace SAL
 {
 enum class SampleType
 {
-    UNKNOWN=0,
-    INT=1,
-    FLOAT=2
+    UNKNOWN,
+    INT,
+    UINT,
+    FLOAT
 };
 
 enum class EventType
