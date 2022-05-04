@@ -66,7 +66,7 @@ void WaveAudioFile::open()
         // PCM format
         unsigned short pcmFormat = 0;
         m_audioFile.read((char*)&pcmFormat, 2);
-        if ((pcmFormat != 1 /*&& pcmFormat != 3*/ && pcmFormat != 65534) || m_audioFile.fail())
+        if ((pcmFormat != 1 && pcmFormat != 65534) || m_audioFile.fail())
             return;
         
         // Channels
@@ -114,6 +114,8 @@ void WaveAudioFile::open()
         m_audioFile.read(nextIdentifier, 4);
         if (m_audioFile.fail())
             return;
+        
+        bool isFloatStream = false;
 
         // Read "fact" section if available.
         if (strcmp(nextIdentifier, "fact") == 0)
@@ -125,11 +127,14 @@ void WaveAudioFile::open()
                 return;
             
             // Reading the fact section without processing it.
-            char factData[factSize+1];
-            memset(factData, 0, factSize+1);
+            char factData[factSize];
+            memset(factData, 0, factSize);
             m_audioFile.read(factData, factSize);
             if (m_audioFile.fail())
                 return;
+            
+            // The "fact" section mean the wave file is a float stream.
+            isFloatStream = true;
             
             // Read the identifier of the next section.
             m_audioFile.read(nextIdentifier, 4);
@@ -173,15 +178,17 @@ void WaveAudioFile::open()
         
         // PCM format
         SampleType pcmFormatType;
-        if (pcmFormat == 1 || pcmFormat == 65534)
+        if (!isFloatStream)
         {
             if (bitsPerSample > 8)
                 pcmFormatType = SampleType::INT;
             else
                 pcmFormatType = SampleType::UINT;
         }
-        /*else if (pcmFormat == 3)
-            pcmFormatType = SampleType::FLOAT;*/
+        else if (bitsPerSample == 32)
+            pcmFormatType = SampleType::FLOAT;
+        else
+            return;
         
         // Then the data will be streamed.
 
