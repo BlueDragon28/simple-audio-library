@@ -68,6 +68,16 @@ public:
     size_t streamPosInFrames() const;
 
     /*
+    Return stream size in seconds.
+    */
+    size_t streamSize() const;
+
+    /*
+    Return stream pos in seconds.
+    */
+    size_t streamPos() const;
+
+    /*
     Read audio data from file and push it
     into the ring buffer and push file from
     m_queueFilePath to m_queueOpenedFile.

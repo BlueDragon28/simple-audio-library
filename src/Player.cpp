@@ -556,4 +556,36 @@ size_t Player::streamPosInFrames() const
     else
         return 0;
 }
+
+/*
+Return stream size in seconds.
+*/
+size_t Player::streamSize() const
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    if (!m_queueOpenedFile.empty())
+    {
+        const std::unique_ptr<AbstractAudioFile>& audioFile =
+            m_queueOpenedFile.at(0);
+        return audioFile->streamSize() / audioFile->sampleRate();
+    }
+    else 
+        return 0;
+}
+
+/*
+Return stream pos in seconds.
+*/
+size_t Player::streamPos() const
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    if (!m_queueOpenedFile.empty())
+    {
+        const std::unique_ptr<AbstractAudioFile>& audioFile =
+            m_queueOpenedFile.at(0);
+        return audioFile->streamPos() / audioFile->sampleRate();
+    }
+    else
+        return 0;
+}
 }

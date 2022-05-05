@@ -70,6 +70,16 @@ public:
     inline size_t streamPosInFrames() const noexcept;
 
     /*
+    Return stream size in seconds.
+    */
+    inline size_t streamSize() const noexcept;
+
+    /*
+    Return stream pos in seconds.
+    */
+    inline size_t streamPos() const noexcept;
+
+    /*
     Event to send to be processed.
     */
 
@@ -182,6 +192,23 @@ inline size_t AudioPlayer::streamPosInFrames() const noexcept
 {
     if (m_player)
         return m_player->streamPosInFrames();
+    return 0;
+}
+
+/*
+Return stream size in seconds.
+*/
+inline size_t AudioPlayer::streamSize() const noexcept
+{
+    if (m_player)
+        return m_player->streamSize();
+    return 0;
+}
+
+inline size_t AudioPlayer::streamPos() const noexcept
+{
+    if (m_player)
+        return m_player->streamPos();
     return 0;
 }
 
