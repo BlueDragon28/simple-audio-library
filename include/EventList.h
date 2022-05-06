@@ -37,9 +37,9 @@ public:
     inline bool containEvents() const;
 
     /*
-    Return the max ID of WAIT_EVENT event.
+    Set a wait event and return the ID.
     */
-    int maxWaitEvent() const;
+    int waitEvent();
 
     /*
     Return true if WAIT_EVENT ID is in the queue.

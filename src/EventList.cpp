@@ -25,9 +25,9 @@ EventData EventList::get()
 }
 
 /*
-Return the max ID of WAIT_EVENT event.
+Set a wait event and return the ID.
 */
-int EventList::maxWaitEvent() const
+int EventList::waitEvent()
 {
     std::scoped_lock lock(m_queueMutex);
     int max = 0;
@@ -47,6 +47,7 @@ int EventList::maxWaitEvent() const
             }
         }
     }
+    m_queue.push_back({EventType::WAIT_EVENT, ++max});
     return max;
 }
 

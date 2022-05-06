@@ -149,9 +149,8 @@ bool AudioPlayer::isPlaying()
         Push an wait event id into the event queue
         and wait until it disappear.
         */
-        int maxID = m_events.maxWaitEvent()+1;
-        m_events.push(EventType::WAIT_EVENT, maxID);
-        while (m_events.isWaitEventIDPresent(maxID))
+        int id = m_events.waitEvent();
+        while (m_events.isWaitEventIDPresent(id))
             std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
         return m_player->isPlaying();
     }
@@ -170,9 +169,8 @@ bool AudioPlayer::isReady()
         Push an wait event id into the event queue
         and wait until it disappear.
         */
-        int maxID = m_events.maxWaitEvent()+1;
-        m_events.push(EventType::WAIT_EVENT, maxID);
-        while (m_events.isWaitEventIDPresent(maxID))
+        int id = m_events.waitEvent();
+        while (m_events.isWaitEventIDPresent(id))
             std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
         return m_player->isFileReady();
     }
