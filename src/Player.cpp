@@ -430,9 +430,9 @@ int Player::streamCallback(
     if (framesWrited < framesPerBuffer)
     {
         memset(
-            static_cast<char*>(outputBuffer)+framesWrited*m_bytesPerSample,
+            static_cast<char*>(outputBuffer)+(framesWrited*m_bytesPerSample*m_numChannels),
             0,
-            (framesPerBuffer-framesWrited)*m_bytesPerSample);
+            (framesPerBuffer-framesWrited)*m_bytesPerSample*m_numChannels);
 
         if (isBuffering) 
         {
