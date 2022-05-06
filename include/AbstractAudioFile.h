@@ -95,6 +95,11 @@ public:
     inline size_t bufferingSize() const noexcept;
 
     /*
+    Return true if the ring buffer is half filled.
+    */
+    inline bool isEnoughBuffering() const noexcept;
+
+    /*
     Extract data from the audio files.
     - data = a pointer to a sound buffer.
     - sizeInFrames = the size of the buffers in frames.
@@ -256,6 +261,14 @@ private:
 inline size_t AbstractAudioFile::bufferingSize() const noexcept
 {
     return m_ringBuffer.readable();
+}
+
+/*
+Return true if the ring buffer is half filled.
+*/
+inline bool AbstractAudioFile::isEnoughBuffering() const noexcept
+{
+    return m_ringBuffer.readable() >= (m_ringBuffer.size() / 2l);
 }
 }
 

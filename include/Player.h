@@ -115,6 +115,16 @@ private:
     bool createStream();
 
     /*
+    Pause the stream if buffering.
+    */
+    void pauseIfBuffering();
+
+    /*
+    Restart stream if buffering enough.
+    */
+    void continuePlayingIfEnoughBuffering();
+
+    /*
     Remove the ended stream of m_queueOpenedFile.
     */
     void clearUnneededStream();
@@ -182,6 +192,8 @@ private:
 
     // If the stream is playing or not.
     std::atomic<bool> m_isPlaying;
+    std::atomic<bool> m_isPaused;
+    std::atomic<bool> m_isBuffering;
 
     // Maximum of same stream in the m_queueOpenedFile queue.
     std::atomic<int> m_maxInStreamQueue;
@@ -193,7 +205,6 @@ private:
     std::atomic<size_t> m_sampleRate;
     std::atomic<int> m_bytesPerSample;
     std::atomic<SampleType> m_sampleType;
-    std::atomic<bool> m_isPaused;
 };
 }
 

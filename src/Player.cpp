@@ -19,7 +19,9 @@ Player::Player() :
     m_maxInStreamQueue(2),
 
     // Indicate if the stream is paused and not stopped.
-    m_isPaused(false)
+    m_isPaused(false),
+
+    m_isBuffering(false)
 {}
 
 Player::~Player()
@@ -230,6 +232,7 @@ void Player::resetStreamInfo()
     m_bytesPerSample = 0;
     m_sampleType = SampleType::UNKNOWN;
     m_isPaused = false;
+    m_isBuffering = false;
     if (m_isPlaying)
     {
         if (m_queueFilePath.empty() && m_queueOpenedFile.empty())
@@ -398,23 +401,30 @@ int Player::streamCallback(
         return paComplete;
 
     size_t framesWrited = 0;
+    bool isBuffering = false;
 
-    for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
+    if (!m_isBuffering)
     {
-        while (framesWrited < framesPerBuffer && !audioFile->isEnded())
+        for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
         {
-            framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*m_bytesPerSample,
-                framesPerBuffer-framesWrited);
-
-            if (framesWrited < framesPerBuffer)
+            while (framesWrited < framesPerBuffer && !audioFile->isEnded())
             {
-                audioFile->readFromFile();
-                audioFile->flush();
+                framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*m_bytesPerSample,
+                    framesPerBuffer-framesWrited);
+                
+                if (audioFile->bufferingSize() == 0)
+                    break;
             }
-        }
 
-        if (framesWrited == framesPerBuffer)
-            break;
+            if (audioFile->bufferingSize() == 0 && !audioFile->isEnded())
+            {
+                isBuffering = true;
+                break;
+            }
+
+            if (framesWrited == framesPerBuffer)
+                break;
+        }
     }
 
     if (framesWrited < framesPerBuffer)
@@ -423,7 +433,15 @@ int Player::streamCallback(
             static_cast<char*>(outputBuffer)+framesWrited*m_bytesPerSample,
             0,
             (framesPerBuffer-framesWrited)*m_bytesPerSample);
-        return paComplete;
+
+        if (isBuffering) 
+        {
+            m_isBuffering = true; 
+            return paContinue;
+        }
+
+        if (!m_isBuffering)
+            return paComplete;
     }
 
     return paContinue;
@@ -435,7 +453,7 @@ is called.
 */
 void Player::streamEndCallback()
 {
-    if (!m_isPaused)
+    if (!m_isPaused && !m_isBuffering)
         resetStreamInfo();
 }
 
@@ -446,7 +464,9 @@ m_queueFilePath to m_queueOpenedFile.
 */
 void Player::update()
 {
+    pauseIfBuffering();
     updateStreamBuffer();
+    continuePlayingIfEnoughBuffering();
     clearUnneededStream();
     pushFile();
     recreateStream();
@@ -456,6 +476,56 @@ void Player::update()
 bool Player::isPaused() const
 {
     return m_isPaused;
+}
+
+/*
+Pause the stream if buffering.
+*/
+void Player::pauseIfBuffering()
+{
+    if (m_isBuffering && !m_isPaused)
+    {
+        bool isError = false;
+        {
+            std::scoped_lock lock(m_paStreamMutex);
+            m_isPaused = true;
+            PaError err = Pa_StopStream(m_paStream.get());
+            if (err != paNoError)
+                isError = true;
+        }
+        if (isError)
+            resetStreamInfo();
+    }
+}
+
+/*
+Restart stream if buffering enough.
+*/
+void Player::continuePlayingIfEnoughBuffering()
+{
+    if (isPlaying() && m_isBuffering)
+    {
+        bool isStartStreamFailed = false;
+        {
+            std::scoped_lock lock(m_queueOpenedFileMutex, m_paStreamMutex);
+            for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
+            {
+                if (!file->isEnded())
+                {
+                    if (file->isEnoughBuffering())
+                    {
+                        m_isBuffering = false;
+                        m_isPaused = false;
+                        PaError err = Pa_StartStream(m_paStream.get());
+                        if (err != paNoError)
+                            isStartStreamFailed = true;
+                    }
+                }
+            }
+        }
+        if (isStartStreamFailed)    
+            resetStreamInfo();
+    }
 }
 
 /*
