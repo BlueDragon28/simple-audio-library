@@ -90,6 +90,11 @@ public:
     size_t streamSize() const;
 
     /*
+    Return the size of the buffer available to read.
+    */
+    inline size_t bufferingSize() const noexcept;
+
+    /*
     Extract data from the audio files.
     - data = a pointer to a sound buffer.
     - sizeInFrames = the size of the buffers in frames.
@@ -247,6 +252,11 @@ private:
     // Streaming pos from audio file.
     size_t m_readPos;
 };
+
+inline size_t AbstractAudioFile::bufferingSize() const noexcept
+{
+    return m_ringBuffer.readable();
+}
 }
 
 #endif // SIMPLE_AUDIO_LIBRARY_ABSTRACTAUDIOFILE_H_

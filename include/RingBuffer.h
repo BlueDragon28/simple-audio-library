@@ -37,6 +37,11 @@ public:
 
     size_t size() const;
 
+    /*
+    Return the size of data readable in the buffer.
+    */
+    inline size_t readable() const noexcept;
+
 private:
     char* m_data;
     std::atomic<size_t> m_size;
@@ -44,6 +49,11 @@ private:
     std::atomic<size_t> m_headPos;
     std::atomic<size_t> m_writeAvailable;
 };
+
+inline size_t RingBuffer::readable() const noexcept
+{
+    return m_size - m_writeAvailable;
+}
 }
 
 #endif // SIMPLE_AUDIO_LIBRARY_RINGBUFFER_H_
