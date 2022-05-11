@@ -29,6 +29,12 @@ protected:
     */
     virtual void readDataFromFile() override;
 
+    /*
+    Updating the reading position (in frames) of the audio file
+    to the new position pos.
+    */
+    virtual bool updateReadingPos(size_t pos) override;
+
 private:
     /*
     Open the Wave file and read all the headers.

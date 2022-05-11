@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <atomic>
+#include <mutex>
 
 namespace SAL
 {
@@ -42,12 +43,24 @@ public:
     */
     inline size_t readable() const noexcept;
 
+    /*
+    Clearing the ring buffer of all data.
+    */
+    void clear();
+
 private:
     char* m_data;
     std::atomic<size_t> m_size;
     std::atomic<size_t> m_tailPos;
     std::atomic<size_t> m_headPos;
     std::atomic<size_t> m_writeAvailable;
+
+    /*
+    Preventing the streamCallback and the update
+    method to read, clear and resize the ring buffer 
+    at the same time.
+    */
+    std::mutex m_readMutex;
 };
 
 inline size_t RingBuffer::readable() const noexcept

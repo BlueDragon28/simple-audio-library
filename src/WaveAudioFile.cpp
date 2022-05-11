@@ -33,6 +33,8 @@ void WaveAudioFile::open()
     m_audioFile.open(filePath(), std::fstream::binary);
     if (m_audioFile.is_open())
     {
+        // Getting header size.
+        size_t size = 0;
         // RIFF identifier.
         char RIFF[5] = {0, 0, 0, 0, 0};
         m_audioFile.read(RIFF, 4);
@@ -109,11 +111,15 @@ void WaveAudioFile::open()
                 return;
         }
 
+        size += 38 + fmt_size;
+
         // Next identifier
         char nextIdentifier[5] = {0, 0, 0, 0, 0};
         m_audioFile.read(nextIdentifier, 4);
         if (m_audioFile.fail())
             return;
+        
+        size += 4;
         
         bool isFloatStream = false;
 
@@ -140,6 +146,8 @@ void WaveAudioFile::open()
             m_audioFile.read(nextIdentifier, 4);
             if (m_audioFile.fail())
                 return;
+            
+            size += 8 + factSize;
         }
         
         // If next identifier is "LIST" identifier.
@@ -158,10 +166,14 @@ void WaveAudioFile::open()
             if (m_audioFile.fail())
                 return;
             
+            size += 4 + listSize;
+            
             // Read "data" identifier into nextIdentifier.
             m_audioFile.read(nextIdentifier, 4);
             if (m_audioFile.fail())
                 return;
+            
+            size += 4;
         }
         else
             return;
@@ -175,6 +187,8 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&audioDataSize, 4);
         if (audioDataSize == 0 || audioDataSize > fileSize || m_audioFile.fail())
             return;
+        
+        size += 4;
         
         // PCM format
         SampleType pcmFormatType;
@@ -197,6 +211,7 @@ void WaveAudioFile::open()
         setSampleRate(sampleRate);
         setBytesPerSample(bitsPerSample/8);
         setSizeStream(audioDataSize);
+        setDataStartingPoint(size);
         updateBuffersSize();
         setSampleType(pcmFormatType);
         fileOpened();
@@ -240,5 +255,24 @@ void WaveAudioFile::readDataFromFile()
     insertDataInfoTmpBuffer(data, readSize);
 
     incrementReadPos(readSize);
+}
+
+/*
+Updating the reading position (in frames) of the audio file
+to the new position pos.
+*/
+bool WaveAudioFile::updateReadingPos(size_t pos)
+{
+    // Pos in bytes.
+    pos *= bytesPerSample() * numChannels();
+    // Headers offset.
+    pos += dataStartingPoint();
+
+    // Updating ifstream position.
+    m_audioFile.seekg(pos);
+    if (!m_audioFile.fail())
+        return true;
+    else
+        return false;
 }
 }

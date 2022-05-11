@@ -106,6 +106,13 @@ public:
     inline void stop() noexcept;
 
     /*
+    Seeking position in the audio stream.
+    - pos: position in seconds if inSeconds is true,
+    otherwise in frames.
+    */
+    inline void seek(size_t pos, bool inSeconds = true) noexcept;
+
+    /*
     Stop the loop of AudioPlayer and stop playing audio stream.
     */
     inline void quit() noexcept;
@@ -261,6 +268,22 @@ inline void AudioPlayer::stop() noexcept
 {
     if (isRunning())
         m_events.push(EventType::STOP);
+}
+
+/*
+Seeking position in the audio stream.
+- pos: position in seconds if inSeconds is true,
+otherwise in frames.
+*/
+inline void AudioPlayer::seek(size_t pos, bool inSeconds) noexcept
+{
+    if (isReady())
+    {
+        if (inSeconds)
+            m_events.push(EventType::SEEK_SECONDS, pos);
+        else
+            m_events.push(EventType::SEEK, pos);
+    }
 }
 
 /*

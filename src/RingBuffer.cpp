@@ -48,6 +48,7 @@ calling it.
 */
 void RingBuffer::resizeBuffer(size_t bufferSize)
 {
+    std::scoped_lock lock(m_readMutex);
     delete[] m_data;
     m_data = nullptr;
     if (bufferSize > 0)
@@ -66,6 +67,7 @@ into the *buffer. Return how many bytes readed.
 */
 size_t RingBuffer::read(char* buffer, size_t size)
 {
+    std::scoped_lock lock(m_readMutex);
     if (!buffer || !m_data || m_size == 0 || 
         size == 0 || m_writeAvailable == m_size)
         return 0;
@@ -119,5 +121,17 @@ size_t RingBuffer::write(const char* buffer, size_t size)
 size_t RingBuffer::size() const
 {
     return m_size;
+}
+
+/*
+Clearing the ring buffer of all data.
+*/
+void RingBuffer::clear()
+{
+    std::scoped_lock lock(m_readMutex);
+    memset(m_data, 0, m_size);
+    m_tailPos = 0;
+    m_headPos = 0;
+    m_writeAvailable = static_cast<size_t>(m_size);
 }
 }

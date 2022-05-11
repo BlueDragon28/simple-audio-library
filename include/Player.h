@@ -42,6 +42,13 @@ public:
     void stop();
 
     /*
+    Changing reading position in the audio stream.
+    - pos: position in seconds if inSeconds is true,
+    otherwise in frames.
+    */
+    inline void seek(size_t pos, bool inSeconds) noexcept;
+
+    /*
     Return true if the stream if playing.
     */
     bool isPlaying() const;
@@ -206,6 +213,29 @@ private:
     std::atomic<int> m_bytesPerSample;
     std::atomic<SampleType> m_sampleType;
 };
+
+/*
+Changing reading position in the audio stream.
+- pos: position in seconds if inSeconds is true,
+otherwise in frames.
+*/
+inline void Player::seek(size_t pos, bool inSeconds) noexcept
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    if (!m_queueOpenedFile.empty())
+    {
+        for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
+        {
+            if (!file->isEnded())
+            {
+                if (inSeconds)
+                    file->seekInSeconds(pos);
+                else
+                    file->seek(pos);
+            }
+        }
+    }
+}
 }
 
 #endif // SIMPLE_AUDIO_LIBRARY_PLAYER_H_

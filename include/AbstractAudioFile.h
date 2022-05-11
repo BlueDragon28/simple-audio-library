@@ -55,6 +55,18 @@ public:
     void flush();
 
     /*
+    Seeking a position (in frames) in the audio stream.
+    This will clear all the buffers and start playing
+    at the position needed if the position if valid.
+    */
+    void seek(size_t pos);
+
+    /*
+    Seeking a position in seconds in the audio stream.
+    */
+    inline void seekInSeconds(size_t pos) noexcept;
+
+    /*
     Sample rate of the stream.
     */
     size_t sampleRate() const;
@@ -203,6 +215,22 @@ protected:
     */
     void setSampleType(SampleType type);
 
+    /*
+    Set the starting point of the data in the audio file.
+    */
+    inline void setDataStartingPoint(size_t pos) noexcept;
+
+    /*
+    Get the starting point of the data in the audio file.
+    */
+    inline size_t dataStartingPoint() const noexcept;
+
+    /*
+    Updating the reading position (in frames) of the audio file
+    to the new position pos.
+    */
+    virtual bool updateReadingPos(size_t pos) = 0;
+
 private:
     void updateStreamSizeInfo();
     void updateStreamPosInfo();
@@ -219,6 +247,9 @@ private:
     Making readFromFile and Flush thread safe.
     */
     std::mutex m_readFromFileMutex;
+
+    // Preventing reading and seeking at the same time.
+    std::mutex m_seekMutex;
 
     /*
     Temprary buffer where data is writen
@@ -248,6 +279,9 @@ private:
     std::atomic<size_t> m_streamPosInSamples;
     std::atomic<size_t> m_streamPosInFrames;
 
+    // Indicate where the data start in the audio file.
+    size_t m_startDataPos;
+
     // Indicate no more data need to be readed.
     bool m_endFile;
 
@@ -269,6 +303,33 @@ Return true if the ring buffer is half filled.
 inline bool AbstractAudioFile::isEnoughBuffering() const noexcept
 {
     return m_ringBuffer.readable() >= (m_ringBuffer.size() / 2l);
+}
+
+/*
+Set the starting point of the data in the audio file.
+*/
+inline void AbstractAudioFile::setDataStartingPoint(size_t pos) noexcept
+{
+    if (pos < m_sizeStream)
+        m_startDataPos = pos;
+    else
+        m_startDataPos = 0;
+}
+
+/*
+Get the starting point of the data in the audio file.
+*/
+inline size_t AbstractAudioFile::dataStartingPoint() const noexcept
+{
+    return m_startDataPos;
+}
+
+/*
+Seeking a position in seconds in the audio stream.
+*/
+inline void AbstractAudioFile::seekInSeconds(size_t pos) noexcept
+{
+    seek(pos * sampleRate());
 }
 }
 

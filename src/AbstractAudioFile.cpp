@@ -26,6 +26,9 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
     m_sizeStreamInFrames(0),
     m_sampleType(SampleType::UNKNOWN),
 
+    // Indicate where the data start in the audio file.
+    m_startDataPos(0),
+
     // Stream location
     m_streamPos(0),
     m_streamPosInSamples(0),
@@ -260,6 +263,7 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     if (!m_isOpen || m_ringBuffer.size() == 0 || 
         m_streamPos == m_sizeStream || m_isEnded)
         return 0;
+    std::scoped_lock lock(m_seekMutex);
     
     size_t sizeInBytes = sizeInFrames * numChannels() * bytesPerSample();
     size_t bytesReaded = m_ringBuffer.read(data, sizeInBytes);
@@ -385,5 +389,28 @@ Set sampleType, if it's a integer or a floating point number.
 void AbstractAudioFile::setSampleType(SampleType type)
 {
     m_sampleType = type;
+}
+
+/*
+Seeking a position (in frames) in the audio stream.
+This will clear all the buffers and start playing
+at the position needed if the position if valid.
+*/
+void AbstractAudioFile::seek(size_t pos)
+{
+    std::scoped_lock lock(m_seekMutex);
+    if (pos < streamSize())
+    {
+        m_ringBuffer.clear();
+        if (updateReadingPos(pos))
+        {
+            m_readPos = pos * bytesPerSample() * numChannels();
+            m_streamPos = m_readPos;
+            updateStreamPosInfo();
+            m_tmpTailPos = 0L;
+            m_tmpWritePos = 0L;
+            m_tmpSizeDataWritten = 0L;
+        }
+    }
 }
 }

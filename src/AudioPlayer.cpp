@@ -120,6 +120,23 @@ void AudioPlayer::processEvents()
             m_sleepTime = SLEEP_PAUSED;
         } break;
 
+        // Seek in seconds
+        case EventType::SEEK:
+        case EventType::SEEK_SECONDS:
+        {
+            size_t pos;
+            try
+            {
+                pos = std::get<size_t>(event.data);
+            }
+            catch (const std::bad_variant_access&)
+            {
+                continue;
+            }
+            m_player->seek(pos, 
+                event.type == EventType::SEEK_SECONDS ? true : false);
+        } break;
+
         // Quit
         case EventType::QUIT:
         {
