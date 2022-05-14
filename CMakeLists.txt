@@ -19,7 +19,8 @@ set(PROJECT_SOURCES
     "src/Player.cpp"
     "src/EventList.cpp"
     "src/PortAudioRAII.cpp"
-    "src/AudioPlayer.cpp")
+    "src/AudioPlayer.cpp"
+    "src/CallbackInterface.cpp")
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
