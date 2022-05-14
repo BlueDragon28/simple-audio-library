@@ -11,6 +11,8 @@
 
 namespace SAL
 {
+class CallbackInterface;
+
 class Player
 {
     Player(const Player& other) = delete;
@@ -90,6 +92,11 @@ public:
     m_queueFilePath to m_queueOpenedFile.
     */
     void update();
+
+    /*
+    Set the pointer of the callback interface.
+    */
+    inline void setCallbackInterface(CallbackInterface* interface) noexcept;
 
 private:
     /*
@@ -183,6 +190,16 @@ private:
     */
     void streamEndCallback();
 
+    /*
+    Call the start file callback.
+    */
+    void startStreamingFile(const std::string& filePath);
+
+    /*
+    Call the end file callback.
+    */
+    void endStreamingFile(const std::string& filePath);
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     std::mutex m_queueFilePathMutex;
@@ -212,6 +229,11 @@ private:
     std::atomic<size_t> m_sampleRate;
     std::atomic<int> m_bytesPerSample;
     std::atomic<SampleType> m_sampleType;
+
+    /*
+    Pointer to the callback interface.
+    */
+    CallbackInterface* m_callbackInterface;
 };
 
 /*
@@ -235,6 +257,14 @@ inline void Player::seek(size_t pos, bool inSeconds) noexcept
             }
         }
     }
+}
+
+/*
+Set the pointer of the callback interface.
+*/
+inline void Player::setCallbackInterface(CallbackInterface* interface) noexcept
+{
+    m_callbackInterface = interface;
 }
 }
 

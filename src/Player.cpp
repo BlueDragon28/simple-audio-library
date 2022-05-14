@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "WaveAudioFile.h"
+#include "CallbackInterface.h"
 
 namespace SAL
 {
@@ -21,7 +22,9 @@ Player::Player() :
     // Indicate if the stream is paused and not stopped.
     m_isPaused(false),
 
-    m_isBuffering(false)
+    m_isBuffering(false),
+
+    m_callbackInterface(nullptr)
 {}
 
 Player::~Player()
@@ -94,9 +97,22 @@ void Player::play()
             }
             PaError err = Pa_StartStream(m_paStream.get());
             if (err == paNoError)
+            {
+                // Notify that the stream is starting.
+                for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
+                {
+                    if (!file->isEnded())
+                    {
+                        startStreamingFile(file->filePath());
+                        break;
+                    }
+                }
                 m_isPlaying = true;
+            }
             else
+            {
                 m_isPlaying = false;
+            }
         }
     }
 }
@@ -119,6 +135,22 @@ Stop playing and delete the queues.
 void Player::stop()
 {
     std::scoped_lock lock(m_queueFilePathMutex);
+    // Notify that the stream is stopping.
+    bool hasAStreamPlaying = false;
+    for (std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
+    {
+        if (!file->isEnded())
+        {
+            endStreamingFile(file->filePath());
+            hasAStreamPlaying = true;
+            break;
+        }
+    }
+    if (!hasAStreamPlaying)
+    {
+        if (!m_queueOpenedFile.empty())
+            endStreamingFile(m_queueOpenedFile.at(0)->filePath());
+    }
     m_queueFilePath.clear();
     m_isPlaying = false;
     resetStreamInfo();
@@ -540,7 +572,16 @@ void Player::clearUnneededStream()
         if (!m_queueOpenedFile.at(0)->isEnded())
             break;
         else
+        {
+            // Notify that the file ended.
+            endStreamingFile(m_queueOpenedFile.at(0)->filePath());
+            
             m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
+
+            // Notify of the new file streaming.
+            if (!m_queueOpenedFile.empty())
+                startStreamingFile(m_queueOpenedFile.at(0)->filePath());
+        }
     }
 }
 
@@ -657,5 +698,24 @@ size_t Player::streamPos() const
     }
     else
         return 0;
+}
+
+/*
+Call the start file callback.
+*/
+inline void Player::startStreamingFile(const std::string& filePath)
+{
+    if (m_callbackInterface)
+        std::invoke(&CallbackInterface::callStartFileCallback, 
+                    m_callbackInterface,
+                    filePath);
+}
+
+inline void Player::endStreamingFile(const std::string& filePath)
+{
+    if (m_callbackInterface)
+        std::invoke(&CallbackInterface::callEndFileCallback,
+                    m_callbackInterface,
+                    filePath);
 }
 }
