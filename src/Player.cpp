@@ -486,7 +486,15 @@ is called.
 void Player::streamEndCallback()
 {
     if (!m_isPaused && !m_isBuffering)
+    {
+        {
+            // Call end stream callback.
+            std::scoped_lock lock(m_queueOpenedFileMutex);
+            if (!m_queueOpenedFile.empty())
+                endStreamingFile(m_queueOpenedFile.at(0)->filePath());
+        }
         resetStreamInfo();
+    }
 }
 
 /*
