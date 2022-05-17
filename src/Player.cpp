@@ -664,62 +664,6 @@ void Player::checkIfNoStream()
 }
 
 /*
-Return stream size in frames.
-*/
-size_t Player::streamSizeInFrames() const
-{
-    std::scoped_lock lock(m_queueOpenedFileMutex);
-    if (!m_queueOpenedFile.empty())
-        return m_queueOpenedFile.at(0)->streamSize();
-    else
-        return 0;
-}
-
-/*
-Return stream pos in frames.
-*/
-size_t Player::streamPosInFrames() const
-{
-    std::scoped_lock lock(m_queueOpenedFileMutex);
-    if (!m_queueOpenedFile.empty())
-        return m_queueOpenedFile.at(0)->streamPos();
-    else
-        return 0;
-}
-
-/*
-Return stream size in seconds.
-*/
-size_t Player::streamSize() const
-{
-    std::scoped_lock lock(m_queueOpenedFileMutex);
-    if (!m_queueOpenedFile.empty())
-    {
-        const std::unique_ptr<AbstractAudioFile>& audioFile =
-            m_queueOpenedFile.at(0);
-        return audioFile->streamSize() / audioFile->sampleRate();
-    }
-    else 
-        return 0;
-}
-
-/*
-Return stream pos in seconds.
-*/
-size_t Player::streamPos() const
-{
-    std::scoped_lock lock(m_queueOpenedFileMutex);
-    if (!m_queueOpenedFile.empty())
-    {
-        const std::unique_ptr<AbstractAudioFile>& audioFile =
-            m_queueOpenedFile.at(0);
-        return audioFile->streamPos() / audioFile->sampleRate();
-    }
-    else
-        return 0;
-}
-
-/*
 Call the start file callback.
 */
 inline void Player::startStreamingFile(const std::string& filePath)

@@ -69,22 +69,22 @@ public:
     /*
     Return stream size in frames.
     */
-    size_t streamSizeInFrames() const;
+    inline size_t streamSizeInFrames() const noexcept;
 
     /*
     Return stream pos in frames.
     */
-    size_t streamPosInFrames() const;
+    inline size_t streamPosInFrames() const noexcept;
 
     /*
     Return stream size in seconds.
     */
-    size_t streamSize() const;
+    inline size_t streamSize() const noexcept;
 
     /*
     Return stream pos in seconds.
     */
-    size_t streamPos() const;
+    inline size_t streamPos() const noexcept;
 
     /*
     Read audio data from file and push it
@@ -265,6 +265,62 @@ Set the pointer of the callback interface.
 inline void Player::setCallbackInterface(CallbackInterface* interface) noexcept
 {
     m_callbackInterface = interface;
+}
+
+/*
+Return stream size in frames.
+*/
+inline size_t Player::streamSizeInFrames() const noexcept
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    if (!m_queueOpenedFile.empty())
+        return m_queueOpenedFile.at(0)->streamSize();
+    else
+        return 0;
+}
+
+/*
+Return stream pos in frames.
+*/
+inline size_t Player::streamPosInFrames() const noexcept
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    if (!m_queueOpenedFile.empty())
+        return m_queueOpenedFile.at(0)->streamPos();
+    else
+        return 0;
+}
+
+/*
+Return stream size in seconds.
+*/
+inline size_t Player::streamSize() const noexcept
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    if (!m_queueOpenedFile.empty())
+    {
+        const std::unique_ptr<AbstractAudioFile>& audioFile =
+            m_queueOpenedFile.at(0);
+        return audioFile->streamSize() / audioFile->sampleRate();
+    }
+    else 
+        return 0;
+}
+
+/*
+Return stream pos in seconds.
+*/
+inline size_t Player::streamPos() const noexcept
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    if (!m_queueOpenedFile.empty())
+    {
+        const std::unique_ptr<AbstractAudioFile>& audioFile =
+            m_queueOpenedFile.at(0);
+        return audioFile->streamPos() / audioFile->sampleRate();
+    }
+    else
+        return 0;
 }
 }
 
