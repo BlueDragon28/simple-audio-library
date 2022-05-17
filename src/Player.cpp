@@ -615,9 +615,20 @@ void Player::recreateStream()
             std::scoped_lock lock(m_paStreamMutex);
             PaError err = Pa_StartStream(m_paStream.get());
             if (err == paNoError)
+            {
                 m_isPlaying = true;
+                
+                // Call end stream callback.
+                std::scoped_lock lock(m_queueOpenedFileMutex);
+                if (!m_queueOpenedFile.empty())
+                {
+                    startStreamingFile(m_queueOpenedFile.at(0)->filePath());
+                }
+            }
             else
+            {
                 m_isPaused = false;
+            }
         }
     }
 }
