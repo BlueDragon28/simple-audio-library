@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "EventList.h"
 #include "PortAudioRAII.h"
+#include "CallbackInterface.h"
 #include <string>
 #include <memory>
 #include <mutex>
@@ -32,6 +33,11 @@ public:
     to delete it.
     */
     static AudioPlayer* instance();
+
+    /*
+    Return the callbackInterface instance.
+    */
+    inline CallbackInterface& callback() noexcept;
 
     /*
     Destroy the the instance (if one is exinsting).
@@ -149,6 +155,13 @@ private:
     in the main loop.
     */
     EventList m_events;
+
+    /*
+    A callback list to store user defined callback.
+    It also store a list of call event to be process
+    by the main loop.
+    */
+    CallbackInterface m_callbackInterface;
 
     /*
     Only one instance of AudioPlayer is possible.
@@ -293,6 +306,14 @@ inline void AudioPlayer::quit() noexcept
 {
     if (isRunning())
         m_events.push(EventType::QUIT);
+}
+
+/*
+Return the callbackInterface instance.
+*/
+inline CallbackInterface& AudioPlayer::callback() noexcept
+{
+    return m_callbackInterface;
 }
 }
 

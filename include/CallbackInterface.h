@@ -65,7 +65,19 @@ public:
     */
     void callEndFileCallback(const std::string& filePath);
 
+    /*
+    Call every callback inside the callback queue.
+    */
+    void callback();
+
 private:
+    /*
+    Calling the callback of every type of callback.
+    */
+
+    void startFileCallback(const std::string& filePath);
+    void endFileCallback(const std::string& filePath);
+
     /*
     Vector storing user defined callback.
     */

@@ -22,6 +22,7 @@ AudioPlayer::AudioPlayer() :
         m_isInit = true;
         m_isRunning = true;
         m_player = std::unique_ptr<Player>(new Player());
+        m_player->setCallbackInterface(&m_callbackInterface);
         m_loopThread = std::thread(&AudioPlayer::loop, this);
     }
 }
@@ -61,6 +62,9 @@ void AudioPlayer::loop()
     
     while (isRunning())
     {
+        // Call the callbacks.
+        m_callbackInterface.callback();
+
         // Processing events.
         processEvents();
 
