@@ -118,11 +118,6 @@ size_t RingBuffer::write(const char* buffer, size_t size)
     return size;
 }
 
-size_t RingBuffer::size() const
-{
-    return m_size;
-}
-
 /*
 Clearing the ring buffer of all data.
 */

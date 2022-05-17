@@ -36,7 +36,7 @@ public:
     */
     void resizeBuffer(size_t bufferSize);
 
-    size_t size() const;
+    inline size_t size() const noexcept;
 
     /*
     Return the size of data readable in the buffer.
@@ -66,6 +66,11 @@ private:
 inline size_t RingBuffer::readable() const noexcept
 {
     return m_size - m_writeAvailable;
+}
+
+inline size_t RingBuffer::size() const noexcept
+{
+    return m_size;
 }
 }
 
