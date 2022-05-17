@@ -49,7 +49,7 @@ public:
     Add a end file callback to the list of callback.
     This callback if called when a (new) file start to play.
     */
-    void addEndFileCallbacl(EndFileCallback callback);
+    void addEndFileCallback(EndFileCallback callback);
 
     /*
     Calling start file callback.

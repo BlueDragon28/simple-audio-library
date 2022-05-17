@@ -22,7 +22,7 @@ void CallbackInterface::addStartFileCallback(StartFileCallback callback)
 Add a end file callback to the list of callback.
 This callback if called when a (new) file start to play.
 */
-void CallbackInterface::addEndFileCallbacl(EndFileCallback callback)
+void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 {
     std::scoped_lock lock(m_endFileCallbackMutex);
     m_endFileCallback.push_back(callback);
