@@ -54,27 +54,6 @@ AbstractAudioFile::~AbstractAudioFile()
 }
 
 /*
-Return the file path of the audio file.
-*/
-const std::string& AbstractAudioFile::filePath() const
-{
-    return m_filePath;
-}
-
-bool AbstractAudioFile::isOpen() const
-{
-    return m_isOpen;
-}
-
-/*
-Mark the file has ready to stream.
-*/
-void AbstractAudioFile::fileOpened(bool value)
-{
-    m_isOpen = value;
-}
-
-/*
 Read data from the file and put it into
 the temporaty buffer.
 */
@@ -153,97 +132,6 @@ void AbstractAudioFile::flush()
     m_tmpTailPos += nbWrited;
 }
 
-/*
-Sample rate of the stream.
-*/
-size_t AbstractAudioFile::sampleRate() const
-{
-    return m_sampleRate;
-}
-
-/*
-Number of channels of the stream.
-*/
-int AbstractAudioFile::numChannels() const
-{
-    return m_numChannels;
-}
-
-/*
-Number of bytes per sample of the stream.
-*/
-int AbstractAudioFile::bytesPerSample() const
-{
-    return m_bytesPerSample;
-}
-
-/*
-Number of bits per sample of the stream.
-*/
-int AbstractAudioFile::bitsPerSample() const
-{
-    return m_bytesPerSample*8;
-}
-
-/*
-Size in bytes of the audio data.
-*/
-size_t AbstractAudioFile::streamSizeInBytes() const
-{
-    return m_sizeStream;
-}
-
-/*
-Size in samples of the audio data.
-*/
-size_t AbstractAudioFile::streamSizeInSamples() const
-{
-    return m_sizeStreamInSamples;
-}
-
-/*
-Size in frames of the audio data.
-*/
-size_t AbstractAudioFile::streamSize() const
-{
-    return m_sizeStreamInFrames;
-}
-
-/*
-Update sample rate.
-*/
-void AbstractAudioFile::setSampleRate(size_t sampleRate)
-{
-    m_sampleRate = sampleRate;
-}
-
-/*
-Update number of channels
-*/
-void AbstractAudioFile::setNumChannels(int numChannels)
-{
-    m_numChannels = numChannels;
-    updateStreamSizeInfo();
-}
-
-/*
-Update bytes per sample.
-*/
-void AbstractAudioFile::setBytesPerSample(int bytesPerSample)
-{
-    m_bytesPerSample = bytesPerSample;
-    updateStreamSizeInfo();
-}
-
-/*
-Update size of the stream in bytes.
-*/
-void AbstractAudioFile::setSizeStream(size_t sizeStream)
-{
-    m_sizeStream = sizeStream;
-    updateStreamSizeInfo();
-}
-
 void AbstractAudioFile::updateStreamSizeInfo()
 {
     if (m_sizeStream == 0 || m_bytesPerSample == 0 || m_numChannels == 0)
@@ -300,66 +188,6 @@ void AbstractAudioFile::updateStreamPosInfo()
 }
 
 /*
-Return the position of the stream in frames.
-*/
-size_t AbstractAudioFile::streamPos() const 
-{
-    return m_streamPosInFrames;
-}
-
-/*
-Return the position of the stream in samples.
-*/
-size_t AbstractAudioFile::streamPosInSamples() const
-{
-    return m_streamPosInSamples;
-}
-
-/*
-Return the position of the stream in bytes.
-*/
-size_t AbstractAudioFile::streamPosInBytes() const
-{
-    return m_streamPos;
-}
-
-/*
-Reset stream position.
-*/
-void AbstractAudioFile::resetStreamPosition()
-{
-    m_streamPos = 0;
-    updateStreamPosInfo();
-}
-
-/*
-Minimum size recommanded for the temporary buffer.
-*/
-size_t AbstractAudioFile::minimumSizeTemporaryBuffer() const
-{
-    return m_tmpMinimumSize - m_tmpTailPos;
-}
-
-void AbstractAudioFile::endFile(bool value)
-{
-    m_endFile = value;
-}
-
-bool AbstractAudioFile::isEnded() const
-{
-    return m_isEnded;
-}
-
-/*
-Position of the reading of the audio data
-from the audio file.
-*/
-size_t AbstractAudioFile::readPos() const
-{
-    return m_readPos;
-}
-
-/*
 Increment the position of the reading position
 of the audio data and set endFile to true when the data
 has reach the end of the file.
@@ -373,22 +201,6 @@ void AbstractAudioFile::incrementReadPos(size_t size)
 
     if (m_readPos >= streamSizeInBytes())
         endFile();
-}
-
-/*
-Sample type if it's an integer or floating point number.
-*/
-SampleType AbstractAudioFile::sampleType() const
-{
-    return m_sampleType;
-}
-
-/*
-Set sampleType, if it's a integer or a floating point number.
-*/
-void AbstractAudioFile::setSampleType(SampleType type)
-{
-    m_sampleType = type;
 }
 
 /*

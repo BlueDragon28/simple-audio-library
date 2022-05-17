@@ -32,16 +32,17 @@ public:
     /*
     Return the file path of the audio file.
     */
-    const std::string& filePath() const;
+    inline const std::string& filePath() const noexcept;
+
     /*
     Return true if the file is ready to stream.
     */
-    bool isOpen() const;
+    inline bool isOpen() const noexcept;
 
     /*
     Is the stream has reached the end.
     */
-    bool isEnded() const;
+    inline bool isEnded() const noexcept;
 
     /*
     Read data from the file and put it into
@@ -69,37 +70,37 @@ public:
     /*
     Sample rate of the stream.
     */
-    size_t sampleRate() const;
+    inline size_t sampleRate() const noexcept;
 
     /*
     Number of channels of the stream.
     */
-    int numChannels() const;
+    inline int numChannels() const noexcept;
 
     /*
     Number of bytes per sample of the stream.
     */
-    int bytesPerSample() const;
+    inline int bytesPerSample() const noexcept;
 
     /*
     Number of bits per sample of the stream.
     */
-    int bitsPerSample() const;
+    inline int bitsPerSample() const noexcept;
 
     /*
     Size in bytes of the audio data.
     */
-    size_t streamSizeInBytes() const;
+    inline size_t streamSizeInBytes() const noexcept;
 
     /*
     Size in samples of the audio data.
     */
-    size_t streamSizeInSamples() const;
+    inline size_t streamSizeInSamples() const noexcept;
 
     /*
     Size in frames of the audio data.
     */
-    size_t streamSize() const;
+    inline size_t streamSize() const noexcept;
 
     /*
     Return the size of the buffer available to read.
@@ -122,28 +123,28 @@ public:
     /*
     Return the position of the stream in frames.
     */
-    size_t streamPos() const;
+    inline size_t streamPos() const noexcept;
 
     /*
     Return the position of the stream in samples.
     */
-    size_t streamPosInSamples() const;
+    inline size_t streamPosInSamples() const noexcept;
 
     /*
     Return the position of the stream in bytes.
     */
-    size_t streamPosInBytes() const;
+    inline size_t streamPosInBytes() const noexcept;
 
     /*
     Sample type if it's an integer or floating point number.
     */
-    SampleType sampleType() const;
+    inline SampleType sampleType() const noexcept;
 
 protected:
     /*
     Mark the file has ready to stream.
     */
-    void fileOpened(bool value = true);
+    inline void fileOpened(bool value = true) noexcept;
 
     /*
     Pure virtual method who read from the audio
@@ -159,27 +160,27 @@ protected:
     /*
     Update sample rate.
     */
-    void setSampleRate(size_t sampleRate);
+    inline void setSampleRate(size_t sampleRate) noexcept;
 
     /*
     Update number of channels.
     */
-    void setNumChannels(int numChannels);
+    inline void setNumChannels(int numChannels) noexcept;
 
     /*
     Update bytes per sample.
     */
-    void setBytesPerSample(int bytesPerSample);
+    inline void setBytesPerSample(int bytesPerSample) noexcept;
 
     /*
     Update size of the stream in bytes.
     */
-    void setSizeStream(size_t sizeStream);
+    inline void setSizeStream(size_t sizeStream) noexcept;
 
     /*
     Reset stream position.
     */
-    void resetStreamPosition();
+    inline void resetStreamPosition() noexcept;
 
     /*
     Update the buffers size when the 
@@ -190,18 +191,18 @@ protected:
     /*
     Minimum size recommanded for the temporary buffer.
     */
-    size_t minimumSizeTemporaryBuffer() const;
+    inline size_t minimumSizeTemporaryBuffer() const noexcept;
 
     /*
     No more data to read.
     */
-    void endFile(bool value = true);
+    inline void endFile(bool value = true) noexcept;
 
     /*
     Position of the reading of the audio data
     from the audio file.
     */
-    size_t readPos() const;
+    inline size_t readPos() const noexcept;
 
     /*
     Increment the position of the reading position
@@ -213,7 +214,7 @@ protected:
     /*
     Set sampleType, if it's a integer or a floating point number.
     */
-    void setSampleType(SampleType type);
+    inline void setSampleType(SampleType type) noexcept;
 
     /*
     Set the starting point of the data in the audio file.
@@ -291,6 +292,203 @@ private:
     // Streaming pos from audio file.
     size_t m_readPos;
 };
+
+/*
+Return the file path of the audio file.
+*/
+inline const std::string& AbstractAudioFile::filePath() const noexcept
+{
+    return m_filePath;
+}
+
+/*
+Return true if the file is ready to stream.
+*/
+inline bool AbstractAudioFile::isOpen() const noexcept
+{
+    return m_isOpen;
+}
+
+/*
+Is the stream has reached the end.
+*/
+inline bool AbstractAudioFile::isEnded() const noexcept
+{
+    return m_isEnded;
+}
+
+/*
+Sample rate of the stream.
+*/
+inline size_t AbstractAudioFile::sampleRate() const noexcept
+{
+    return m_sampleRate;
+}
+
+/*
+Number of channels of the stream.
+*/
+inline int AbstractAudioFile::numChannels() const noexcept
+{
+    return m_numChannels;
+}
+
+/*
+Number of bytes per sample of the stream.
+*/
+inline int AbstractAudioFile::bytesPerSample() const noexcept
+{
+    return m_bytesPerSample;
+}
+
+/*
+Number of bits per sample of the stream.
+*/
+inline int AbstractAudioFile::bitsPerSample() const noexcept
+{
+    return m_bytesPerSample*8;
+}
+
+/*
+Size in bytes of the audio data.
+*/
+inline size_t AbstractAudioFile::streamSizeInBytes() const noexcept
+{
+    return m_sizeStream;
+}
+
+/*
+Size in samples of the audio data.
+*/
+inline size_t AbstractAudioFile::streamSizeInSamples() const noexcept
+{
+    return m_sizeStreamInSamples;
+}
+
+/*
+Size in frames of the audio data.
+*/
+inline size_t AbstractAudioFile::streamSize() const noexcept
+{
+    return m_sizeStreamInFrames;
+}
+
+/*
+Return the position of the stream in frames.
+*/
+inline size_t AbstractAudioFile::streamPos() const noexcept
+{
+    return m_streamPosInFrames;
+}
+
+/*
+Return the position of the stream in samples.
+*/
+inline size_t AbstractAudioFile::streamPosInSamples() const noexcept
+{
+    return m_streamPosInSamples;
+}
+
+/*
+Return the position of the stream in bytes.
+*/
+inline size_t AbstractAudioFile::streamPosInBytes() const noexcept
+{
+    return m_streamPos;
+}
+
+/*
+Sample type if it's an integer or floating point number.
+*/
+inline SampleType AbstractAudioFile::sampleType() const noexcept
+{
+    return m_sampleType;
+}
+
+/*
+Mark the file has ready to stream.
+*/
+inline void AbstractAudioFile::fileOpened(bool value) noexcept
+{
+    m_isOpen = value;
+}
+
+/*
+Update sample rate.
+*/
+inline void AbstractAudioFile::setSampleRate(size_t sampleRate) noexcept
+{
+    m_sampleRate = sampleRate;
+}
+
+/*
+Update number of channels
+*/
+inline void AbstractAudioFile::setNumChannels(int numChannels) noexcept
+{
+    m_numChannels = numChannels;
+    updateStreamSizeInfo();
+}
+
+/*
+Update bytes per sample.
+*/
+inline void AbstractAudioFile::setBytesPerSample(int bytesPerSample) noexcept
+{
+    m_bytesPerSample = bytesPerSample;
+    updateStreamSizeInfo();
+}
+
+/*
+Update size of the stream in bytes.
+*/
+inline void AbstractAudioFile::setSizeStream(size_t sizeStream) noexcept
+{
+    m_sizeStream = sizeStream;
+    updateStreamSizeInfo();
+}
+
+/*
+Reset stream position.
+*/
+inline void AbstractAudioFile::resetStreamPosition() noexcept
+{
+    m_streamPos = 0;
+    updateStreamPosInfo();
+}
+
+/*
+Minimum size recommanded for the temporary buffer.
+*/
+inline size_t AbstractAudioFile::minimumSizeTemporaryBuffer() const noexcept
+{
+    return m_tmpMinimumSize - m_tmpTailPos;
+}
+
+/*
+No more data to read.
+*/
+inline void AbstractAudioFile::endFile(bool value) noexcept
+{
+    m_endFile = value;
+}
+
+/*
+Position of the reading of the audio data
+from the audio file.
+*/
+inline size_t AbstractAudioFile::readPos() const noexcept
+{
+    return m_readPos;
+}
+
+/*
+Set sampleType, if it's a integer or a floating point number.
+*/
+inline void AbstractAudioFile::setSampleType(SampleType type) noexcept
+{
+    m_sampleType = type;
+}
 
 inline size_t AbstractAudioFile::bufferingSize() const noexcept
 {
