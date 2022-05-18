@@ -3,6 +3,7 @@
 #include <fstream>
 #include <cstring>
 #include <functional>
+#include <limits>
 
 #include "WaveAudioFile.h"
 #include "CallbackInterface.h"
@@ -24,7 +25,9 @@ Player::Player() :
 
     m_isBuffering(false),
 
-    m_callbackInterface(nullptr)
+    m_callbackInterface(nullptr),
+
+    m_streamPosLastCallback(std::numeric_limits<size_t>::max())
 {}
 
 Player::~Player()
@@ -514,6 +517,7 @@ void Player::update()
     pushFile();
     recreateStream();
     checkIfNoStream();
+    streamPosChangeCallback();
 }
 
 bool Player::isPaused() const
@@ -691,5 +695,20 @@ inline void Player::streamPosChangeInFrames(size_t streamPos)
         std::invoke(&CallbackInterface::callStreamPosChangeInFramesCallback,
                     m_callbackInterface,
                     streamPos);
+}
+
+inline void Player::streamPosChangeCallback()
+{
+    if (m_callbackInterface && !m_queueOpenedFile.empty() && isPlaying())
+    {
+        size_t pos = streamPos();
+        if (pos != m_streamPosLastCallback)
+        {
+            m_streamPosLastCallback = pos;
+            std::invoke(&CallbackInterface::callStreamPosChangeCallback,
+                        m_callbackInterface,
+                        m_streamPosLastCallback);
+        }
+    }
 }
 }

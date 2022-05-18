@@ -205,6 +205,12 @@ private:
     */
     void streamPosChangeInFrames(size_t streamPos);
 
+    /*
+    Call stream position (in seconds) callback if the position (in seconds)
+    changed since the last callback.
+    */
+    void streamPosChangeCallback();
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     std::mutex m_queueFilePathMutex;
@@ -239,6 +245,11 @@ private:
     Pointer to the callback interface.
     */
     CallbackInterface* m_callbackInterface;
+
+    /*
+    Last position in seconds registered by stream pos callback
+    */
+    size_t m_streamPosLastCallback;
 };
 
 /*

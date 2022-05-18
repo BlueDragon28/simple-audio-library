@@ -1,5 +1,4 @@
 #include "CallbackInterface.h"
-#include <iostream>
 
 namespace SAL
 {
@@ -41,6 +40,17 @@ void CallbackInterface::addStreamPosChangeInFramesCallback(StreamPosChangeInFram
 }
 
 /*
+Add a stream position (in seconds) change callback.
+This callback is called when the position of the stream
+is changing.
+*/
+void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callback)
+{
+    std::scoped_lock lock(m_streamPosChangeMutex);
+    m_streamPosChangeCallback.push_back(callback);
+}
+
+/*
 Calling start file callback.
 This event is store inside a list and is then call
 from the main loop of the AudioPlayer class.
@@ -69,6 +79,15 @@ void CallbackInterface::callStreamPosChangeInFramesCallback(size_t streamPos)
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_POS_CHANGE_IN_FRAME, streamPos});
+}
+
+/*
+Calling stream position (in seconds) change callback.
+*/
+void CallbackInterface::callStreamPosChangeCallback(size_t streamPos)
+{
+    std::scoped_lock lock(m_callbackCallMutex);
+    m_callbackCall.push_back({CallbackType::STREAM_POS_CHANGE, streamPos});
 }
 
 /*
@@ -136,6 +155,24 @@ void CallbackInterface::callback()
         } break;
 
         /*
+        If it's a Stream pos change, retrieving the position inside it
+        and call the callback.
+        */
+        case CallbackType::STREAM_POS_CHANGE:
+        {
+            size_t streamPos;
+            try
+            {
+                streamPos = std::get<size_t>(data.data);
+            }
+            catch (const std::bad_variant_access&)
+            {
+                continue;
+            }
+            streamPosChangeCallback(streamPos);
+        } break;
+
+        /*
         If the callback type is unknown, do nothing.
         */
         case CallbackType::UNKNOWN:
@@ -197,5 +234,10 @@ void CallbackInterface::endFileCallback(const std::string& filePath)
 void CallbackInterface::streamPosChangeInFramesCallback(size_t streamPos)
 {
     callbackCallTemplate(m_streamPosChangeInFramesCallback, streamPos);
+}
+
+void CallbackInterface::streamPosChangeCallback(size_t streamPos)
+{
+    callbackCallTemplate(m_streamPosChangeCallback, streamPos);
 }
 }
