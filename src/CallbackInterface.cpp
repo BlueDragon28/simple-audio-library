@@ -148,93 +148,54 @@ void CallbackInterface::callback()
     m_callbackCall.clear();
 }
 
-void CallbackInterface::startFileCallback(const std::string& filePath)
+/*
+Template function to call a callback with an argument.
+This function call every callback of a given array and
+remove the invalid callback.
+*/
+template<typename CallbackArrayType, typename ValueType>
+inline void callbackCallTemplate(CallbackArrayType& callbackArray, const ValueType& value)
 {
-    std::vector<std::vector<StartFileCallback>::iterator> indexToRemove;
+    std::vector<typename CallbackArrayType::iterator> indexToRemove;
 
-    // Iterate through the start file callback list.
-    for (std::vector<StartFileCallback>::iterator it = m_startFileCallback.begin();
-         it != m_startFileCallback.end();
+    // Iterate through the callback list.
+    for (typename CallbackArrayType::iterator it = callbackArray.begin();
+         it != callbackArray.end();
          it++)
     {
-        try 
+        try
         {
             // Call the function/method stored inside the std::function.
-            (*it)(filePath);
+            (*it)(value);
         }
         catch (const std::bad_function_call&)
         {
-            // If the call failed, store the iterator inside a list to be removed.
+            // If the call failed, store the iterator inside the list to be removed.
             indexToRemove.push_back(it);
         }
     }
 
     // Removing the bad method.
-    for (std::vector<std::vector<StartFileCallback>::iterator>::const_reverse_iterator crit = indexToRemove.crbegin();
+    for (typename std::vector<typename CallbackArrayType::iterator>::const_reverse_iterator crit = indexToRemove.crbegin();
          crit != indexToRemove.crend();
          crit++)
     {
-        m_startFileCallback.erase(*crit);
+        callbackArray.erase(*crit);
     }
+}
+
+void CallbackInterface::startFileCallback(const std::string& filePath)
+{
+    callbackCallTemplate(m_startFileCallback, filePath);
 }
 
 void CallbackInterface::endFileCallback(const std::string& filePath)
 {
-    std::vector<std::vector<EndFileCallback>::iterator> indexToRemove;
-
-    // Iterate through the end file callback list.
-    for (std::vector<EndFileCallback>::iterator it = m_endFileCallback.begin();
-         it != m_endFileCallback.end();
-         it++)
-    {
-        try
-        {
-            // Call the function/method stored inside the std::function.
-            (*it)(filePath);
-        }
-        catch (const std::bad_function_call&)
-        {
-            // If the call failed, store the iterator inside the list to be removed.
-            indexToRemove.push_back(it);
-        }
-    }
-
-    // Removing the bad method.
-    for (std::vector<std::vector<EndFileCallback>::iterator>::const_reverse_iterator crit = indexToRemove.crbegin();
-         crit != indexToRemove.crend();
-         crit++)
-    {
-        m_endFileCallback.erase(*crit);
-    }
+    callbackCallTemplate(m_endFileCallback, filePath);
 }
 
 void CallbackInterface::streamPosChangeInFramesCallback(size_t streamPos)
 {
-    std::vector<std::vector<StreamPosChangeInFramesCallback>::iterator> indexToRemove;
-
-    // Iterate through the callback list.
-    for (std::vector<StreamPosChangeInFramesCallback>::iterator it = m_streamPosChangeInFramesCallback.begin();
-         it != m_streamPosChangeInFramesCallback.end();
-         it++)
-    {
-        try
-        {
-            // Call the function/method stored inside the std::function.
-            (*it)(streamPos);
-        }
-        catch (const std::bad_function_call&)
-        {
-            // If the call failed, store the iterator inside the list to be removed.
-            indexToRemove.push_back(it);
-        }
-    }
-
-    // Removing the bad method.
-    for (std::vector<std::vector<StreamPosChangeInFramesCallback>::iterator>::const_reverse_iterator crit = indexToRemove.crbegin();
-         crit != indexToRemove.crend();
-         crit++)
-    {
-        m_streamPosChangeInFramesCallback.erase(*crit);
-    }
+    callbackCallTemplate(m_streamPosChangeInFramesCallback, streamPos);
 }
 }
