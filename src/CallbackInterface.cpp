@@ -223,21 +223,25 @@ inline void callbackCallTemplate(CallbackArrayType& callbackArray, const ValueTy
 
 void CallbackInterface::startFileCallback(const std::string& filePath)
 {
+    std::scoped_lock lock(m_startFileCallbackMutex);
     callbackCallTemplate(m_startFileCallback, filePath);
 }
 
 void CallbackInterface::endFileCallback(const std::string& filePath)
 {
+    std::scoped_lock lock(m_endFileCallbackMutex);
     callbackCallTemplate(m_endFileCallback, filePath);
 }
 
 void CallbackInterface::streamPosChangeInFramesCallback(size_t streamPos)
 {
+    std::scoped_lock lock(m_streamPosChangeInFramesMutex);
     callbackCallTemplate(m_streamPosChangeInFramesCallback, streamPos);
 }
 
 void CallbackInterface::streamPosChangeCallback(size_t streamPos)
 {
+    std::scoped_lock lock(m_streamPosChangeMutex);
     callbackCallTemplate(m_streamPosChangeCallback, streamPos);
 }
 }
