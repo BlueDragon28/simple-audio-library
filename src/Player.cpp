@@ -459,6 +459,9 @@ int Player::streamCallback(
         }
     }
 
+    // Call stream position change in frames.
+    streamPosChangeInFrames(m_queueOpenedFile.at(0)->streamPos());
+
     if (framesWrited < framesPerBuffer)
     {
         memset(
@@ -680,5 +683,13 @@ inline void Player::endStreamingFile(const std::string& filePath)
         std::invoke(&CallbackInterface::callEndFileCallback,
                     m_callbackInterface,
                     filePath);
+}
+
+inline void Player::streamPosChangeInFrames(size_t streamPos)
+{
+    if (m_callbackInterface)
+        std::invoke(&CallbackInterface::callStreamPosChangeInFramesCallback,
+                    m_callbackInterface,
+                    streamPos);
 }
 }

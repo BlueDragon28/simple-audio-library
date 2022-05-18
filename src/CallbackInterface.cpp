@@ -1,4 +1,5 @@
 #include "CallbackInterface.h"
+#include <iostream>
 
 namespace SAL
 {
@@ -29,6 +30,17 @@ void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 }
 
 /*
+Add a stream position (in frames) change callback.
+This callback is called when the position of the 
+stream is changing.
+*/
+void CallbackInterface::addStreamPosChangeInFramesCallback(StreamPosChangeInFramesCallback callback)
+{
+    std::scoped_lock lock(m_streamPosChangeInFramesMutex);
+    m_streamPosChangeInFramesCallback.push_back(callback);
+}
+
+/*
 Calling start file callback.
 This event is store inside a list and is then call
 from the main loop of the AudioPlayer class.
@@ -48,6 +60,15 @@ void CallbackInterface::callEndFileCallback(const std::string& filePath)
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::END_FILE, filePath});
+}
+
+/*
+Calling stream position (in frames) change callback.
+*/
+void CallbackInterface::callStreamPosChangeInFramesCallback(size_t streamPos)
+{
+    std::scoped_lock lock(m_callbackCallMutex);
+    m_callbackCall.push_back({CallbackType::STREAM_POS_CHANGE_IN_FRAME, streamPos});
 }
 
 /*
@@ -94,6 +115,24 @@ void CallbackInterface::callback()
                 continue;
             }
             endFileCallback(filePath);
+        } break;
+
+        /*
+        If it's a Stream pos change in frames, retrieving the position
+        inside it and call the callback.
+        */
+        case CallbackType::STREAM_POS_CHANGE_IN_FRAME:
+        {
+            size_t streamPos;
+            try
+            {
+                streamPos = std::get<size_t>(data.data);
+            }
+            catch (const std::bad_variant_access&)
+            {
+                continue;
+            }
+            streamPosChangeInFramesCallback(streamPos);
         } break;
 
         /*
@@ -166,6 +205,36 @@ void CallbackInterface::endFileCallback(const std::string& filePath)
          crit++)
     {
         m_endFileCallback.erase(*crit);
+    }
+}
+
+void CallbackInterface::streamPosChangeInFramesCallback(size_t streamPos)
+{
+    std::vector<std::vector<StreamPosChangeInFramesCallback>::iterator> indexToRemove;
+
+    // Iterate through the callback list.
+    for (std::vector<StreamPosChangeInFramesCallback>::iterator it = m_streamPosChangeInFramesCallback.begin();
+         it != m_streamPosChangeInFramesCallback.end();
+         it++)
+    {
+        try
+        {
+            // Call the function/method stored inside the std::function.
+            (*it)(streamPos);
+        }
+        catch (const std::bad_function_call&)
+        {
+            // If the call failed, store the iterator inside the list to be removed.
+            indexToRemove.push_back(it);
+        }
+    }
+
+    // Removing the bad method.
+    for (std::vector<std::vector<StreamPosChangeInFramesCallback>::iterator>::const_reverse_iterator crit = indexToRemove.crbegin();
+         crit != indexToRemove.crend();
+         crit++)
+    {
+        m_streamPosChangeInFramesCallback.erase(*crit);
     }
 }
 }

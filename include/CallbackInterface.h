@@ -20,10 +20,12 @@ class CallbackInterface
     {
         UNKNOWN,
         START_FILE,
-        END_FILE
+        END_FILE,
+        STREAM_POS_CHANGE_IN_FRAME,
     };
 
     typedef std::variant<std::monostate,
+                        size_t,
                         std::string> CallbackCallVariant;
     
     struct CallbackData
@@ -35,6 +37,7 @@ class CallbackInterface
 public:
     typedef std::function<void(const std::string&)> EndFileCallback;
     typedef EndFileCallback StartFileCallback;
+    typedef std::function<void(size_t)> StreamPosChangeInFramesCallback;
 
     CallbackInterface();
     ~CallbackInterface();
@@ -52,6 +55,13 @@ public:
     void addEndFileCallback(EndFileCallback callback);
 
     /*
+    Add a stream position (in frames) change callback.
+    This callback is called when the position of the 
+    stream is changing.
+    */
+    void addStreamPosChangeInFramesCallback(StreamPosChangeInFramesCallback callback);
+
+    /*
     Calling start file callback.
     This event is store inside a list and is then call
     from the main loop of the AudioPlayer class.
@@ -66,6 +76,11 @@ public:
     void callEndFileCallback(const std::string& filePath);
 
     /*
+    Calling stream position (in frames) change callback.
+    */
+    void callStreamPosChangeInFramesCallback(size_t streamPos);
+
+    /*
     Call every callback inside the callback queue.
     */
     void callback();
@@ -77,6 +92,7 @@ private:
 
     void startFileCallback(const std::string& filePath);
     void endFileCallback(const std::string& filePath);
+    void streamPosChangeInFramesCallback(size_t streamPos);
 
     /*
     Vector storing user defined callback.
@@ -84,8 +100,10 @@ private:
 
     std::vector<StartFileCallback> m_startFileCallback;
     std::vector<EndFileCallback> m_endFileCallback;
+    std::vector<StreamPosChangeInFramesCallback> m_streamPosChangeInFramesCallback;
     std::mutex m_startFileCallbackMutex,
-               m_endFileCallbackMutex;
+               m_endFileCallbackMutex,
+               m_streamPosChangeInFramesMutex;
 
     /*
     List storing the callback call.

@@ -200,6 +200,11 @@ private:
     */
     void endStreamingFile(const std::string& filePath);
 
+    /*
+    Call the stream position change in frames.
+    */
+    void streamPosChangeInFrames(size_t streamPos);
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     std::mutex m_queueFilePathMutex;
