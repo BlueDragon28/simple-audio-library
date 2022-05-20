@@ -83,7 +83,11 @@ void Player::play()
     {
         PaError err = Pa_StartStream(m_paStream.get());
         if (err == paNoError)
+        {
+            if (!m_isPlaying || m_isPaused)
+                streamPlayingCallback();
             m_isPlaying = true;
+        }
         m_isPaused = false;
     }
     else
@@ -111,6 +115,7 @@ void Player::play()
                     }
                 }
                 m_isPlaying = true;
+                streamPlayingCallback();
             }
             else
             {
@@ -129,6 +134,8 @@ void Player::pause()
     m_isPaused = true;
     if (m_paStream)
         Pa_StopStream(m_paStream.get());
+    if (m_isPlaying == true)
+        streamPausedCallback();
     m_isPlaying = false;
 }
 
@@ -710,5 +717,19 @@ inline void Player::streamPosChangeCallback()
                         m_streamPosLastCallback);
         }
     }
+}
+
+inline void Player::streamPausedCallback()
+{
+    if (m_callbackInterface)
+        std::invoke(&CallbackInterface::callStreamPausedCallback,
+                    m_callbackInterface);
+}
+
+inline void Player::streamPlayingCallback()
+{
+    if (m_callbackInterface)
+        std::invoke(&CallbackInterface::callStreamPlayingCallback,
+                    m_callbackInterface);
 }
 }

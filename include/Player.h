@@ -211,6 +211,16 @@ private:
     */
     void streamPosChangeCallback();
 
+    /*
+    Called when the stream is pausing.
+    */
+    void streamPausedCallback();
+
+    /*
+    Called when the stream is playing (or resuming).
+    */
+    void streamPlayingCallback();
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     std::mutex m_queueFilePathMutex;

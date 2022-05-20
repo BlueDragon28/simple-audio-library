@@ -51,6 +51,26 @@ void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callb
 }
 
 /*
+Add a stream paused callback.
+This callback is called when the stream is paused.
+*/
+void CallbackInterface::addStreamPausedCallback(StreamPausedCallback callback)
+{
+    std::scoped_lock lock(m_streamPausedMutex);
+    m_streamPausedCallback.push_back(callback);
+}
+
+/*
+Add a stream playing callback.
+This callback is called when the stream start playing or is resuming.
+*/
+void CallbackInterface::addStreamPlayingCallback(StreamPlayingCallback callback)
+{
+    std::scoped_lock lock(m_streamPlayingMutex);
+    m_streamPlayingCallback.push_back(callback);
+}
+
+/*
 Calling start file callback.
 This event is store inside a list and is then call
 from the main loop of the AudioPlayer class.
@@ -88,6 +108,24 @@ void CallbackInterface::callStreamPosChangeCallback(size_t streamPos)
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_POS_CHANGE, streamPos});
+}
+
+/*
+Calling stream paused callback.
+*/
+void CallbackInterface::callStreamPausedCallback()
+{
+    std::scoped_lock lock(m_callbackCallMutex);
+    m_callbackCall.push_back({CallbackType::STREAM_PAUSED});
+}
+
+/*
+Calling stream playing callback
+*/
+void CallbackInterface::callStreamPlayingCallback()
+{
+    std::scoped_lock lock(m_callbackCallMutex);
+    m_callbackCall.push_back({CallbackType::STREAM_PLAYING});
 }
 
 /*
@@ -173,6 +211,22 @@ void CallbackInterface::callback()
         } break;
 
         /*
+        If it's a stream paused, call the stream paused callback.
+        */
+        case CallbackType::STREAM_PAUSED:
+        {
+            streamPausedCallback();
+        } break;
+
+        /*
+        If it's a stream playing, call the stream playing callback.
+        */
+        case CallbackType::STREAM_PLAYING:
+        {
+            streamPlayingCallback();
+        } break;
+
+        /*
         If the callback type is unknown, do nothing.
         */
         case CallbackType::UNKNOWN:
@@ -190,8 +244,8 @@ Template function to call a callback with an argument.
 This function call every callback of a given array and
 remove the invalid callback.
 */
-template<typename CallbackArrayType, typename ValueType>
-inline void callbackCallTemplate(CallbackArrayType& callbackArray, const ValueType& value)
+template<typename CallbackArrayType, typename... Args>
+inline void callbackCallTemplate(CallbackArrayType& callbackArray, const Args&... args)
 {
     std::vector<typename CallbackArrayType::iterator> indexToRemove;
 
@@ -203,7 +257,7 @@ inline void callbackCallTemplate(CallbackArrayType& callbackArray, const ValueTy
         try
         {
             // Call the function/method stored inside the std::function.
-            (*it)(value);
+            (*it)(args...);
         }
         catch (const std::bad_function_call&)
         {
@@ -243,5 +297,17 @@ void CallbackInterface::streamPosChangeCallback(size_t streamPos)
 {
     std::scoped_lock lock(m_streamPosChangeMutex);
     callbackCallTemplate(m_streamPosChangeCallback, streamPos);
+}
+
+void CallbackInterface::streamPausedCallback()
+{
+    std::scoped_lock lock(m_streamPausedMutex);
+    callbackCallTemplate(m_streamPausedCallback);
+}
+
+void CallbackInterface::streamPlayingCallback()
+{
+    std::scoped_lock lock(m_streamPlayingMutex);
+    callbackCallTemplate(m_streamPlayingCallback);
 }
 }
