@@ -221,6 +221,11 @@ private:
     */
     void streamPlayingCallback();
 
+    /*
+    Called when the stream is stopping.
+    */
+    void streamStoppingCallback();
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     std::mutex m_queueFilePathMutex;

@@ -25,6 +25,7 @@ class CallbackInterface
         STREAM_POS_CHANGE,
         STREAM_PAUSED,
         STREAM_PLAYING,
+        STREAM_STOPPING,
     };
 
     typedef std::variant<std::monostate,
@@ -44,6 +45,7 @@ public:
     typedef StreamPosChangeInFramesCallback StreamPosChangeCallback;
     typedef std::function<void()> StreamPausedCallback;
     typedef StreamPausedCallback StreamPlayingCallback;
+    typedef StreamPausedCallback StreamStoppingCallback;
 
     CallbackInterface();
     ~CallbackInterface();
@@ -87,6 +89,12 @@ public:
     void addStreamPlayingCallback(StreamPlayingCallback callback);
 
     /*
+    Add a stream stopping callback.
+    This callback is called when a stream stop playing.
+    */
+    void addStreamStoppingCallback(StreamStoppingCallback callback);
+
+    /*
     Calling start file callback.
     This event is store inside a list and is then call
     from the main loop of the AudioPlayer class.
@@ -121,6 +129,11 @@ public:
     void callStreamPlayingCallback();
 
     /*
+    Calling stream stopping callback.
+    */
+    void callStreamStoppingCallback();
+
+    /*
     Call every callback inside the callback queue.
     */
     void callback();
@@ -136,6 +149,7 @@ private:
     void streamPosChangeCallback(size_t streamPos);
     void streamPausedCallback();
     void streamPlayingCallback();
+    void streamStoppingCallback();
 
     /*
     Vector storing user defined callback.
@@ -147,12 +161,14 @@ private:
     std::vector<StreamPosChangeCallback> m_streamPosChangeCallback;
     std::vector<StreamPausedCallback> m_streamPausedCallback;
     std::vector<StreamPlayingCallback> m_streamPlayingCallback;
+    std::vector<StreamStoppingCallback> m_streamStoppingCallback;
     std::mutex m_startFileCallbackMutex,
                m_endFileCallbackMutex,
                m_streamPosChangeInFramesMutex,
                m_streamPosChangeMutex,
                m_streamPausedMutex,
-               m_streamPlayingMutex;
+               m_streamPlayingMutex,
+               m_streamStoppingMutex;
 
     /*
     List storing the callback call.

@@ -144,25 +144,33 @@ Stop playing and delete the queues.
 */
 void Player::stop()
 {
-    std::scoped_lock lock(m_queueFilePathMutex);
     // Notify that the stream is stopping.
     bool hasAStreamPlaying = false;
-    for (std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
     {
-        if (!file->isEnded())
+        std::scoped_lock lock(m_queueFilePathMutex);
+        for (std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
         {
-            endStreamingFile(file->filePath());
-            hasAStreamPlaying = true;
-            break;
+            if (!file->isEnded())
+            {
+                endStreamingFile(file->filePath());
+                hasAStreamPlaying = true;
+                break;
+            }
         }
     }
     if (!hasAStreamPlaying)
     {
+        std::scoped_lock lock(m_queueOpenedFileMutex);
         if (!m_queueOpenedFile.empty())
             endStreamingFile(m_queueOpenedFile.at(0)->filePath());
     }
     m_queueFilePath.clear();
     m_isPlaying = false;
+    streamStoppingCallback();
+
+    // Stopping the stream.
+    std::scoped_lock lock(m_paStreamMutex);
+    Pa_StopStream(m_paStream.get());
     resetStreamInfo();
 }
 
@@ -265,8 +273,7 @@ Reset stream info.
 */
 void Player::resetStreamInfo()
 {
-    std::scoped_lock lock(m_queueOpenedFileMutex, m_paStreamMutex);
-    Pa_StopStream(m_paStream.get());
+    std::scoped_lock lock(m_queueOpenedFileMutex);
     m_paStream.reset();
     m_queueOpenedFile.clear();
     m_numChannels = 0;
@@ -278,7 +285,10 @@ void Player::resetStreamInfo()
     if (m_isPlaying)
     {
         if (m_queueFilePath.empty() && m_queueOpenedFile.empty())
+        {
             m_isPlaying = false;
+            streamStoppingCallback();
+        }
     }
 }
 
@@ -730,6 +740,13 @@ inline void Player::streamPlayingCallback()
 {
     if (m_callbackInterface)
         std::invoke(&CallbackInterface::callStreamPlayingCallback,
+                    m_callbackInterface);
+}
+
+inline void Player::streamStoppingCallback()
+{
+    if (m_callbackInterface)
+        std::invoke(&CallbackInterface::callStreamStoppingCallback,
                     m_callbackInterface);
 }
 }

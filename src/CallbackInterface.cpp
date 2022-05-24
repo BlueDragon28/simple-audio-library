@@ -1,5 +1,4 @@
 #include "CallbackInterface.h"
-
 namespace SAL
 {
 CallbackInterface::CallbackInterface()
@@ -71,6 +70,16 @@ void CallbackInterface::addStreamPlayingCallback(StreamPlayingCallback callback)
 }
 
 /*
+Add a stream stopping callback.
+This callback is called when a stream stop playing.
+*/
+void CallbackInterface::addStreamStoppingCallback(StreamStoppingCallback callback)
+{
+    std::scoped_lock lock(m_streamStoppingMutex);
+    m_streamStoppingCallback.push_back(callback);
+}
+
+/*
 Calling start file callback.
 This event is store inside a list and is then call
 from the main loop of the AudioPlayer class.
@@ -126,6 +135,15 @@ void CallbackInterface::callStreamPlayingCallback()
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_PLAYING});
+}
+
+/*
+Calling stream stopping callback.
+*/
+void CallbackInterface::callStreamStoppingCallback()
+{
+    std::scoped_lock lock(m_callbackCallMutex);
+    m_callbackCall.push_back({CallbackType::STREAM_STOPPING});
 }
 
 /*
@@ -227,6 +245,14 @@ void CallbackInterface::callback()
         } break;
 
         /*
+        If it's a stream stopping, call the stream stopping callback.
+        */
+        case CallbackType::STREAM_STOPPING:
+        {
+            streamStoppingCallback();
+        } break;
+
+        /*
         If the callback type is unknown, do nothing.
         */
         case CallbackType::UNKNOWN:
@@ -309,5 +335,11 @@ void CallbackInterface::streamPlayingCallback()
 {
     std::scoped_lock lock(m_streamPlayingMutex);
     callbackCallTemplate(m_streamPlayingCallback);
+}
+
+void CallbackInterface::streamStoppingCallback()
+{
+    std::scoped_lock lock(m_streamStoppingMutex);
+    callbackCallTemplate(m_streamStoppingCallback);
 }
 }
