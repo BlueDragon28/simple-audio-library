@@ -80,6 +80,26 @@ void CallbackInterface::addStreamStoppingCallback(StreamStoppingCallback callbac
 }
 
 /*
+Add a stream buffering callback.
+This callback is called when the stream is buffering.
+*/
+void CallbackInterface::addStreamBufferingCallback(StreamBufferingCallback callback)
+{
+    std::scoped_lock lock(m_streamBufferingMutex);
+    m_streamBufferingCallback.push_back(callback);
+}
+
+/*
+Add a stream enough buffering callback.
+This callback is called when the stream have finish buffering
+*/
+void CallbackInterface::addStreamEnoughBufferingCallback(StreamEnoughBufferingCallback callback)
+{
+    std::scoped_lock lock(m_streamEnoughBufferingMutex);
+    m_streamEnoughBufferingCallback.push_back(callback);
+}
+
+/*
 Calling start file callback.
 This event is store inside a list and is then call
 from the main loop of the AudioPlayer class.
@@ -144,6 +164,24 @@ void CallbackInterface::callStreamStoppingCallback()
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_STOPPING});
+}
+
+/*
+Calling stream buffering callback.
+*/
+void CallbackInterface::callStreamBufferingCallback()
+{
+    std::scoped_lock lock(m_callbackCallMutex);
+    m_callbackCall.push_back({CallbackType::STREAM_BUFFERING});
+}
+
+/*
+Calling stream enough buffering callback.
+*/
+void CallbackInterface::callStreamEnoughBufferingCallback()
+{
+    std::scoped_lock lock(m_callbackCallMutex);
+    m_callbackCall.push_back({CallbackType::STREAM_ENOUGH_BUFFERING});
 }
 
 /*
@@ -253,6 +291,22 @@ void CallbackInterface::callback()
         } break;
 
         /*
+        If it's a stream buffering, call the stream buffering callback.
+        */
+        case CallbackType::STREAM_BUFFERING:
+        {
+            streamBufferingCallback();
+        } break;
+
+        /*
+        If it's a stream enough buffering, call the stream enough buffering callback.
+        */
+        case CallbackType::STREAM_ENOUGH_BUFFERING:
+        {
+            streamEnoughBufferingCallback();
+        } break;
+
+        /*
         If the callback type is unknown, do nothing.
         */
         case CallbackType::UNKNOWN:
@@ -341,5 +395,17 @@ void CallbackInterface::streamStoppingCallback()
 {
     std::scoped_lock lock(m_streamStoppingMutex);
     callbackCallTemplate(m_streamStoppingCallback);
+}
+
+void CallbackInterface::streamBufferingCallback()
+{
+    std::scoped_lock lock(m_streamBufferingMutex);
+    callbackCallTemplate(m_streamBufferingCallback);
+}
+
+void CallbackInterface::streamEnoughBufferingCallback()
+{
+    std::scoped_lock lock(m_streamEnoughBufferingMutex);
+    callbackCallTemplate(m_streamEnoughBufferingCallback);
 }
 }

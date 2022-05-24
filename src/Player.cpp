@@ -471,6 +471,7 @@ int Player::streamCallback(
             if (audioFile->bufferingSize() == 0 && !audioFile->isEnded())
             {
                 isBuffering = true;
+                streamBufferingCallback();
                 break;
             }
 
@@ -583,6 +584,7 @@ void Player::continuePlayingIfEnoughBuffering()
                         PaError err = Pa_StartStream(m_paStream.get());
                         if (err != paNoError)
                             isStartStreamFailed = true;
+                        streamEnoughBufferingCallback();
                     }
                 }
             }
@@ -747,6 +749,20 @@ inline void Player::streamStoppingCallback()
 {
     if (m_callbackInterface)
         std::invoke(&CallbackInterface::callStreamStoppingCallback,
+                    m_callbackInterface);
+}
+
+inline void Player::streamBufferingCallback()
+{
+    if (m_callbackInterface)
+        std::invoke(&CallbackInterface::callStreamBufferingCallback,
+                    m_callbackInterface);
+}
+
+inline void Player::streamEnoughBufferingCallback()
+{
+    if (m_callbackInterface)
+        std::invoke(&CallbackInterface::callStreamEnoughBufferingCallback,
                     m_callbackInterface);
 }
 }

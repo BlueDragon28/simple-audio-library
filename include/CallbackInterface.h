@@ -26,6 +26,8 @@ class CallbackInterface
         STREAM_PAUSED,
         STREAM_PLAYING,
         STREAM_STOPPING,
+        STREAM_BUFFERING,
+        STREAM_ENOUGH_BUFFERING,
     };
 
     typedef std::variant<std::monostate,
@@ -46,6 +48,8 @@ public:
     typedef std::function<void()> StreamPausedCallback;
     typedef StreamPausedCallback StreamPlayingCallback;
     typedef StreamPausedCallback StreamStoppingCallback;
+    typedef StreamPausedCallback StreamBufferingCallback;
+    typedef StreamPausedCallback StreamEnoughBufferingCallback;
 
     CallbackInterface();
     ~CallbackInterface();
@@ -95,6 +99,18 @@ public:
     void addStreamStoppingCallback(StreamStoppingCallback callback);
 
     /*
+    Add a stream buffering callback.
+    This callback is called when the stream is buffering.
+    */
+    void addStreamBufferingCallback(StreamBufferingCallback callback);
+
+    /*
+    Add a stream enough buffering callback.
+    This callback is called when the stream have finish buffering
+    */
+    void addStreamEnoughBufferingCallback(StreamEnoughBufferingCallback callback);
+
+    /*
     Calling start file callback.
     This event is store inside a list and is then call
     from the main loop of the AudioPlayer class.
@@ -134,6 +150,16 @@ public:
     void callStreamStoppingCallback();
 
     /*
+    Calling stream buffering callback.
+    */
+    void callStreamBufferingCallback();
+
+    /*
+    Calling stream enough buffering callback.
+    */
+    void callStreamEnoughBufferingCallback();
+
+    /*
     Call every callback inside the callback queue.
     */
     void callback();
@@ -150,6 +176,8 @@ private:
     void streamPausedCallback();
     void streamPlayingCallback();
     void streamStoppingCallback();
+    void streamBufferingCallback();
+    void streamEnoughBufferingCallback();
 
     /*
     Vector storing user defined callback.
@@ -162,13 +190,17 @@ private:
     std::vector<StreamPausedCallback> m_streamPausedCallback;
     std::vector<StreamPlayingCallback> m_streamPlayingCallback;
     std::vector<StreamStoppingCallback> m_streamStoppingCallback;
+    std::vector<StreamBufferingCallback> m_streamBufferingCallback;
+    std::vector<StreamEnoughBufferingCallback> m_streamEnoughBufferingCallback;
     std::mutex m_startFileCallbackMutex,
                m_endFileCallbackMutex,
                m_streamPosChangeInFramesMutex,
                m_streamPosChangeMutex,
                m_streamPausedMutex,
                m_streamPlayingMutex,
-               m_streamStoppingMutex;
+               m_streamStoppingMutex,
+               m_streamBufferingMutex,
+               m_streamEnoughBufferingMutex;
 
     /*
     List storing the callback call.
