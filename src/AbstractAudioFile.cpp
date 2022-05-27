@@ -88,7 +88,7 @@ void AbstractAudioFile::resizeTmpBuffer(size_t size)
             bufferSize = size;
         else
             bufferSize = m_tmpSize;
-        memcpy(m_tmpBuffer, tmpBuffer, bufferSize);
+        memcpy(tmpBuffer, m_tmpBuffer, bufferSize);
         delete m_tmpBuffer;
     }
 
