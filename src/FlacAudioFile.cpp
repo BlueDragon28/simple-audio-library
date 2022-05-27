@@ -1,6 +1,7 @@
 #include "FlacAudioFile.h"
 #include <filesystem>
 #include <cstring>
+#include <iostream>
 
 namespace SAL
 {
@@ -24,7 +25,7 @@ Opening the Flac file.
 */
 void FlacAudioFile::open()
 {
-    if (!filePath().empty())
+    if (filePath().empty())
     {
         m_isError = true;
         return;
@@ -176,7 +177,7 @@ ring buffer.
 */
 void FlacAudioFile::readDataFromFile()
 {
-    if (!m_isError || streamSizeInBytes() == 0)
+    if (m_isError || streamSizeInBytes() == 0)
         return;
 
     // Reading a block from the flac file.
