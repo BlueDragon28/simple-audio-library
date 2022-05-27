@@ -6,6 +6,7 @@
 #include <limits>
 
 #include "WaveAudioFile.h"
+#include "FlacAudioFile.h"
 #include "CallbackInterface.h"
 
 namespace SAL
@@ -252,6 +253,7 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath)
         file.read(headIdentifier, 4);
 
         // Check if it's an audio file.
+        // Check if it's a WAVE file.
         if (strcmp(headIdentifier, "RIFF") == 0)
         {
             file.seekg(8);
@@ -263,6 +265,12 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath)
                 pAudioFile = new WaveAudioFile(filePath);
                 return pAudioFile;
             }
+        }
+        // Check if it's a FLAC file.
+        else if (strcmp(headIdentifier, "fLaC") == 0)
+        {
+            pAudioFile = new FlacAudioFile(filePath);
+            return pAudioFile;
         }
     }
     return pAudioFile;
