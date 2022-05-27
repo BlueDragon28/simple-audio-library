@@ -10,6 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 
+# FLAC library
+pkg_check_modules(FLAC++ REQUIRED flac++)
+
 include_directories(include/)
 
 set(PROJECT_SOURCES
@@ -24,5 +27,5 @@ set(PROJECT_SOURCES
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
