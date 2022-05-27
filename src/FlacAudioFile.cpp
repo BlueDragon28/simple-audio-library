@@ -85,7 +85,17 @@ This method is called by FLAC::Decoder::File.
 */
 void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
 {
-
+    // Reading the streaming information of the FLAC file.
+    if (metadata->type == FLAC__METADATA_TYPE_STREAMINFO)
+    {
+        setNumChannels(metadata->data.stream_info.channels);
+        setSampleRate(metadata->data.stream_info.sample_rate);
+        setBytesPerSample(metadata->data.stream_info.bits_per_sample/8);
+        setSizeStream(
+            metadata->data.stream_info.total_samples*numChannels()*bytesPerSample());
+        updateBuffersSize();
+        setSampleType(SampleType::INT);
+    }
 }
 
 /*
