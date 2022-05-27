@@ -194,6 +194,9 @@ to the new position pos.
 */
 bool FlacAudioFile::updateReadingPos(size_t pos)
 {
-    return false;
+    if (seek_absolute(pos))
+        return true;
+    else
+        return false;
 }
 }
