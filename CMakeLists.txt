@@ -32,3 +32,9 @@ set(PROJECT_SOURCES
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+
+# Generate the pkgconfig file
+configure_file(
+    "${CMAKE_SOURCE_DIR}/simple-audio-library_static.pc.in"
+    "${CMAKE_BINARY_DIR}/simple-audio-library_static.pc"
+    @ONLY)
