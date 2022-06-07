@@ -7,4 +7,4 @@ Name: simple-audio-library
 Description: @PROJECT_DESCRIPTION@
 Version: @CMAKE_PROJECT_VERSION@
 Cflags: -I${includedir}
-Libs: -L${libdir} -lsimple-audio-library -lportaudio -lasound -lm -lpthread 
+Libs: -L${libdir} -lsimple-audio-library -lFLAC -lFLAC++ -lportaudio -lasound -lm -lpthread
