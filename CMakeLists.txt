@@ -17,6 +17,18 @@ pkg_check_modules(FLAC++ REQUIRED flac++)
 
 include_directories(include/)
 
+set(PROJECT_HEADERS
+    "include/AbstractAudioFile.h"
+    "include/AudioPlayer.h"
+    "include/CallbackInterface.h"
+    "include/Common.h"
+    "include/EventList.h"
+    "include/FlacAudioFile.h"
+    "include/Player.h"
+    "include/PortAudioRAII.h"
+    "include/RingBuffer.h"
+    "include/WaveAudioFile.h")
+
 set(PROJECT_SOURCES
     "src/RingBuffer.cpp"
     "src/AbstractAudioFile.cpp"
@@ -43,3 +55,27 @@ configure_file(
     "${CMAKE_SOURCE_DIR}/simple-audio-library_static.pc.in"
     "${CMAKE_BINARY_DIR}/simple-audio-library_static.pc"
     @ONLY)
+
+# Add the install target
+# Copy the library
+if (WIN32)
+    install(
+        TARGETS ${PROJECT_NAME}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION bin)
+else ()
+    install(
+        TARGETS ${PROJECT_NAME}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif ()
+
+# Copy the install directory
+install (
+    FILES ${PROJECT_HEADERS}
+    DESTINATION include/simple-audio-library)
+
+# Copy the pkgconfig file
+install (
+    FILES ${CMAKE_BINARY_DIR}/simple-audio-library_static.pc
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
