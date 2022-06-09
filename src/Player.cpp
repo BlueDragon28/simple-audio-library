@@ -73,6 +73,22 @@ void Player::open(const std::string& filePath, bool clearQueue)
 }
 
 /*
+Checking if a file is readable by this library.
+*/
+int Player::isReadable(const std::string& filePath) const
+{
+    char header[MAX_IDENTIFIERS_CHAR];
+    memset(header, 0, MAX_IDENTIFIERS_CHAR);
+    std::ifstream file(filePath, std::ios::binary);
+    if (file.is_open())
+    {
+        file.read(header, MAX_IDENTIFIERS_CHAR);
+        return checkFileFormat(header, MAX_IDENTIFIERS_CHAR);
+    }
+    return UNKNOWN_FILE;
+}
+
+/*
 Start paying if there is any stream to play.
 */
 void Player::play()
@@ -243,7 +259,7 @@ void Player::pushFile()
 /*
 Check what type is the file and opening it.
 */
-AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath)
+AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
 {
     AbstractAudioFile* pAudioFile = nullptr;
     std::ifstream file(filePath, std::ifstream::binary);
@@ -280,7 +296,7 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath)
 /*
 Trying to detect the file format.
 */
-int Player::checkFileFormat(const char* identifiers, int size)
+int Player::checkFileFormat(const char* identifiers, int size) const
 {
     // Check all the files with the first identifier with 4 characters.
     if (size >= 4)

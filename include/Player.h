@@ -31,6 +31,11 @@ public:
     void open(const std::string& filePath, bool clearQueue = false);
 
     /*
+    Checking if a file is readable by this library.
+    */
+    int isReadable(const std::string& filePath) const;
+
+    /*
     Start paying if there is any stream to play.
     */
     void play();
@@ -110,12 +115,12 @@ private:
     /*
     Check what type is the file and opening it.
     */
-    AbstractAudioFile* detectAndOpenFile(const std::string& filePath);
+    AbstractAudioFile* detectAndOpenFile(const std::string& filePath) const;
 
     /*
     Trying to detect the file format.
     */
-    int checkFileFormat(const char* indentifiers, int size);
+    int checkFileFormat(const char* indentifiers, int size) const;
 
     /*
     Reset stream info.

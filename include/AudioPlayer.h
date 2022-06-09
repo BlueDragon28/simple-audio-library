@@ -97,6 +97,11 @@ public:
     void open(const std::string& filePath, bool clearQueue = false);
 
     /*
+    Checking if a file is readable by the simple-audio-library.
+    */
+    inline int isReadable(const std::string& filePath) const;
+
+    /*
     Play the audio stream.
     */
     inline void play() noexcept;
@@ -314,6 +319,14 @@ Return the callbackInterface instance.
 inline CallbackInterface& AudioPlayer::callback() noexcept
 {
     return m_callbackInterface;
+}
+
+/*
+Checking if a file is readable by the simple-audio-library.
+*/
+inline int AudioPlayer::isReadable(const std::string& filePath) const
+{
+    return m_player->isReadable(filePath);
 }
 }
 
