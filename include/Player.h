@@ -113,6 +113,11 @@ private:
     AbstractAudioFile* detectAndOpenFile(const std::string& filePath);
 
     /*
+    Trying to detect the file format.
+    */
+    int checkFileFormat(const char* indentifiers, int size);
+
+    /*
     Reset stream info.
     */
     void resetStreamInfo();

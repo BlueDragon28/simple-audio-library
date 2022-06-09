@@ -11,6 +11,8 @@
 
 namespace SAL
 {
+#define MAX_IDENTIFIERS_CHAR 12
+
 Player::Player() :
     // PortAudio stream interface.
     m_paStream(nullptr, Pa_CloseStream),
@@ -247,33 +249,68 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath)
     std::ifstream file(filePath, std::ifstream::binary);
     if (file.is_open())
     {
-        char headIdentifier[5];
-        memset(headIdentifier, 0, sizeof(headIdentifier));
+        char headIdentifier[MAX_IDENTIFIERS_CHAR];
+        memset(headIdentifier, 0, MAX_IDENTIFIERS_CHAR);
+        file.read(headIdentifier, MAX_IDENTIFIERS_CHAR);
 
-        file.read(headIdentifier, 4);
+        // Get the file format.
+        int format = checkFileFormat(headIdentifier, MAX_IDENTIFIERS_CHAR);
 
-        // Check if it's an audio file.
-        // Check if it's a WAVE file.
-        if (strcmp(headIdentifier, "RIFF") == 0)
+        // Create the audio file stream base on the file format (if supported).
+        switch (format)
         {
-            file.seekg(8);
-            char waveIdentifier[5];
-            memset(waveIdentifier, 0, sizeof(waveIdentifier));
-            file.read(waveIdentifier, 4);
-            if (strcmp(waveIdentifier, "WAVE") == 0)
-            {
-                pAudioFile = new WaveAudioFile(filePath);
-                return pAudioFile;
-            }
-        }
-        // Check if it's a FLAC file.
-        else if (strcmp(headIdentifier, "fLaC") == 0)
+        case WAVE:
+        {
+            pAudioFile = new WaveAudioFile(filePath);
+        } break;
+
+        case FLAC:
         {
             pAudioFile = new FlacAudioFile(filePath);
-            return pAudioFile;
+        } break;
+
+        case UNKNOWN_FILE:
+        default:
+        {} break;
         }
     }
     return pAudioFile;
+}
+
+/*
+Trying to detect the file format.
+*/
+int Player::checkFileFormat(const char* identifiers, int size)
+{
+    // Check all the files with the first identifier with 4 characters.
+    if (size >= 4)
+    {
+        char headID[5];
+        headID[4] = '\0';
+        
+        // Check if it's a WAVE file.
+        memcpy(headID, identifiers, 4);
+        if (strcmp(headID, "RIFF") == 0)
+        {
+            // The second identifier is between 8-12
+            if (size >= 12)
+            {
+                memcpy(headID, identifiers+8, 4);
+                if (strcmp(headID, "WAVE") == 0)
+                    return WAVE;
+                else
+                    return UNKNOWN_FILE;
+            }
+        }
+
+        // Check if it's a FLAC file.
+        if (strcmp(headID, "fLaC") == 0)
+        {
+            return FLAC;
+        }
+    }
+
+    return UNKNOWN_FILE;
 }
 
 /*

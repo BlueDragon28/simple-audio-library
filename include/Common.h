@@ -27,6 +27,16 @@ enum class EventType
     SEEK_SECONDS,
 };
 
+/*
+Files formats types.
+*/
+enum FileType
+{
+    UNKNOWN_FILE,
+    WAVE,
+    FLAC,
+};
+
 struct LoadFile
 {
     std::string filePath;
