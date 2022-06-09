@@ -198,4 +198,16 @@ bool AudioPlayer::isReady()
     else
         return false;
 }
+
+/*
+Returning a list of strings containing the list of files formats supported by the simple-audio-library.
+*/
+std::vector<std::string> AudioPlayer::supportedFormats()
+{
+    const std::vector<std::string> filesFormats = {
+        "WAVE",
+        "FLAC",
+    };
+    return filesFormats;
+}
 }

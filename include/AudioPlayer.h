@@ -102,6 +102,11 @@ public:
     inline int isReadable(const std::string& filePath) const;
 
     /*
+    Returning a list of strings containing the list of files formats supported by the simple-audio-library.
+    */
+    static std::vector<std::string> supportedFormats();
+
+    /*
     Play the audio stream.
     */
     inline void play() noexcept;
