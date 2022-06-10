@@ -23,6 +23,10 @@ AudioPlayer::AudioPlayer() :
         m_isRunning = true;
         m_player = std::unique_ptr<Player>(new Player());
         m_player->setCallbackInterface(&m_callbackInterface);
+
+        // Enable the callback interface to get access of some getters of this class.
+        m_callbackInterface.setIsReadyGetter(std::bind(&AudioPlayer::isReady, this));
+
         m_loopThread = std::thread(&AudioPlayer::loop, this);
     }
 }

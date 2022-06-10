@@ -28,10 +28,12 @@ class CallbackInterface
         STREAM_STOPPING,
         STREAM_BUFFERING,
         STREAM_ENOUGH_BUFFERING,
+        IS_READY_CHANCHED,
     };
 
     typedef std::variant<std::monostate,
                         size_t,
+                        bool,
                         std::string> CallbackCallVariant;
     
     struct CallbackData
@@ -50,6 +52,7 @@ public:
     typedef StreamPausedCallback StreamStoppingCallback;
     typedef StreamPausedCallback StreamBufferingCallback;
     typedef StreamPausedCallback StreamEnoughBufferingCallback;
+    typedef std::function<void(bool)> IsReadyChangedCallback;
 
     CallbackInterface();
     ~CallbackInterface();
@@ -111,6 +114,12 @@ public:
     void addStreamEnoughBufferingCallback(StreamEnoughBufferingCallback callback);
 
     /*
+    Add is ready changed callback.
+    This callback is called whenever the isReady is called.
+    */
+    void addIsReadyChangedCallback(IsReadyChangedCallback callback);
+
+    /*
     Calling start file callback.
     This event is store inside a list and is then call
     from the main loop of the AudioPlayer class.
@@ -160,6 +169,11 @@ public:
     void callStreamEnoughBufferingCallback();
 
     /*
+    Calling the is ready changed callback.
+    */
+    void callIsReadyChangedCallback(bool isReady);
+
+    /*
     Call every callback inside the callback queue.
     */
     void callback();
@@ -178,6 +192,15 @@ private:
     void streamStoppingCallback();
     void streamBufferingCallback();
     void streamEnoughBufferingCallback();
+    void isReadyChangedCallback(bool isReady);
+
+    /*
+    Set the is ready getter.
+    */
+    void setIsReadyGetter(std::function<bool()> getter);
+
+    // Making the AudioPlayer class a friend of this class.
+    friend class AudioPlayer;
 
     /*
     Vector storing user defined callback.
@@ -192,6 +215,7 @@ private:
     std::vector<StreamStoppingCallback> m_streamStoppingCallback;
     std::vector<StreamBufferingCallback> m_streamBufferingCallback;
     std::vector<StreamEnoughBufferingCallback> m_streamEnoughBufferingCallback;
+    std::vector<IsReadyChangedCallback> m_isReadyChangedCallback;
     std::mutex m_startFileCallbackMutex,
                m_endFileCallbackMutex,
                m_streamPosChangeInFramesMutex,
@@ -200,13 +224,19 @@ private:
                m_streamPlayingMutex,
                m_streamStoppingMutex,
                m_streamBufferingMutex,
-               m_streamEnoughBufferingMutex;
+               m_streamEnoughBufferingMutex,
+               m_isReadyChangedMutex;
 
     /*
     List storing the callback call.
     */
     std::list<CallbackData> m_callbackCall;
     std::mutex m_callbackCallMutex;
+
+    // This member variable store the last state of the isReady getter.
+    bool m_isReadyLastStatus;
+    // Allow this interface to get access to the isReady getter of AudioPlayer.
+    std::function<bool()> m_isReadyGetter;
 };
 }
 

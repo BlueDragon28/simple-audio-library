@@ -1,8 +1,19 @@
 #include "CallbackInterface.h"
 namespace SAL
 {
-CallbackInterface::CallbackInterface()
-{}
+CallbackInterface::CallbackInterface() :
+    m_isReadyLastStatus(false)
+{
+    // Calling the isReadyChanged signal every time the state of
+    // the simple-audio-library is changing.
+    auto callIsReadyChanged = [this]()->void {
+        callIsReadyChangedCallback(this->m_isReadyGetter());
+    };
+    addStartFileCallback(std::bind(callIsReadyChanged));
+    addEndFileCallback(std::bind(callIsReadyChanged));
+    addStreamPlayingCallback(callIsReadyChanged);
+    addStreamStoppingCallback(callIsReadyChanged);
+}
 
 CallbackInterface::~CallbackInterface()
 {}
@@ -100,6 +111,16 @@ void CallbackInterface::addStreamEnoughBufferingCallback(StreamEnoughBufferingCa
 }
 
 /*
+Add is ready changed callback.
+This callback is called whenever the isReady is called.
+*/
+void CallbackInterface::addIsReadyChangedCallback(IsReadyChangedCallback callback)
+{
+    std::scoped_lock lock(m_isReadyChangedMutex);
+    m_isReadyChangedCallback.push_back(callback);
+}
+
+/*
 Calling start file callback.
 This event is store inside a list and is then call
 from the main loop of the AudioPlayer class.
@@ -182,6 +203,15 @@ void CallbackInterface::callStreamEnoughBufferingCallback()
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_ENOUGH_BUFFERING});
+}
+
+/*
+Calling the is ready changed callback.
+*/
+void CallbackInterface::callIsReadyChangedCallback(bool isReady)
+{
+    std::scoped_lock lock(m_callbackCallMutex);
+    m_callbackCall.push_back({CallbackType::IS_READY_CHANCHED, isReady});
 }
 
 /*
@@ -307,6 +337,27 @@ void CallbackInterface::callback()
         } break;
 
         /*
+        If it's a is ready changed, call the is ready changed callback.
+        */
+        case CallbackType::IS_READY_CHANCHED:
+        {
+            bool isReady;
+            try
+            {
+                isReady = std::get<bool>(data.data);
+            }
+            catch (const std::bad_variant_access&)
+            {
+                continue;
+            }
+            if (isReady != m_isReadyLastStatus)
+            {
+                isReadyChangedCallback(isReady);
+                m_isReadyLastStatus = isReady;
+            }
+        } break;
+
+        /*
         If the callback type is unknown, do nothing.
         */
         case CallbackType::UNKNOWN:
@@ -407,5 +458,19 @@ void CallbackInterface::streamEnoughBufferingCallback()
 {
     std::scoped_lock lock(m_streamEnoughBufferingMutex);
     callbackCallTemplate(m_streamEnoughBufferingCallback);
+}
+
+void CallbackInterface::isReadyChangedCallback(bool isReady)
+{
+    std::scoped_lock lock(m_isReadyChangedMutex);
+    callbackCallTemplate(m_isReadyChangedCallback, isReady);
+}
+
+/*
+Set the is ready getter.
+*/
+void CallbackInterface::setIsReadyGetter(std::function<bool()> getter)
+{
+    m_isReadyGetter = getter;
 }
 }
