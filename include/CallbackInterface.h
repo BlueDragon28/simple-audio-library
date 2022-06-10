@@ -119,6 +119,7 @@ public:
     */
     void addIsReadyChangedCallback(IsReadyChangedCallback callback);
 
+private:
     /*
     Calling start file callback.
     This event is store inside a list and is then call
@@ -178,7 +179,6 @@ public:
     */
     void callback();
 
-private:
     /*
     Calling the callback of every type of callback.
     */
@@ -199,8 +199,9 @@ private:
     */
     void setIsReadyGetter(std::function<bool()> getter);
 
-    // Making the AudioPlayer class a friend of this class.
+    // Making the AudioPlayer and Player class a friend of this class.
     friend class AudioPlayer;
+    friend class Player;
 
     /*
     Vector storing user defined callback.
