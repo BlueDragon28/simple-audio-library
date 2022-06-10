@@ -8,9 +8,13 @@ CallbackInterface::CallbackInterface() :
     // Calling the isReadyChanged signal every time the state of
     // the simple-audio-library is changing.
     auto callIsReadyChanged = [this]()->void {
-        std::scoped_lock lock(this->m_backgroundThreadMutex);
-        this->m_backgroundThread.push_back(std::thread(
-            &CallbackInterface::callIsReadyChangedCallback, this, this->m_isReadyGetter()));
+        bool isReady = this->m_isReadyGetter();
+        if (isReady != this->m_isReadyLastStatus)
+        {
+            std::scoped_lock lock(this->m_backgroundThreadMutex);
+            this->m_backgroundThread.push_back(std::thread(
+                &CallbackInterface::callIsReadyChangedCallback, this, isReady));
+        }
     };
     addStartFileCallback(std::bind(callIsReadyChanged));
     addEndFileCallback(std::bind(callIsReadyChanged));
