@@ -7,6 +7,7 @@
 #include <variant>
 #include <list>
 #include <mutex>
+#include <thread>
 
 namespace SAL
 {
@@ -198,6 +199,10 @@ private:
     Set the is ready getter.
     */
     void setIsReadyGetter(std::function<bool()> getter);
+
+    // Call is ready callback thread instance.
+    std::vector<std::thread> m_backgroundThread;
+    std::mutex m_backgroundThreadMutex;
 
     // Making the AudioPlayer and Player class a friend of this class.
     friend class AudioPlayer;

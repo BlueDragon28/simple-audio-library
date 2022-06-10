@@ -1,4 +1,5 @@
 #include "CallbackInterface.h"
+
 namespace SAL
 {
 CallbackInterface::CallbackInterface() :
@@ -7,7 +8,9 @@ CallbackInterface::CallbackInterface() :
     // Calling the isReadyChanged signal every time the state of
     // the simple-audio-library is changing.
     auto callIsReadyChanged = [this]()->void {
-        callIsReadyChangedCallback(this->m_isReadyGetter());
+        std::scoped_lock lock(this->m_backgroundThreadMutex);
+        this->m_backgroundThread.push_back(std::thread(
+            &CallbackInterface::callIsReadyChangedCallback, this, this->m_isReadyGetter()));
     };
     addStartFileCallback(std::bind(callIsReadyChanged));
     addEndFileCallback(std::bind(callIsReadyChanged));
@@ -16,7 +19,15 @@ CallbackInterface::CallbackInterface() :
 }
 
 CallbackInterface::~CallbackInterface()
-{}
+{
+    // Join the threads.
+    std::scoped_lock btLock(m_backgroundThreadMutex);
+    for (int i = 0; i < m_backgroundThread.size(); i++)
+    {
+        if (m_backgroundThread.at(i).joinable())
+            m_backgroundThread[i].join();
+    }
+}
 
 /*
 Add a start file callback to the list of callback.
@@ -210,7 +221,7 @@ Calling the is ready changed callback.
 */
 void CallbackInterface::callIsReadyChangedCallback(bool isReady)
 {
-    std::scoped_lock lock(m_callbackCallMutex);
+    std::scoped_lock lack(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::IS_READY_CHANCHED, isReady});
 }
 
@@ -368,6 +379,18 @@ void CallbackInterface::callback()
         }
     }
     m_callbackCall.clear();
+
+    // Remove unneeded threads.
+    std::scoped_lock btLock(m_backgroundThreadMutex);
+    for (std::vector<std::thread>::const_reverse_iterator crit = m_backgroundThread.crbegin();
+         crit != m_backgroundThread.crend();
+         crit++)
+    {
+        if (!crit->joinable())
+        {
+            m_backgroundThread.erase((crit+1).base());
+        }
+    }
 }
 
 /*

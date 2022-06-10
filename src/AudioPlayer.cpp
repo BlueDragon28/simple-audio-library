@@ -25,7 +25,7 @@ AudioPlayer::AudioPlayer() :
         m_player->setCallbackInterface(&m_callbackInterface);
 
         // Enable the callback interface to get access of some getters of this class.
-        m_callbackInterface.setIsReadyGetter(std::bind(&AudioPlayer::isReady, this));
+        m_callbackInterface.setIsReadyGetter(std::bind(&Player::isFileReady, m_player.get()));
 
         m_loopThread = std::thread(&AudioPlayer::loop, this);
     }
