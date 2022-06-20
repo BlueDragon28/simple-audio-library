@@ -1,7 +1,6 @@
 #include "FlacAudioFile.h"
 #include <filesystem>
 #include <cstring>
-#include <iostream>
 
 namespace SAL
 {
@@ -186,6 +185,9 @@ void FlacAudioFile::readDataFromFile()
         m_isError = true;
         endFile(true);
     }
+
+    if (get_state() == FLAC__STREAM_DECODER_END_OF_STREAM)
+        endFile(true);
 }
 
 /*

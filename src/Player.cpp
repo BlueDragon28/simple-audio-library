@@ -529,7 +529,7 @@ int Player::streamCallback(
                     break;
             }
 
-            if (audioFile->bufferingSize() == 0 && !audioFile->isEnded())
+            if (audioFile->bufferingSize() == 0 && (!audioFile->isEnded() && !audioFile->isEndFile()))
             {
                 isBuffering = true;
                 streamBufferingCallback();

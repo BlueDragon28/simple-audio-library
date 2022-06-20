@@ -164,7 +164,12 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     if (bytesReaded != 0)
         bytesReadedInFrames = bytesReaded / numChannels() / bytesPerSample();
     else
+    {
+        // If no data to read and the file reached the end, stop the stream.
+        if (m_endFile)
+            m_isEnded = true;
         bytesReadedInFrames = 0;
+    }
 
     return bytesReadedInFrames;
 }

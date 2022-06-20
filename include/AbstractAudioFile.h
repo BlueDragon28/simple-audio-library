@@ -45,6 +45,11 @@ public:
     inline bool isEnded() const noexcept;
 
     /*
+    Return true if the file stream has reached end.
+    */
+    inline bool isEndFile() const noexcept;
+
+    /*
     Read data from the file and put it into
     the temporaty buffer.
     */
@@ -315,6 +320,14 @@ Is the stream has reached the end.
 inline bool AbstractAudioFile::isEnded() const noexcept
 {
     return m_isEnded;
+}
+
+/*
+Is the stream has reached the end.
+*/
+inline bool AbstractAudioFile::isEndFile() const noexcept
+{
+    return m_endFile;
 }
 
 /*
