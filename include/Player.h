@@ -297,16 +297,10 @@ inline void Player::seek(size_t pos, bool inSeconds) noexcept
     std::scoped_lock lock(m_queueOpenedFileMutex);
     if (!m_queueOpenedFile.empty())
     {
-        for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
-        {
-            if (!file->isEnded())
-            {
-                if (inSeconds)
-                    file->seekInSeconds(pos);
-                else
-                    file->seek(pos);
-            }
-        }
+        if (inSeconds)
+            m_queueOpenedFile.at(0)->seekInSeconds(pos);
+        else
+            m_queueOpenedFile.at(0)->seek(pos);
     }
 }
 
