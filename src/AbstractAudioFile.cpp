@@ -222,6 +222,8 @@ void AbstractAudioFile::seek(size_t pos)
             m_tmpTailPos = 0L;
             m_tmpWritePos = 0L;
             m_tmpSizeDataWritten = 0L;
+            m_endFile = false;
+            m_isEnded = false;
         }
     }
 }
