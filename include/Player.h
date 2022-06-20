@@ -285,6 +285,9 @@ private:
     Last position in seconds registered by stream pos callback
     */
     size_t m_streamPosLastCallback;
+
+    // Prevent to loop trying to open a file if the file have a different stream information.
+    bool m_doNotCheckFile;
 };
 
 /*

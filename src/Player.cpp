@@ -30,7 +30,9 @@ Player::Player() :
 
     m_callbackInterface(nullptr),
 
-    m_streamPosLastCallback(std::numeric_limits<size_t>::max())
+    m_streamPosLastCallback(std::numeric_limits<size_t>::max()),
+
+    m_doNotCheckFile(false)
 {}
 
 Player::~Player()
@@ -234,7 +236,7 @@ void Player::pushFile()
 {
     std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_queueOpenedFile.size() >= m_maxInStreamQueue ||
-        m_queueFilePath.size() == 0)
+        m_queueFilePath.size() == 0 || m_doNotCheckFile)
         return;
 
     std::unique_ptr<AbstractAudioFile> pAudioFile(
@@ -249,7 +251,10 @@ void Player::pushFile()
     if (!m_queueOpenedFile.empty())
     {
         if (!checkStreamInfo(pAudioFile.get()))
+        {
+            m_doNotCheckFile = true;
             return;
+        }
     }
 
     m_queueOpenedFile.push_back(std::move(pAudioFile));
@@ -351,6 +356,8 @@ void Player::resetStreamInfo()
             streamStoppingCallback();
         }
     }
+    // Restart checking file.
+    m_doNotCheckFile = false;
 }
 
 /*
@@ -676,6 +683,9 @@ void Player::clearUnneededStream()
             // Notify of the new file streaming.
             if (!m_queueOpenedFile.empty())
                 startStreamingFile(m_queueOpenedFile.at(0)->filePath());
+            
+            // Restart checking file.
+            m_doNotCheckFile = false;
         }
     }
 }
