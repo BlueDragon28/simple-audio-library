@@ -148,8 +148,7 @@ Extract data from the audio files.
 */
 size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
 {
-    if (!m_isOpen || m_ringBuffer.size() == 0 || 
-        m_streamPos == m_sizeStream || m_isEnded)
+    if (!m_isOpen || m_ringBuffer.size() == 0 || m_isEnded)
         return 0;
     std::scoped_lock lock(m_seekMutex);
     
