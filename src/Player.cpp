@@ -32,7 +32,8 @@ Player::Player() :
 
     m_streamPosLastCallback(std::numeric_limits<size_t>::max()),
 
-    m_doNotCheckFile(false)
+    m_doNotCheckFile(false),
+    m_isStopping(false)
 {}
 
 Player::~Player()
@@ -191,8 +192,11 @@ void Player::stop()
 
     // Stopping the stream.
     std::scoped_lock lock(m_paStreamMutex);
+    // Prevent streamEndCallback to call endStreamingFile callback.
+    m_isStopping = true;
     Pa_StopStream(m_paStream.get());
     resetStreamInfo();
+    m_isStopping = false;
 }
 
 /*
@@ -582,7 +586,7 @@ void Player::streamEndCallback()
         {
             // Call end stream callback.
             std::scoped_lock lock(m_queueOpenedFileMutex);
-            if (!m_queueOpenedFile.empty())
+            if (!m_queueOpenedFile.empty() && !m_isStopping)
                 endStreamingFile(m_queueOpenedFile.at(0)->filePath());
         }
         resetStreamInfo();

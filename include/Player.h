@@ -288,6 +288,9 @@ private:
 
     // Prevent to loop trying to open a file if the file have a different stream information.
     bool m_doNotCheckFile;
+
+    // Prevent streamEndCallback to call endStreamingFile callback if the stop method is called.
+    bool m_isStopping;
 };
 
 /*
