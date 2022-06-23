@@ -390,21 +390,22 @@ Create the PaStream.
 */
 bool Player::createStream()
 {
-    std::scoped_lock openedFileMutex(
-        m_queueOpenedFileMutex);
     if (m_paStream)
         m_paStream.reset();
     
     if (m_queueOpenedFile.empty())
         return false;
+
+    AbstractAudioFile* audioFile;
     
-    std::unique_ptr<AbstractAudioFile>& audioFile =
-        m_queueOpenedFile.at(0);
-    
-    m_numChannels = audioFile->numChannels();
-    m_sampleRate = audioFile->sampleRate();
-    m_bytesPerSample = audioFile->bytesPerSample();
-    m_sampleType = audioFile->sampleType();
+    {
+        std::scoped_lock lock(m_queueOpenedFileMutex);
+        audioFile = m_queueOpenedFile.at(0).get();
+        m_numChannels = audioFile->numChannels();
+        m_sampleRate = audioFile->sampleRate();
+        m_bytesPerSample = audioFile->bytesPerSample();
+        m_sampleType = audioFile->sampleType();
+    }
 
     if (m_numChannels == 0 || m_sampleRate == 0 ||
         m_bytesPerSample == 0 || m_sampleType == SampleType::UNKNOWN)
