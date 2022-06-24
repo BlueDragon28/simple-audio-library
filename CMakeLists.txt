@@ -30,7 +30,8 @@ set(PROJECT_HEADERS
     "include/Player.h"
     "include/PortAudioRAII.h"
     "include/RingBuffer.h"
-    "include/WaveAudioFile.h")
+    "include/WaveAudioFile.h"
+    "include/SndAudioFile.h")
 
 set(PROJECT_SOURCES
     "src/RingBuffer.cpp"
@@ -41,7 +42,8 @@ set(PROJECT_SOURCES
     "src/PortAudioRAII.cpp"
     "src/AudioPlayer.cpp"
     "src/CallbackInterface.cpp"
-    "src/FlacAudioFile.cpp")
+    "src/FlacAudioFile.cpp"
+    "src/SndAudioFile.cpp")
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
