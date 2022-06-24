@@ -15,6 +15,9 @@ pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 # FLAC library
 pkg_check_modules(FLAC++ REQUIRED flac++)
 
+# libsndfile library
+pkg_check_modules(LIBSNDFILE REQUIRED sndfile)
+
 include_directories(include/)
 
 set(PROJECT_HEADERS
@@ -42,7 +45,7 @@ set(PROJECT_SOURCES
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES} ${LIBSNDFILE_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 # If CMAKE_INSTALL_LIBDIR is not define, set it to libdir
