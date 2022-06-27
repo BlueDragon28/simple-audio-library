@@ -211,6 +211,7 @@ std::vector<std::string> AudioPlayer::supportedFormats()
     const std::vector<std::string> filesFormats = {
         "WAVE",
         "FLAC",
+        "OGG",
     };
     return filesFormats;
 }

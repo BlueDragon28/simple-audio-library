@@ -35,6 +35,7 @@ enum FileType
     UNKNOWN_FILE,
     WAVE,
     FLAC,
+    OGG,
 };
 
 struct LoadFile

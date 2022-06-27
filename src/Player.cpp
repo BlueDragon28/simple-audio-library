@@ -7,6 +7,7 @@
 
 #include "WaveAudioFile.h"
 #include "FlacAudioFile.h"
+#include "SndAudioFile.h"
 #include "CallbackInterface.h"
 
 namespace SAL
@@ -294,6 +295,11 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
             pAudioFile = new FlacAudioFile(filePath);
         } break;
 
+        case OGG:
+        {
+            pAudioFile = new SndAudioFile(filePath);
+        } break;
+
         case UNKNOWN_FILE:
         default:
         {} break;
@@ -332,6 +338,12 @@ int Player::checkFileFormat(const char* identifiers, int size) const
         if (strcmp(headID, "fLaC") == 0)
         {
             return FLAC;
+        }
+
+        // Check if it's a OGG file.
+        if (strcmp(headID, "OggS") == 0)
+        {
+            return OGG;
         }
     }
 
