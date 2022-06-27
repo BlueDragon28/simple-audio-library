@@ -50,6 +50,7 @@ void SndAudioFile::open()
     } break;
 
     case SF_FORMAT_PCM_16:
+    case SF_FORMAT_VORBIS:
     {
         setBytesPerSample(2);
     } break;
@@ -83,6 +84,7 @@ void SndAudioFile::open()
     case SF_FORMAT_PCM_16:
     case SF_FORMAT_PCM_24:
     case SF_FORMAT_PCM_32:
+    case SF_FORMAT_VORBIS:
     {
         setSampleType(SampleType::INT);
     } break;
@@ -110,7 +112,7 @@ ring buffer.
 */
 void SndAudioFile::readDataFromFile()
 {
-    if (!streamSizeInBytes() == 0 || !m_file || *m_file.get())
+    if (streamSizeInBytes() == 0 && !m_file && !*m_file.get())
         return;
     
     // Get the recommended size of the tmp buffer.
@@ -174,7 +176,7 @@ void SndAudioFile::readDataFromFile()
     itemsRead *= bytesPerSample();
 
     // Push the buffer to the tmp buffer.
-    if (itemsRead >= 0)
+    if (itemsRead > 0)
     {
         insertDataInfoTmpBuffer(data, itemsRead);
         incrementReadPos(itemsRead);
