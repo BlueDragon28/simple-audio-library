@@ -19,7 +19,7 @@ public:
 
 protected:
     /*
-    Read from the audio file and put it into
+    Get data from the libsndfile library and put it into
     the temporary buffer before going into the 
     ring buffer.
     */

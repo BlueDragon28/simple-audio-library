@@ -1,4 +1,5 @@
 #include "SndAudioFile.h"
+#include <cstring>
 
 namespace SAL
 {
@@ -103,13 +104,81 @@ void SndAudioFile::open()
 }
 
 /*
-Read from the audio file and put it into
+Get data from the libsndfile library and put it into
 the temporary buffer before going into the 
 ring buffer.
 */
 void SndAudioFile::readDataFromFile()
 {
+    if (!streamSizeInBytes() == 0 || !m_file || *m_file.get())
+        return;
+    
+    // Get the recommended size of the tmp buffer.
+    size_t readSize = minimumSizeTemporaryBuffer();
+    if (readPos() + readSize >= streamSizeInBytes())
+        readSize = streamSizeInBytes() - readPos();
+    
+    // Allocate an array of chars to store the audio data.
+    char data[readSize];
+    memset(data, 0, readSize);
 
+    // Get the number of items in the sample.
+    size_t readItems = readSize / bytesPerSample();
+    // Number of items read.
+    size_t itemsRead = 0;
+
+    // Retrieve the data from the libsndfile library.
+    // If the data is of integer format.
+    if (sampleType() == SampleType::INT || sampleType() == SampleType::UINT)
+    {
+        // Create a tmp int buffer and copy the stream inside.
+        int tmpData[readItems];
+        memset(tmpData, 0, readSize);
+        itemsRead = m_file->read(tmpData, readItems);
+
+        // Convert the data from int to the appropriate data type.
+        if (bytesPerSample() == 8)
+        {
+            char* charData = data;
+            for (size_t i = 0; i < itemsRead; i++)
+                *charData++ = tmpData[i];
+        }
+        else if (bytesPerSample() == 16)
+        {
+            short* shortData = reinterpret_cast<short*>(data);
+            for (size_t i = 0; i < itemsRead; i++)
+                *shortData++ = tmpData[i];
+        }
+        else if (bytesPerSample() == 24)
+        {
+            FakeInt24* int24Data = reinterpret_cast<FakeInt24*>(data);
+            for (size_t i = 0; i < itemsRead; i++)
+                memcpy(int24Data++, &tmpData[i], 3);
+        }
+        else if (bytesPerSample() == 32)
+        {
+            memcpy(data, tmpData, itemsRead * bytesPerSample());
+        }
+    }
+    // If the data is of float format.
+    if (sampleType() == SampleType::FLOAT && bytesPerSample() == 32)
+    {
+        // Create a tmp input buffer and copy the stream inside.
+        float tmpData[readItems];
+        memset(tmpData, 0, readSize);
+        itemsRead = m_file->read(tmpData, readItems);
+        memcpy(data, tmpData, itemsRead * bytesPerSample());
+    }
+
+    // Convert itemsRead to bytes.
+    itemsRead *= bytesPerSample();
+
+    // Push the buffer to the tmp buffer.
+    if (itemsRead >= 0)
+    {
+        insertDataInfoTmpBuffer(data, itemsRead);
+        incrementReadPos(itemsRead);
+    }
 }
 
 /*

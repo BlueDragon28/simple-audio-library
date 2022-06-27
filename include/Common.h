@@ -53,6 +53,11 @@ struct EventData
     EventType type;
     EventVariant data;
 };
+
+struct FakeInt24
+{
+    char c[3];
+};
 }
 
 #endif // SIMPLE_AUDIO_LIBRARY_COMMON_H_
