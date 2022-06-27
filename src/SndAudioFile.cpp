@@ -187,6 +187,10 @@ to the new position pos.
 */
 bool SndAudioFile::updateReadingPos(size_t pos)
 {
-    return false;
+    size_t newPosition = m_file->seek(pos, SF_SEEK_SET);
+    if (newPosition >= 0)
+        return true;
+    else
+        return false;
 }
 }
