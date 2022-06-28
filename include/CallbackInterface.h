@@ -1,6 +1,7 @@
 #ifndef SIMPLE_AUDIO_LIBRARY_STREAM_CALLBACK_H_
 #define SIMPLE_AUDIO_LIBRARY_STREAM_CALLBACK_H_
 
+#include "Common.h"
 #include <string>
 #include <functional>
 #include <vector>
@@ -71,18 +72,11 @@ public:
     void addEndFileCallback(EndFileCallback callback);
 
     /*
-    Add a stream position (in frames) change callback.
-    This callback is called when the position of the 
-    stream is changing.
-    */
-    void addStreamPosChangeInFramesCallback(StreamPosChangeInFramesCallback callback);
-
-    /*
-    Add a stream position (in seconds) change callback.
+    Add a stream position (in frames or seconds) change callback.
     This callback is called when the position of the stream
     is changing.
     */
-    void addStreamPosChangeCallback(StreamPosChangeCallback callback);
+    void addStreamPosChangeCallback(StreamPosChangeCallback callback, TimeType timeType = TimeType::SECONDS);
 
     /*
     Add a stream paused callback.
@@ -136,14 +130,9 @@ private:
     void callEndFileCallback(const std::string& filePath);
 
     /*
-    Calling stream position (in frames) change callback.
+    Calling stream position (in frames or seconds) change callback.
     */
-    void callStreamPosChangeInFramesCallback(size_t streamPos);
-
-    /*
-    Calling stream position (in seconds) change callback.
-    */
-    void callStreamPosChangeCallback(size_t streamPos);
+    void callStreamPosChangeCallback(size_t streamPos, TimeType timeType = TimeType::SECONDS);
 
     /*
     Calling stream paused callback.

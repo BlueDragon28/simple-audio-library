@@ -758,9 +758,10 @@ inline void Player::endStreamingFile(const std::string& filePath)
 inline void Player::streamPosChangeInFrames(size_t streamPos)
 {
     if (m_callbackInterface)
-        std::invoke(&CallbackInterface::callStreamPosChangeInFramesCallback,
+        std::invoke(&CallbackInterface::callStreamPosChangeCallback,
                     m_callbackInterface,
-                    streamPos);
+                    streamPos,
+                    TimeType::FRAMES);
 }
 
 inline void Player::streamPosChangeCallback()
@@ -773,7 +774,8 @@ inline void Player::streamPosChangeCallback()
             m_streamPosLastCallback = pos;
             std::invoke(&CallbackInterface::callStreamPosChangeCallback,
                         m_callbackInterface,
-                        m_streamPosLastCallback);
+                        m_streamPosLastCallback,
+                        TimeType::SECONDS);
         }
     }
 }

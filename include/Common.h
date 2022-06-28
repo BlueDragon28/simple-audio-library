@@ -38,6 +38,12 @@ enum FileType
     SNDFILE,
 };
 
+enum class TimeType
+{
+    FRAMES,
+    SECONDS,
+};
+
 struct LoadFile
 {
     std::string filePath;

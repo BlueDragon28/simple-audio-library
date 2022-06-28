@@ -54,25 +54,22 @@ void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 }
 
 /*
-Add a stream position (in frames) change callback.
-This callback is called when the position of the 
-stream is changing.
-*/
-void CallbackInterface::addStreamPosChangeInFramesCallback(StreamPosChangeInFramesCallback callback)
-{
-    std::scoped_lock lock(m_streamPosChangeInFramesMutex);
-    m_streamPosChangeInFramesCallback.push_back(callback);
-}
-
-/*
-Add a stream position (in seconds) change callback.
+Add a stream position (in frames or seconds) change callback.
 This callback is called when the position of the stream
 is changing.
 */
-void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callback)
+void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callback, TimeType timeType)
 {
-    std::scoped_lock lock(m_streamPosChangeMutex);
-    m_streamPosChangeCallback.push_back(callback);
+    if (timeType == TimeType::SECONDS)
+    {
+        std::scoped_lock lock(m_streamPosChangeMutex);
+        m_streamPosChangeCallback.push_back(callback);
+    }
+    else
+    {
+        std::scoped_lock lock(m_streamPosChangeInFramesMutex);
+        m_streamPosChangeInFramesCallback.push_back(callback);
+    }
 }
 
 /*
@@ -158,21 +155,21 @@ void CallbackInterface::callEndFileCallback(const std::string& filePath)
 }
 
 /*
-Calling stream position (in frames) change callback.
+Calling stream position (in frames or seconds) change callback.
 */
-void CallbackInterface::callStreamPosChangeInFramesCallback(size_t streamPos)
+void CallbackInterface::callStreamPosChangeCallback(size_t streamPos, TimeType timeType)
 {
-    std::scoped_lock lock(m_callbackCallMutex);
-    m_callbackCall.push_back({CallbackType::STREAM_POS_CHANGE_IN_FRAME, streamPos});
-}
-
-/*
-Calling stream position (in seconds) change callback.
-*/
-void CallbackInterface::callStreamPosChangeCallback(size_t streamPos)
-{
-    std::scoped_lock lock(m_callbackCallMutex);
-    m_callbackCall.push_back({CallbackType::STREAM_POS_CHANGE, streamPos});
+    // Frames are placed first, because they will be called more often than seconds.
+    if (timeType == TimeType::FRAMES)
+    {
+        std::scoped_lock lock(m_callbackCallMutex);
+        m_callbackCall.push_back({CallbackType::STREAM_POS_CHANGE_IN_FRAME, streamPos});
+    }
+    else
+    {
+        std::scoped_lock lock(m_callbackCallMutex);
+        m_callbackCall.push_back({CallbackType::STREAM_POS_CHANGE, streamPos});
+    }
 }
 
 /*
