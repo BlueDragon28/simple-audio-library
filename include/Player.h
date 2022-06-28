@@ -2,6 +2,7 @@
 #define SIMPLE_AUDIO_LIBRARY_PLAYER_H_
 
 #include "AbstractAudioFile.h"
+#include "Common.h"
 #include <portaudio.h>
 #include <vector>
 #include <string>
@@ -72,24 +73,16 @@ public:
     bool isFileReady() const;
 
     /*
-    Return stream size in frames.
-    */
-    inline size_t streamSizeInFrames() const noexcept;
-
-    /*
-    Return stream pos in frames.
-    */
-    inline size_t streamPosInFrames() const noexcept;
-
-    /*
     Return stream size in seconds.
+    timeType: choose between frames or seconds base time.
     */
-    inline size_t streamSize() const noexcept;
+    inline size_t streamSize(TimeType timeType) const noexcept;
 
     /*
     Return stream pos in seconds.
+    timeType: choose between frames or seconds base time.
     */
-    inline size_t streamPos() const noexcept;
+    inline size_t streamPos(TimeType timeType) const noexcept;
 
     /*
     Read audio data from file and push it
@@ -319,56 +312,40 @@ inline void Player::setCallbackInterface(CallbackInterface* interface) noexcept
 }
 
 /*
-Return stream size in frames.
+Return stream size.
+timeType: choose between frames or seconds base time.
 */
-inline size_t Player::streamSizeInFrames() const noexcept
-{
-    std::scoped_lock lock(m_queueOpenedFileMutex);
-    if (!m_queueOpenedFile.empty())
-        return m_queueOpenedFile.at(0)->streamSize();
-    else
-        return 0;
-}
-
-/*
-Return stream pos in frames.
-*/
-inline size_t Player::streamPosInFrames() const noexcept
-{
-    std::scoped_lock lock(m_queueOpenedFileMutex);
-    if (!m_queueOpenedFile.empty())
-        return m_queueOpenedFile.at(0)->streamPos();
-    else
-        return 0;
-}
-
-/*
-Return stream size in seconds.
-*/
-inline size_t Player::streamSize() const noexcept
+inline size_t Player::streamSize(TimeType timeType) const noexcept
 {
     std::scoped_lock lock(m_queueOpenedFileMutex);
     if (!m_queueOpenedFile.empty())
     {
         const std::unique_ptr<AbstractAudioFile>& audioFile =
             m_queueOpenedFile.at(0);
-        return audioFile->streamSize() / audioFile->sampleRate();
+        if (timeType == TimeType::FRAMES)
+            return m_queueOpenedFile.at(0)->streamSize();
+        else
+            return audioFile->streamSize() / audioFile->sampleRate();
     }
     else 
         return 0;
 }
 
 /*
-Return stream pos in seconds.
+Return stream pos.
+timeType: choose between frames or seconds base time.
 */
-inline size_t Player::streamPos() const noexcept
+inline size_t Player::streamPos(TimeType timeType) const noexcept
 {
     std::scoped_lock lock(m_queueOpenedFileMutex);
     if (!m_queueOpenedFile.empty())
     {
         const std::unique_ptr<AbstractAudioFile>& audioFile =
             m_queueOpenedFile.at(0);
-        return audioFile->streamPos() / audioFile->sampleRate();
+        if (timeType == TimeType::FRAMES)
+            return m_queueOpenedFile.at(0)->streamPos();
+        else
+            return audioFile->streamPos() / audioFile->sampleRate();
     }
     else
         return 0;

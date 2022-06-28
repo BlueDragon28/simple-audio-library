@@ -5,6 +5,7 @@
 #include "EventList.h"
 #include "PortAudioRAII.h"
 #include "CallbackInterface.h"
+#include "Common.h"
 #include <string>
 #include <memory>
 #include <mutex>
@@ -68,22 +69,24 @@ public:
     /*
     Return stream size in frames.
     */
-    inline size_t streamSizeInFrames() const noexcept;
+    //inline size_t streamSizeInFrames() const noexcept;
 
     /*
     Return stream pos in frames.
     */
-    inline size_t streamPosInFrames() const noexcept;
+    //inline size_t streamPosInFrames() const noexcept;
 
     /*
-    Return stream size in seconds.
+    Return stream size.
+    timeType: choose between frames or seconds base time.
     */
-    inline size_t streamSize() const noexcept;
+    inline size_t streamSize(TimeType timeType = TimeType::SECONDS) const noexcept;
 
     /*
-    Return stream pos in seconds.
+    Return stream pos.
+    timeType: choose between frames or seconds base time.
     */
-    inline size_t streamPos() const noexcept;
+    inline size_t streamPos(TimeType timeType = TimeType::SECONDS) const noexcept;
 
     /*
     Event to send to be processed.
@@ -201,39 +204,24 @@ inline bool AudioPlayer::isRunning() const
 }
 
 /*
-Return stream size in frames.
+Return stream size.
+timeType: choose between frames or seconds base time.
 */
-inline size_t AudioPlayer::streamSizeInFrames() const noexcept
+inline size_t AudioPlayer::streamSize(TimeType timeType) const noexcept
 {
     if (m_player)
-        return m_player->streamSizeInFrames();
+        return m_player->streamSize(timeType);
     return 0;
 }
 
 /*
-Return stream pos in frames.
+Return stream pos.
+timeType: choose between frames or seconds base time.
 */
-inline size_t AudioPlayer::streamPosInFrames() const noexcept
+inline size_t AudioPlayer::streamPos(TimeType timeType) const noexcept
 {
     if (m_player)
-        return m_player->streamPosInFrames();
-    return 0;
-}
-
-/*
-Return stream size in seconds.
-*/
-inline size_t AudioPlayer::streamSize() const noexcept
-{
-    if (m_player)
-        return m_player->streamSize();
-    return 0;
-}
-
-inline size_t AudioPlayer::streamPos() const noexcept
-{
-    if (m_player)
-        return m_player->streamPos();
+        return m_player->streamPos(timeType);
     return 0;
 }
 

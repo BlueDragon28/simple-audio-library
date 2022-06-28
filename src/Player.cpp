@@ -768,7 +768,7 @@ inline void Player::streamPosChangeCallback()
 {
     if (m_callbackInterface && !m_queueOpenedFile.empty() && isPlaying())
     {
-        size_t pos = streamPos();
+        size_t pos = streamPos(TimeType::SECONDS);
         if (pos != m_streamPosLastCallback)
         {
             m_streamPosLastCallback = pos;
