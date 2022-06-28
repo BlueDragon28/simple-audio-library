@@ -1,6 +1,6 @@
 #include "SndAudioFile.h"
 #include <cstring>
-
+#include <iostream>
 namespace SAL
 {
 SndAudioFile::SndAudioFile(const char* filePath) :
@@ -39,58 +39,49 @@ void SndAudioFile::open()
     if (numChannels() <= 0 || sampleRate() <= 0)
         return;
     
-    // Get bytes per sample.
+    // Check if it's a valid encoding.
     int format = m_file->format() & SF_FORMAT_SUBMASK;
     switch (format)
     {
-    case SF_FORMAT_PCM_S8:
     case SF_FORMAT_PCM_U8:
-    {
-        setBytesPerSample(1);
-    } break;
-
+    case SF_FORMAT_PCM_S8:
     case SF_FORMAT_PCM_16:
-    case SF_FORMAT_VORBIS:
-    {
-        setBytesPerSample(2);
-    } break;
-
     case SF_FORMAT_PCM_24:
-    {
-        setBytesPerSample(3);
-    } break;
-
     case SF_FORMAT_PCM_32:
-    case SF_FORMAT_FLOAT:
+    case SF_FORMAT_FLAC:
+    case SF_FORMAT_ALAW:
+    case SF_FORMAT_ULAW:
+    case SF_FORMAT_IMA_ADPCM:
+    case SF_FORMAT_MS_ADPCM:
+    case SF_FORMAT_GSM610:
+    case SF_FORMAT_VOX_ADPCM:
+    case SF_FORMAT_NMS_ADPCM_16:
+    case SF_FORMAT_NMS_ADPCM_24:
+    case SF_FORMAT_NMS_ADPCM_32:
+    case SF_FORMAT_G721_32:
+    case SF_FORMAT_G723_24:
+    case SF_FORMAT_G723_40:
+    case SF_FORMAT_DWVW_12:
+    case SF_FORMAT_DWVW_16:
+    case SF_FORMAT_DWVW_24:
+    case SF_FORMAT_DWVW_N:
+    case SF_FORMAT_DPCM_8:
+    case SF_FORMAT_DPCM_16:
+    case SF_FORMAT_VORBIS:
+    case SF_FORMAT_OPUS:
+    case SF_FORMAT_ALAC_16:
+    case SF_FORMAT_ALAC_20:
+    case SF_FORMAT_ALAC_24:
+    case SF_FORMAT_ALAC_32:
+    case SF_FORMAT_MPEG_LAYER_I:
+    case SF_FORMAT_MPEG_LAYER_II:
+    case SF_FORMAT_MPEG_LAYER_III:
     {
+        /*
+        The sndfile library do not allow retrieving audio pcm 
+        of 8 and 24 bits. So, every pcm is converted to 32 bits float.
+        */
         setBytesPerSample(4);
-    } break;
-
-    default:
-    {
-        return;
-    } break;
-    }
-
-    // Set sample type
-    switch (format)
-    {
-    case SF_FORMAT_PCM_U8:
-    {
-        setSampleType(SampleType::UINT);
-    } break;
-
-    case SF_FORMAT_PCM_S8:
-    case SF_FORMAT_PCM_16:
-    case SF_FORMAT_PCM_24:
-    case SF_FORMAT_PCM_32:
-    case SF_FORMAT_VORBIS:
-    {
-        setSampleType(SampleType::INT);
-    } break;
-
-    case SF_FORMAT_FLOAT:
-    {
         setSampleType(SampleType::FLOAT);
     } break;
     }
@@ -112,7 +103,7 @@ ring buffer.
 */
 void SndAudioFile::readDataFromFile()
 {
-    if (streamSizeInBytes() == 0 && !m_file && !*m_file.get())
+    if (streamSizeInBytes() == 0 || !m_file || !*m_file.get() || sampleType() != SampleType::FLOAT)
         return;
     
     // Get the recommended size of the tmp buffer.
@@ -126,51 +117,10 @@ void SndAudioFile::readDataFromFile()
 
     // Get the number of items in the sample.
     size_t readItems = readSize / bytesPerSample();
-    // Number of items read.
-    size_t itemsRead = 0;
 
-    // Retrieve the data from the libsndfile library.
-    // If the data is of integer format.
-    if (sampleType() == SampleType::INT || sampleType() == SampleType::UINT)
-    {
-        // Create a tmp int buffer and copy the stream inside.
-        int tmpData[readItems];
-        memset(tmpData, 0, readSize);
-        itemsRead = m_file->read(tmpData, readItems);
-
-        // Convert the data from int to the appropriate data type.
-        if (bytesPerSample() == 8)
-        {
-            char* charData = data;
-            for (size_t i = 0; i < itemsRead; i++)
-                *charData++ = tmpData[i];
-        }
-        else if (bytesPerSample() == 16)
-        {
-            short* shortData = reinterpret_cast<short*>(data);
-            for (size_t i = 0; i < itemsRead; i++)
-                *shortData++ = tmpData[i];
-        }
-        else if (bytesPerSample() == 24)
-        {
-            FakeInt24* int24Data = reinterpret_cast<FakeInt24*>(data);
-            for (size_t i = 0; i < itemsRead; i++)
-                memcpy(int24Data++, &tmpData[i], 3);
-        }
-        else if (bytesPerSample() == 32)
-        {
-            memcpy(data, tmpData, itemsRead * bytesPerSample());
-        }
-    }
-    // If the data is of float format.
-    if (sampleType() == SampleType::FLOAT && bytesPerSample() == 32)
-    {
-        // Create a tmp input buffer and copy the stream inside.
-        float tmpData[readItems];
-        memset(tmpData, 0, readSize);
-        itemsRead = m_file->read(tmpData, readItems);
-        memcpy(data, tmpData, itemsRead * bytesPerSample());
-    }
+    // Retrieve the data from the libsndfile library and listen
+    // to the number of bytes read.
+    size_t itemsRead = m_file->read((float*)data, readItems);
 
     // Convert itemsRead to bytes.
     itemsRead *= bytesPerSample();
