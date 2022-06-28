@@ -120,7 +120,7 @@ private:
     /*
     Trying to detect the file format.
     */
-    int checkFileFormat(const char* indentifiers, int size) const;
+    int checkFileFormat(const std::string& filepath) const;
 
     /*
     Reset stream info.

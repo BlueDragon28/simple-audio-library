@@ -12,8 +12,6 @@
 
 namespace SAL
 {
-#define MAX_IDENTIFIERS_CHAR 12
-
 Player::Player() :
     // PortAudio stream interface.
     m_paStream(nullptr, Pa_CloseStream),
@@ -81,14 +79,7 @@ Checking if a file is readable by this library.
 */
 int Player::isReadable(const std::string& filePath) const
 {
-    char header[MAX_IDENTIFIERS_CHAR];
-    memset(header, 0, MAX_IDENTIFIERS_CHAR);
-    std::ifstream file(filePath, std::ios::binary);
-    if (file.is_open())
-    {
-        file.read(header, MAX_IDENTIFIERS_CHAR);
-        return checkFileFormat(header, MAX_IDENTIFIERS_CHAR);
-    }
+    return checkFileFormat(filePath);
     return UNKNOWN_FILE;
 }
 
@@ -272,80 +263,48 @@ Check what type is the file and opening it.
 AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
 {
     AbstractAudioFile* pAudioFile = nullptr;
-    std::ifstream file(filePath, std::ifstream::binary);
-    if (file.is_open())
+
+    // Get the file format.
+    int format = checkFileFormat(filePath);
+
+    // Create the audio file stream base on the file format (if supported).
+    switch (format)
     {
-        char headIdentifier[MAX_IDENTIFIERS_CHAR];
-        memset(headIdentifier, 0, MAX_IDENTIFIERS_CHAR);
-        file.read(headIdentifier, MAX_IDENTIFIERS_CHAR);
+    case WAVE:
+    {
+        pAudioFile = new WaveAudioFile(filePath);
+    } break;
 
-        // Get the file format.
-        int format = checkFileFormat(headIdentifier, MAX_IDENTIFIERS_CHAR);
+    case FLAC:
+    {
+        pAudioFile = new FlacAudioFile(filePath);
+    } break;
 
-        // Create the audio file stream base on the file format (if supported).
-        switch (format)
-        {
-        case WAVE:
-        {
-            pAudioFile = new WaveAudioFile(filePath);
-        } break;
+    case SNDFILE:
+    {
+        pAudioFile = new SndAudioFile(filePath);
+    } break;
 
-        case FLAC:
-        {
-            pAudioFile = new FlacAudioFile(filePath);
-        } break;
-
-        case OGG:
-        {
-            pAudioFile = new SndAudioFile(filePath);
-        } break;
-
-        case UNKNOWN_FILE:
-        default:
-        {} break;
-        }
+    case UNKNOWN_FILE:
+    default:
+    {} break;
     }
+    
     return pAudioFile;
 }
 
 /*
 Trying to detect the file format.
 */
-int Player::checkFileFormat(const char* identifiers, int size) const
+int Player::checkFileFormat(const std::string& filePath) const
 {
-    // Check all the files with the first identifier with 4 characters.
-    if (size >= 4)
-    {
-        char headID[5];
-        headID[4] = '\0';
-        
-        // Check if it's a WAVE file.
-        memcpy(headID, identifiers, 4);
-        if (strcmp(headID, "RIFF") == 0)
-        {
-            // The second identifier is between 8-12
-            if (size >= 12)
-            {
-                memcpy(headID, identifiers+8, 4);
-                if (strcmp(headID, "WAVE") == 0)
-                    return WAVE;
-                else
-                    return UNKNOWN_FILE;
-            }
-        }
-
-        // Check if it's a FLAC file.
-        if (strcmp(headID, "fLaC") == 0)
-        {
-            return FLAC;
-        }
-
-        // Check if it's a OGG file.
-        if (strcmp(headID, "OggS") == 0)
-        {
-            return OGG;
-        }
-    }
+    // Trying to read the file with the different implementation to check which one to use.
+    if (WaveAudioFile(filePath).isOpen())
+        return WAVE;
+    else if (FlacAudioFile(filePath).isOpen())
+        return FLAC;
+    else if (SndAudioFile(filePath).isOpen())
+        return SNDFILE;
 
     return UNKNOWN_FILE;
 }
