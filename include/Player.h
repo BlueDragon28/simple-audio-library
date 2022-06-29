@@ -65,7 +65,8 @@ public:
     void next();
 
     /*
-    Return true if the stream if playing.
+    Wrapper to the _isPlaying private method.
+    The wrapper lock the opened file mutex.
     */
     bool isPlaying() const;
 
@@ -83,12 +84,14 @@ public:
     /*
     Return stream size in seconds.
     timeType: choose between frames or seconds base time.
+    Wrapper to the _streamSize method.
     */
     inline size_t streamSize(TimeType timeType) const noexcept;
 
     /*
     Return stream pos in seconds.
     timeType: choose between frames or seconds base time.
+    Wrapper to the _streamPos method.
     */
     inline size_t streamPos(TimeType timeType) const noexcept;
 
@@ -125,6 +128,11 @@ private:
 
     /*
     Reset stream info.
+    */
+    void _resetStreamInfo();
+    /*
+    Wrapper to the _resetStreamInfo.
+    This method lock opened file mutex.
     */
     void resetStreamInfo();
 
@@ -171,6 +179,23 @@ private:
     Set m_isPlaying to false if there is no audio file to stream.
     */
     void checkIfNoStream();
+
+    /*
+    Return true if the stream if playing.
+    */
+    bool _isPlaying() const;
+
+    /*
+    Return stream size in seconds.
+    timeType: choose between frames or seconds base time.
+    */
+    size_t _streamSize(TimeType timeType) const noexcept;
+
+    /*
+    Return stream pos in seconds.
+    timeType: choose between frames or seconds base time.
+    */
+    size_t _streamPos(TimeType timeType) const noexcept;
 
     /*
     Static C callback use to make a bridge between
@@ -320,12 +345,22 @@ inline void Player::setCallbackInterface(CallbackInterface* interface) noexcept
 }
 
 /*
-Return stream size.
+Return stream size in seconds.
 timeType: choose between frames or seconds base time.
+Wrapper to the _streamSize method.
 */
 inline size_t Player::streamSize(TimeType timeType) const noexcept
 {
     std::scoped_lock lock(m_queueOpenedFileMutex);
+    return _streamSize(timeType);
+}
+
+/*
+Return stream size.
+timeType: choose between frames or seconds base time.
+*/
+inline size_t Player::_streamSize(TimeType timeType) const noexcept
+{
     if (!m_queueOpenedFile.empty())
     {
         const std::unique_ptr<AbstractAudioFile>& audioFile =
@@ -340,12 +375,22 @@ inline size_t Player::streamSize(TimeType timeType) const noexcept
 }
 
 /*
-Return stream pos.
+Return stream pos in seconds.
 timeType: choose between frames or seconds base time.
+Wrapper to the _streamPos method.
 */
 inline size_t Player::streamPos(TimeType timeType) const noexcept
 {
     std::scoped_lock lock(m_queueOpenedFileMutex);
+    return _streamPos(timeType);
+}
+
+/*
+Return stream pos.
+timeType: choose between frames or seconds base time.
+*/
+inline size_t Player::_streamPos(TimeType timeType) const noexcept
+{
     if (!m_queueOpenedFile.empty())
     {
         const std::unique_ptr<AbstractAudioFile>& audioFile =

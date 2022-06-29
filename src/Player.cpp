@@ -63,9 +63,11 @@ void Player::open(const std::string& filePath, bool clearQueue)
     if (!isExisting)
         return;
     
-    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
-    m_queueFilePath.push_back(filePath);
-    pushFile();
+    {
+        std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
+        m_queueFilePath.push_back(filePath);
+        pushFile();
+    }
 
     if (clearQueue && isCurrentPlaying)
         play();
@@ -111,6 +113,7 @@ void Player::play()
         
         if (!m_queueOpenedFile.empty())
         {
+            std::scoped_lock lock(m_queueOpenedFileMutex);
             if (!createStream())
             {
                 resetStreamInfo();
@@ -204,6 +207,7 @@ void Player::next()
     {
         endStreamingFile(m_queueOpenedFile.at(0)->filePath());
         m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
+        m_doNotCheckFile = false;
 
         while (m_queueOpenedFile.empty() && !m_queueFilePath.empty())
         {
@@ -212,17 +216,24 @@ void Player::next()
 
         if (!m_queueOpenedFile.empty())
             startStreamingFile(m_queueOpenedFile.at(0)->filePath());
-        
-        m_doNotCheckFile = false;
     }
+}
+
+/*
+Wrapper to the _isPlaying private method.
+The wrapper lock the opened file mutex.
+*/
+bool Player::isPlaying() const
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    return _isPlaying();
 }
 
 /*
 Return true if the stream if playing.
 */
-bool Player::isPlaying() const
+bool Player::_isPlaying() const
 {
-    std::scoped_lock lock(m_queueOpenedFileMutex);
     if (m_isPlaying && !m_queueOpenedFile.empty())
     {
         if (m_queueOpenedFile.at(m_queueOpenedFile.size()-1)->isEnded())
@@ -337,9 +348,8 @@ int Player::checkFileFormat(const std::string& filePath) const
 /*
 Reset stream info.
 */
-void Player::resetStreamInfo()
+void Player::_resetStreamInfo()
 {
-    std::scoped_lock lock(m_queueOpenedFileMutex);
     m_paStream.reset();
     m_queueOpenedFile.clear();
     m_numChannels = 0;
@@ -358,6 +368,16 @@ void Player::resetStreamInfo()
     }
     // Restart checking file.
     m_doNotCheckFile = false;
+}
+
+/*
+Wrapper to the _resetStreamInfo.
+This method lock opened file mutex.
+*/
+void Player::resetStreamInfo()
+{
+    std::scoped_lock lock(m_queueOpenedFileMutex);
+    _resetStreamInfo();
 }
 
 /*
@@ -393,20 +413,16 @@ bool Player::createStream()
         return false;
 
     AbstractAudioFile* audioFile;
-    
-    {
-        std::scoped_lock lock(m_queueOpenedFileMutex);
-        audioFile = m_queueOpenedFile.at(0).get();
-        m_numChannels = audioFile->numChannels();
-        m_sampleRate = audioFile->sampleRate();
-        m_bytesPerSample = audioFile->bytesPerSample();
-        m_sampleType = audioFile->sampleType();
-    }
+    audioFile = m_queueOpenedFile.at(0).get();
+    m_numChannels = audioFile->numChannels();
+    m_sampleRate = audioFile->sampleRate();
+    m_bytesPerSample = audioFile->bytesPerSample();
+    m_sampleType = audioFile->sampleType();
 
     if (m_numChannels == 0 || m_sampleRate == 0 ||
         m_bytesPerSample == 0 || m_sampleType == SampleType::UNKNOWN)
     {
-        resetStreamInfo();
+        _resetStreamInfo();
         return false;
     }
 
@@ -597,8 +613,8 @@ m_queueFilePath to m_queueOpenedFile.
 */
 void Player::update()
 {
-    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     pauseIfBuffering();
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     updateStreamBuffer();
     continuePlayingIfEnoughBuffering();
     clearUnneededStream();
@@ -629,7 +645,7 @@ void Player::pauseIfBuffering()
                 isError = true;
         }
         if (isError)
-            resetStreamInfo();
+            _resetStreamInfo();
     }
 }
 
@@ -638,7 +654,7 @@ Restart stream if buffering enough.
 */
 void Player::continuePlayingIfEnoughBuffering()
 {
-    if (isPlaying() && m_isBuffering)
+    if (_isPlaying() && m_isBuffering)
     {
         bool isStartStreamFailed = false;
         {
@@ -660,7 +676,7 @@ void Player::continuePlayingIfEnoughBuffering()
             }
         }
         if (isStartStreamFailed)    
-            resetStreamInfo();
+            _resetStreamInfo();
     }
 }
 
@@ -705,7 +721,7 @@ void Player::recreateStream()
         {
             if (!createStream())
             {
-                resetStreamInfo();
+                _resetStreamInfo();
                 m_isPlaying = false;
             }
             
@@ -785,9 +801,9 @@ inline void Player::streamPosChangeInFrames(size_t streamPos)
 
 inline void Player::streamPosChangeCallback()
 {
-    if (m_callbackInterface && !m_queueOpenedFile.empty() && isPlaying())
+    if (m_callbackInterface && !m_queueOpenedFile.empty() && _isPlaying())
     {
-        size_t pos = streamPos(TimeType::SECONDS);
+        size_t pos = _streamPos(TimeType::SECONDS);
         if (pos != m_streamPosLastCallback)
         {
             m_streamPosLastCallback = pos;
