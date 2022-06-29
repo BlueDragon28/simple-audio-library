@@ -84,6 +84,12 @@ void SndAudioFile::open()
         setBytesPerSample(4);
         setSampleType(SampleType::FLOAT);
     } break;
+
+    // Not a compatible format, leaving.
+    default:
+    {
+        return;
+    } break;
     }
 
     // Set stream size in bytes.
