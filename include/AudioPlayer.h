@@ -127,6 +127,11 @@ public:
     inline void seek(size_t pos, bool inSeconds = true) noexcept;
 
     /*
+    Move to the next audio stream (if available).
+    */
+    inline void next() noexcept;
+
+    /*
     Stop the loop of AudioPlayer and stop playing audio stream.
     */
     inline void quit() noexcept;
@@ -290,6 +295,15 @@ inline void AudioPlayer::seek(size_t pos, bool inSeconds) noexcept
         else
             m_events.push(EventType::SEEK, pos);
     }
+}
+
+/*
+Move to the next audio stream (if available).
+*/
+inline void AudioPlayer::next() noexcept
+{
+    if (isReady())
+        m_events.push(EventType::NEXT);
 }
 
 /*

@@ -145,6 +145,12 @@ void AudioPlayer::processEvents()
                 event.type == EventType::SEEK_SECONDS ? true : false);
         } break;
 
+        // Move to the next audio stream.
+        case EventType::NEXT:
+        {
+            m_player->next();
+        } break;
+
         // Quit
         case EventType::QUIT:
         {

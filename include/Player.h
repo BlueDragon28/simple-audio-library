@@ -57,6 +57,14 @@ public:
     inline void seek(size_t pos, bool inSeconds) noexcept;
 
     /*
+    Move to the next audio stream (if available).
+    The method check if the opened file array have
+    at least two items or if the opened file array have 
+    one item and the file path array have at least one item.
+    */
+    void next();
+
+    /*
     Return true if the stream if playing.
     */
     bool isPlaying() const;

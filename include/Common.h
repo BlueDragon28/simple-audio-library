@@ -25,6 +25,7 @@ enum class EventType
     WAIT_EVENT,
     SEEK,
     SEEK_SECONDS,
+    NEXT,
 };
 
 /*

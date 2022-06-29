@@ -192,6 +192,32 @@ void Player::stop()
 }
 
 /*
+Move to the next audio stream (if available).
+The method check if the opened file array have
+at least two items or if the opened file array have 
+one item and the file path array have at least one item.
+*/
+void Player::next()
+{
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
+    if (m_queueOpenedFile.size() > 1 || (m_queueOpenedFile.size() == 1 && m_queueFilePath.size() >= 1))
+    {
+        endStreamingFile(m_queueOpenedFile.at(0)->filePath());
+        m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
+
+        while (m_queueOpenedFile.empty() && !m_queueFilePath.empty())
+        {
+            pushFile();
+        }
+
+        if (!m_queueOpenedFile.empty())
+            startStreamingFile(m_queueOpenedFile.at(0)->filePath());
+        
+        m_doNotCheckFile = false;
+    }
+}
+
+/*
 Return true if the stream if playing.
 */
 bool Player::isPlaying() const
