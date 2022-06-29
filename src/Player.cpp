@@ -202,17 +202,30 @@ one item and the file path array have at least one item.
 */
 void Player::next()
 {
-    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_queueOpenedFile.size() > 1 || (m_queueOpenedFile.size() == 1 && m_queueFilePath.size() >= 1))
     {
-        endStreamingFile(m_queueOpenedFile.at(0)->filePath());
-        m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
-        m_doNotCheckFile = false;
+        // Removing the current stream.
+        {
+            std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
+            endStreamingFile(m_queueOpenedFile.at(0)->filePath());
+            m_queueOpenedFile.erase(m_queueOpenedFile.cbegin());
+            m_doNotCheckFile = false;
+        }
 
+        // Close the stream if there is no other stream to play or that don't have the same stream info.
+        if (m_queueOpenedFile.empty())
+        {
+            std::scoped_lock lock(m_paStreamMutex);
+            Pa_CloseStream(m_paStream.get());
+        }
+
+        // Creating new stream if opened file array is empty.
         while (m_queueOpenedFile.empty() && !m_queueFilePath.empty())
         {
             pushFile();
         }
+
+        recreateStream();
 
         if (!m_queueOpenedFile.empty())
             startStreamingFile(m_queueOpenedFile.at(0)->filePath());
