@@ -63,11 +63,8 @@ void Player::open(const std::string& filePath, bool clearQueue)
     if (!isExisting)
         return;
     
-    {
-        std::scoped_lock lock(m_queueFilePathMutex);
-        m_queueFilePath.push_back(filePath);
-    }
-
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
+    m_queueFilePath.push_back(filePath);
     pushFile();
 
     if (clearQueue && isCurrentPlaying)
@@ -107,7 +104,10 @@ void Player::play()
     else
     {
         if (!m_queueFilePath.empty())
+        {
+            std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
             pushFile();
+        }
         
         if (!m_queueOpenedFile.empty())
         {
@@ -230,7 +230,6 @@ then the same file in m_queueOpenedFile.
 */
 void Player::pushFile()
 {
-    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_queueOpenedFile.size() >= m_maxInStreamQueue ||
         m_queueFilePath.size() == 0 || m_doNotCheckFile)
         return;
@@ -572,6 +571,7 @@ m_queueFilePath to m_queueOpenedFile.
 */
 void Player::update()
 {
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     pauseIfBuffering();
     updateStreamBuffer();
     continuePlayingIfEnoughBuffering();
@@ -616,7 +616,7 @@ void Player::continuePlayingIfEnoughBuffering()
     {
         bool isStartStreamFailed = false;
         {
-            std::scoped_lock lock(m_queueOpenedFileMutex, m_paStreamMutex);
+            std::scoped_lock lock(m_paStreamMutex);
             for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
             {
                 if (!file->isEnded())
@@ -643,8 +643,6 @@ Remove the ended stream of m_queueOpenedFile.
 */
 void Player::clearUnneededStream()
 {
-    std::scoped_lock lock(m_queueOpenedFileMutex);
-    
     while (m_queueOpenedFile.size() > 0)
     {
         if (!m_queueOpenedFile.at(0)->isEnded())
@@ -692,11 +690,8 @@ void Player::recreateStream()
                 m_isPlaying = true;
                 
                 // Call end stream callback.
-                std::scoped_lock lock(m_queueOpenedFileMutex);
                 if (!m_queueOpenedFile.empty())
-                {
                     startStreamingFile(m_queueOpenedFile.at(0)->filePath());
-                }
             }
             else
             {
@@ -713,7 +708,6 @@ into the ring buffer.
 */
 void Player::updateStreamBuffer()
 {
-    std::scoped_lock lock(m_queueOpenedFileMutex);
     for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
     {
         audioFile->readFromFile();
@@ -728,7 +722,6 @@ into the ring buffer.
 */
 void Player::checkIfNoStream()
 {
-    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_isPlaying && m_queueFilePath.empty() && m_queueOpenedFile.empty())
     {
         m_isPlaying = false;
