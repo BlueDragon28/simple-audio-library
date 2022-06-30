@@ -509,6 +509,9 @@ bool Player::createStream()
     
     m_paStream = std::unique_ptr<PaStream, decltype(&Pa_CloseStream)>
         (pStream, Pa_CloseStream);
+
+    // checkStreamInfo may be called before createStream, which lead to a fail even if the next stream is compatible.
+    m_doNotCheckFile = false;
     
     return true;
 }
