@@ -9,7 +9,7 @@
 #include "FlacAudioFile.h"
 #include "SndAudioFile.h"
 #include "CallbackInterface.h"
-
+#include <iostream>
 namespace SAL
 {
 Player::Player() :
@@ -562,7 +562,7 @@ int Player::streamCallback(
         {
             while (framesWrited < framesPerBuffer && !audioFile->isEnded())
             {
-                framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*m_bytesPerSample,
+                framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*audioFile->bytesPerFrame(),
                     framesPerBuffer-framesWrited);
                 
                 if (audioFile->bufferingSize() == 0)

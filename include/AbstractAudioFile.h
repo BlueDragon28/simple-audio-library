@@ -88,6 +88,11 @@ public:
     inline int bytesPerSample() const noexcept;
 
     /*
+    Number of bytes per frame of the stream.
+    */
+    inline int bytesPerFrame() const noexcept;
+
+    /*
     Number of bits per sample of the stream.
     */
     inline int bitsPerSample() const noexcept;
@@ -275,6 +280,7 @@ private:
     std::atomic<size_t> m_sampleRate;
     std::atomic<int> m_numChannels;
     std::atomic<int> m_bytesPerSample;
+    std::atomic<int> m_bytesPerFrame;
     std::atomic<size_t> m_sizeStream;
     std::atomic<size_t> m_sizeStreamInSamples;
     std::atomic<size_t> m_sizeStreamInFrames;
@@ -352,6 +358,14 @@ Number of bytes per sample of the stream.
 inline int AbstractAudioFile::bytesPerSample() const noexcept
 {
     return m_bytesPerSample;
+}
+
+/*
+Number of bytes per frame of the stream.
+*/
+inline int AbstractAudioFile::bytesPerFrame() const noexcept
+{
+    return m_bytesPerFrame;
 }
 
 /*
