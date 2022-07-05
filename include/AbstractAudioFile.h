@@ -136,12 +136,6 @@ public:
     */
     inline size_t streamPosInBytes() const noexcept;
 
-protected:
-    /*
-    Sample type of the raw stream (the stream stored in the file) if it's an integer or floating point number.
-    */
-    inline SampleType sampleType() const noexcept;
-
     /*
     Return the number of bytes per sample of the raw stream (the stream stored in the file).
     */
@@ -157,6 +151,12 @@ protected:
     */
     inline int bitsPerSample() const noexcept;
 
+    /*
+    Sample type of the raw stream (the stream stored in the file) if it's an integer or floating point number.
+    */
+    inline SampleType sampleType() const noexcept;
+
+protected:
     /*
     Mark the file has ready to stream.
     */

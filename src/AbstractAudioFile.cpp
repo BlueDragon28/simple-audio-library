@@ -272,9 +272,9 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
         return 0;
     std::scoped_lock lock(m_seekMutex);
     
-    size_t sizeInBytes = sizeInFrames * numChannels() * bytesPerSample();
+    size_t sizeInBytes = sizeInFrames * numChannels() * sizeof(float);
     size_t bytesReaded = m_ringBuffer.read(data, sizeInBytes);
-    m_streamPos += bytesReaded;
+    m_streamPos += sizeof(float) - (sizeof(float) - bytesReaded);
     updateStreamPosInfo();
 
     if (m_streamPos == m_sizeStream)
@@ -282,7 +282,7 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
 
     size_t bytesReadedInFrames;
     if (bytesReaded != 0)
-        bytesReadedInFrames = bytesReaded / numChannels() / bytesPerSample();
+        bytesReadedInFrames = bytesReaded / numChannels() / sizeof(float);
     else
     {
         // If no data to read and the file reached the end, stop the stream.
