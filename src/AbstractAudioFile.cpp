@@ -300,9 +300,9 @@ audio file header is readed.
 */
 void AbstractAudioFile::updateBuffersSize()
 {
-    resizeTmpBuffer(sampleRate() * numChannels() * bytesPerSample());
+    resizeTmpBuffer(sampleRate() * numChannels() * sizeof(float));
     m_tmpMinimumSize = m_tmpSize;
-    m_ringBuffer.resizeBuffer(sampleRate() * numChannels() * bytesPerSample() * 5);
+    m_ringBuffer.resizeBuffer(sampleRate() * numChannels() * sizeof(float) * 5);
 }
 
 void AbstractAudioFile::updateStreamPosInfo()
