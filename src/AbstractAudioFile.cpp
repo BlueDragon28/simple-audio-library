@@ -219,12 +219,18 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
     // Unsigned 8 bit integer to floating point number.
     else
     {
-        int max = 0xFF;
+        /*
+        To convert a unsigned integer into a floating point number, the number is divided by
+        half the max value of the integer (128 here) to get a range between [0-2] and then subtracted by 1
+        to get a range between [(-1)-1].
+        */
+        int max = 0x80;
         data.resize(size);
 
         for (size_t i = 0; i < size; i++)
         {
             data[i] = (float)buffer[i] / (float)max;
+            data[i] -= 1.0f;
         }
     }
 
