@@ -132,7 +132,7 @@ std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
             min = 0x80000000;
         }
 
-        // Convert int to float.
+        // Convert int to float and in the range [-1,1].
         float number = (float)iBuffer[i];
         fBuffer[i] = number / (number < 0 ? (float)min : (float)max);
     }
@@ -141,7 +141,7 @@ std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
 }
 
 // Convert 24 bits integers to floating point numbers.
-// Since no 24 bits integer exist in c++, this fonction copy the integer at bits level.
+// Since no 24 bits integer exist in c++, this fonction convert manually the number to a 32 bit integers.
 template<>
 std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
 {
@@ -156,10 +156,10 @@ std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
         FakeInt24 number24 = iBuffer[i];
         int number32 = 0;
 
-        // Get the negative sign.
+        // Check if the number have the negative sign.
         if (number24.c[2] & 0x80)
         {
-            number32 = 0xFFFFFFFF;
+            number32 = 0xFFFFFFFF; // When negative all the bits are flipped. 0xFFFFFFFF is equal to -1.
         }
 
         // Copy number24 to number32.
@@ -168,7 +168,7 @@ std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
         n32->c[1] = number24.c[1];
         n32->c[2] = number24.c[2]; // No need to worry about the 8 bit because if it's negative, it will be equal to 1.
 
-        // Convert number32 to float.
+        // Convert number32 to float and in the range [-1,1]
         float fNumber = (float)number32;
         fBuffer[i] = fNumber / (fNumber < 0 ? (float)min : (float)max);
     }
@@ -219,15 +219,16 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
     {
         /*
         To convert a unsigned integer into a floating point number, the number is divided by
-        half the max value of the integer (128 here) to get a range between [0-2] and then subtracted by 1
-        to get a range between [(-1)-1].
+        half the max value of the integer (127.5 here) to get a range between [0,2] and then subtracted by 1
+        to get a range between [-1,1].
         */
-        int max = 0x80;
+        float max = 127.5f;
         data.resize(size);
+        uint8_t* b = (uint8_t*)buffer;
 
         for (size_t i = 0; i < size; i++)
         {
-            data[i] = (float)buffer[i] / (float)max;
+            data[i] = (float)b[i] / max;
             data[i] -= 1.0f;
         }
     }
