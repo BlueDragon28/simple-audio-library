@@ -9,7 +9,7 @@
 #include "FlacAudioFile.h"
 #include "SndAudioFile.h"
 #include "CallbackInterface.h"
-#include <iostream>
+
 namespace SAL
 {
 Player::Player() :
@@ -401,15 +401,14 @@ bool Player::checkStreamInfo(const AbstractAudioFile* const file) const
 {
     if (!file)
         return false;
-
     bool isSame = true;
     if (file->numChannels() != m_numChannels)
         isSame = false;
     if (file->sampleRate() != m_sampleRate)
         isSame = false;
-    if (file->bytesPerSample() != m_bytesPerSample)
+    if (file->streamBytesPerSample() != m_bytesPerSample)
         isSame = false;
-    if (file->sampleType() != m_sampleType)
+    if (file->streamSampleType() != m_sampleType)
         isSame = false;
     return isSame;
 }
@@ -429,8 +428,8 @@ bool Player::createStream()
     audioFile = m_queueOpenedFile.at(0).get();
     m_numChannels = audioFile->numChannels();
     m_sampleRate = audioFile->sampleRate();
-    m_bytesPerSample = audioFile->bytesPerSample();
-    m_sampleType = audioFile->sampleType();
+    m_bytesPerSample = audioFile->streamBytesPerSample();
+    m_sampleType = audioFile->streamSampleType();
 
     if (m_numChannels == 0 || m_sampleRate == 0 ||
         m_bytesPerSample == 0 || m_sampleType == SampleType::UNKNOWN)
@@ -444,33 +443,7 @@ bool Player::createStream()
     PaStreamParameters outParams = {};
     outParams.device = defaultOutputDevice;
     outParams.channelCount = m_numChannels;
-    if (m_sampleType == SampleType::INT)
-    {
-        if (m_bytesPerSample == 1)
-            outParams.sampleFormat = paInt8;
-        else if (m_bytesPerSample == 2)
-            outParams.sampleFormat = paInt16;
-        else if (m_bytesPerSample == 3)
-            outParams.sampleFormat = paInt24;
-        else if (m_bytesPerSample == 4)
-            outParams.sampleFormat = paInt32;
-        else
-        {
-            resetStreamInfo();
-            return false;
-        }
-    }
-    else if (m_sampleType == SampleType::UINT)
-    {
-        if (m_bytesPerSample == 1)
-            outParams.sampleFormat = paUInt8;
-        else
-        {
-            resetStreamInfo();
-            return false;
-        }
-    }
-    else if (m_sampleType == SampleType::FLOAT)
+    if (m_sampleType == SampleType::FLOAT)
     {
         if (m_bytesPerSample == 4)
             outParams.sampleFormat = paFloat32;
@@ -479,11 +452,6 @@ bool Player::createStream()
             resetStreamInfo();
             return false;
         }
-    }
-    else
-    {
-        resetStreamInfo();
-        return false;
     }
     outParams.suggestedLatency = Pa_GetDeviceInfo(defaultOutputDevice)->defaultHighOutputLatency;
     outParams.hostApiSpecificStreamInfo = nullptr;
@@ -562,7 +530,7 @@ int Player::streamCallback(
         {
             while (framesWrited < framesPerBuffer && !audioFile->isEnded())
             {
-                framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*audioFile->bytesPerFrame(),
+                framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*audioFile->streamBytesPerFrame(),
                     framesPerBuffer-framesWrited);
                 
                 if (audioFile->bufferingSize() == 0)
