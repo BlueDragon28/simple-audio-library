@@ -280,7 +280,7 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     
     size_t sizeInBytes = sizeInFrames * numChannels() * sizeof(float);
     size_t bytesReaded = m_ringBuffer.read(data, sizeInBytes);
-    m_streamPos += sizeof(float) - (sizeof(float) - bytesReaded);
+    m_streamPos += bytesReaded / sizeof(float) * m_bytesPerSample;
     updateStreamPosInfo();
 
     if (m_streamPos == m_sizeStream)
