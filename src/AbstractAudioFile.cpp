@@ -160,15 +160,13 @@ std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
         if (number24.c[2] & 0x80)
         {
             number32 = 0xFFFFFFFF;
-            // Remove negative sign of number24
-            number24.c[2] = number24.c[2] & 0x7F;
         }
 
         // Copy number24 to number32.
         FakeInt24* n32 = reinterpret_cast<FakeInt24*>(&number32);
         n32->c[0] = number24.c[0];
         n32->c[1] = number24.c[1];
-        n32->c[2] |= number24.c[2];
+        n32->c[2] = number24.c[2]; // No need to worry about the 8 bit because if it's negative, it will be equal to 1.
 
         // Convert number32 to float.
         float fNumber = (float)number32;
