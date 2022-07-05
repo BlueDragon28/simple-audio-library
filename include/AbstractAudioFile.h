@@ -170,6 +170,7 @@ protected:
 
     /*
     Insert data into the tmp buffer.
+    Before, convert any integers samples to float samples.
     */
     void insertDataInfoTmpBuffer(char* buffer, size_t size);
 

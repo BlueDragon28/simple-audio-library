@@ -64,7 +64,7 @@ struct EventData
 
 struct FakeInt24
 {
-    char c[3];
+    uint8_t c[3];
 };
 }
 

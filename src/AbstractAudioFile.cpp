@@ -1,5 +1,7 @@
 #include "AbstractAudioFile.h"
 #include <cstring>
+#include <limits>
+#include <vector>
 
 namespace SAL
 {
@@ -102,21 +104,138 @@ void AbstractAudioFile::resizeTmpBuffer(size_t size)
         m_tmpWritePos = size;
 }
 
+// Template to convert data from an integer to a float number.
+template<typename T>
+std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
+{
+    std::vector<float> fBuffer(samples);
+
+    for (size_t i = 0; i < samples; i++)
+    {
+        uint32_t max = 0;
+        uint32_t min = 0;
+
+        // Get max and min value based on the type.
+        if (sizeof(T) == 1)
+        {
+            max = 0x7F; // 127
+            min = 0x80; // 128 : the max negative number is always one number higher.
+        }
+        else if (sizeof(T) == 2)
+        {
+            max = 0x7FFF;
+            min = 0x8000;
+        }
+        else if (sizeof(T) == 4)
+        {
+            max = 0x7FFFFFFF;
+            min = 0x80000000;
+        }
+
+        // Convert int to float.
+        float number = (float)iBuffer[i];
+        fBuffer[i] = number / (number < 0 ? (float)min : (float)max);
+    }
+
+    return fBuffer;
+}
+
+// Convert 24 bits integers to floating point numbers.
+// Since no 24 bits integer exist in c++, this fonction copy the integer at bits level.
+template<>
+std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
+{
+    std::vector<float> fBuffer(samples);
+
+    for (size_t i = 0; i < samples; i++)
+    {
+        // Min and max value.
+        uint32_t max = 0x7FFFFF;
+        uint32_t min = 0x800000;
+
+        FakeInt24 number24 = iBuffer[i];
+        int number32 = 0;
+
+        // Get the negative sign.
+        if (number24.c[2] & 0x80)
+        {
+            number32 = 0xFFFFFFFF;
+            // Remove negative sign of number24
+            number24.c[2] = number24.c[2] & 0x7F;
+        }
+
+        // Copy number24 to number32.
+        FakeInt24* n32 = reinterpret_cast<FakeInt24*>(&number32);
+        n32->c[0] = number24.c[0];
+        n32->c[1] = number24.c[1];
+        n32->c[2] |= number24.c[2];
+
+        // Convert number32 to float.
+        float fNumber = (float)number32;
+        fBuffer[i] = fNumber / (fNumber < 0 ? (float)min : (float)max);
+    }
+
+    return fBuffer;
+}
+
 /*
 Insert data into the tmp buffer.
+Before, convert any integers samples to float samples.
 */
 void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
 {
     if (size == 0)
         return;
-    
-    if (m_tmpWritePos + size > m_tmpSize)
-        resizeTmpBuffer(m_tmpWritePos + size);
-    
-    memcpy(m_tmpBuffer+m_tmpWritePos, buffer, size);
 
-    m_tmpWritePos += size;
-    m_tmpSizeDataWritten += size;
+    std::vector<float> data;
+
+    // Convert the input stream to 32 bits floating point numbers and copy it into the tmp buffer.
+    // Signed integers to floating point numbers.
+    if (m_sampleType == SampleType::INT)
+    {
+        if (bytesPerSample() == 1)
+        {
+            data = intArrayToFloatArray<char>(buffer, size);
+        }
+        else if (bytesPerSample() == 2)
+        {
+            data = intArrayToFloatArray<short>((short*)buffer, size/bytesPerSample());
+        }
+        else if (bytesPerSample() == 3)
+        {
+            data = intArrayToFloatArray<FakeInt24>((FakeInt24*)buffer, size/bytesPerSample());
+        }
+        else if (bytesPerSample() == 4)
+        {
+            data = intArrayToFloatArray<int>((int*)buffer, size/bytesPerSample());
+        }
+    }
+    // For float, just copy the data.
+    else if (m_sampleType == SampleType::FLOAT)
+    {
+        data.resize(size/bytesPerSample());
+        memcpy(data.data(), buffer, size);
+    }
+    // Unsigned 8 bit integer to floating point number.
+    else
+    {
+        int max = 0xFF;
+        data.resize(size);
+
+        for (size_t i = 0; i < size; i++)
+        {
+            data[i] = (float)buffer[i] / (float)max;
+        }
+    }
+
+    // Copy data to the tmp buffer.
+    size_t sizeDataInBytes = data.size() * sizeof(float);
+    if (m_tmpWritePos + sizeDataInBytes > m_tmpSize)
+        resizeTmpBuffer(m_tmpWritePos + sizeDataInBytes);
+    memcpy(m_tmpBuffer+m_tmpWritePos, data.data(), data.size() * sizeof(float));
+
+    m_tmpWritePos += sizeDataInBytes;
+    m_tmpSizeDataWritten += sizeDataInBytes;
 }
 
 /*
@@ -142,7 +261,7 @@ void AbstractAudioFile::updateStreamSizeInfo()
 }
 
 /*
-Extract data from the audio files.
+Extract data from the audio files has 32 bits floating point numbers.
 - data = a pointer to a sound buffer.
 - sizeInFrames = the size of the buffers in frames.
 - return the size of data read in frames.
@@ -209,9 +328,10 @@ void AbstractAudioFile::incrementReadPos(size_t size)
 }
 
 /*
-Seeking a position (in frames) in the audio stream.
-This will clear all the buffers and start playing
-at the position needed if the position if valid.
+Seeking a position (in frames) in 32 bits floating 
+point number in the audio stream. This will clear
+all the buffers and start playing at the position
+needed if the position if valid.
 */
 void AbstractAudioFile::seek(size_t pos)
 {
