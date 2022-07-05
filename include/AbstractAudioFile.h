@@ -16,6 +16,11 @@ The goal of this class is to have
 all the basic tools common to any
 files streaming available. This prevent
 to rewrite it in all the file class.
+
+The stream of every file is converted to 
+32 bits floating point numbers. The base
+class is doing the convertion, the subclass
+don't need to do it.
 */
 class AbstractAudioFile
 {
@@ -61,9 +66,10 @@ public:
     void flush();
 
     /*
-    Seeking a position (in frames) in the audio stream.
-    This will clear all the buffers and start playing
-    at the position needed if the position if valid.
+    Seeking a position (in frames) in 32 bits floating 
+    point number in the audio stream. This will clear
+    all the buffers and start playing at the position
+    needed if the position if valid.
     */
     void seek(size_t pos);
 
@@ -83,32 +89,17 @@ public:
     inline int numChannels() const noexcept;
 
     /*
-    Number of bytes per sample of the stream.
-    */
-    inline int bytesPerSample() const noexcept;
-
-    /*
-    Number of bytes per frame of the stream.
-    */
-    inline int bytesPerFrame() const noexcept;
-
-    /*
-    Number of bits per sample of the stream.
-    */
-    inline int bitsPerSample() const noexcept;
-
-    /*
-    Size in bytes of the audio data.
+    Size in bytes of the audio data in 32 bits floating point numbers.
     */
     inline size_t streamSizeInBytes() const noexcept;
 
     /*
-    Size in samples of the audio data.
+    Size in samples of the audio data in 32 bits floating point numbers.
     */
     inline size_t streamSizeInSamples() const noexcept;
 
     /*
-    Size in frames of the audio data.
+    Size in frames of the audio data in 32 bits floating point numbers.
     */
     inline size_t streamSize() const noexcept;
 
@@ -123,7 +114,7 @@ public:
     inline bool isEnoughBuffering() const noexcept;
 
     /*
-    Extract data from the audio files.
+    Extract data from the audio files has 32 bits floating point numbers.
     - data = a pointer to a sound buffer.
     - sizeInFrames = the size of the buffers in frames.
     - return the size of data read in frames.
@@ -145,12 +136,27 @@ public:
     */
     inline size_t streamPosInBytes() const noexcept;
 
+protected:
     /*
-    Sample type if it's an integer or floating point number.
+    Sample type of the raw stream (the stream stored in the file) if it's an integer or floating point number.
     */
     inline SampleType sampleType() const noexcept;
 
-protected:
+    /*
+    Return the number of bytes per sample of the raw stream (the stream stored in the file).
+    */
+    inline int bytesPerSample() const noexcept;
+
+    /*
+    Return the number of bytes per frame of the raw stream (the stream stored in the file).
+    */
+    inline int bytesPerFrame() const noexcept;
+
+    /*
+    Return the number of bits per sample of the raw stream (the stream stored in the file).
+    */
+    inline int bitsPerSample() const noexcept;
+
     /*
     Mark the file has ready to stream.
     */
@@ -178,12 +184,12 @@ protected:
     inline void setNumChannels(int numChannels) noexcept;
 
     /*
-    Update bytes per sample.
+    Update bytes per sample of the raw stream.
     */
     inline void setBytesPerSample(int bytesPerSample) noexcept;
 
     /*
-    Update size of the stream in bytes.
+    Update size of the raw stream in bytes.
     */
     inline void setSizeStream(size_t sizeStream) noexcept;
 
@@ -222,7 +228,7 @@ protected:
     void incrementReadPos(size_t size);
 
     /*
-    Set sampleType, if it's a integer or a floating point number.
+    Set sampleType of the raw stream, if it's a integer or a floating point number.
     */
     inline void setSampleType(SampleType type) noexcept;
 
@@ -353,7 +359,7 @@ inline int AbstractAudioFile::numChannels() const noexcept
 }
 
 /*
-Number of bytes per sample of the stream.
+Return the number of bytes per sample of the raw stream (the stream stored in the file).
 */
 inline int AbstractAudioFile::bytesPerSample() const noexcept
 {
@@ -361,7 +367,7 @@ inline int AbstractAudioFile::bytesPerSample() const noexcept
 }
 
 /*
-Number of bytes per frame of the stream.
+Return the number of bytes per frame of the raw stream (the stream stored in the file).
 */
 inline int AbstractAudioFile::bytesPerFrame() const noexcept
 {
@@ -369,7 +375,7 @@ inline int AbstractAudioFile::bytesPerFrame() const noexcept
 }
 
 /*
-Number of bits per sample of the stream.
+Return the number of bits per sample of the raw stream (the stream stored in the file).
 */
 inline int AbstractAudioFile::bitsPerSample() const noexcept
 {
@@ -377,7 +383,7 @@ inline int AbstractAudioFile::bitsPerSample() const noexcept
 }
 
 /*
-Size in bytes of the audio data.
+Size in bytes of the audio data in 32 bits floating point numbers.
 */
 inline size_t AbstractAudioFile::streamSizeInBytes() const noexcept
 {
@@ -385,7 +391,7 @@ inline size_t AbstractAudioFile::streamSizeInBytes() const noexcept
 }
 
 /*
-Size in samples of the audio data.
+Size in samples of the audio data in 32 bits floating point numbers.
 */
 inline size_t AbstractAudioFile::streamSizeInSamples() const noexcept
 {
@@ -393,7 +399,7 @@ inline size_t AbstractAudioFile::streamSizeInSamples() const noexcept
 }
 
 /*
-Size in frames of the audio data.
+Size in frames of the audio data in 32 bits floating point numbers.
 */
 inline size_t AbstractAudioFile::streamSize() const noexcept
 {
@@ -425,7 +431,7 @@ inline size_t AbstractAudioFile::streamPosInBytes() const noexcept
 }
 
 /*
-Sample type if it's an integer or floating point number.
+Sample type of the raw stream (the stream stored in the file) if it's an integer or floating point number.
 */
 inline SampleType AbstractAudioFile::sampleType() const noexcept
 {
@@ -458,7 +464,7 @@ inline void AbstractAudioFile::setNumChannels(int numChannels) noexcept
 }
 
 /*
-Update bytes per sample.
+Update bytes per sample of the raw stream.
 */
 inline void AbstractAudioFile::setBytesPerSample(int bytesPerSample) noexcept
 {
@@ -467,7 +473,7 @@ inline void AbstractAudioFile::setBytesPerSample(int bytesPerSample) noexcept
 }
 
 /*
-Update size of the stream in bytes.
+Update size of the raw stream in bytes.
 */
 inline void AbstractAudioFile::setSizeStream(size_t sizeStream) noexcept
 {
@@ -510,7 +516,7 @@ inline size_t AbstractAudioFile::readPos() const noexcept
 }
 
 /*
-Set sampleType, if it's a integer or a floating point number.
+Set sampleType of the raw stream, if it's a integer or a floating point number.
 */
 inline void AbstractAudioFile::setSampleType(SampleType type) noexcept
 {
