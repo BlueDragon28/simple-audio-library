@@ -178,7 +178,7 @@ std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
 
 /*
 Insert data into the tmp buffer.
-Before, convert any integers samples to float samples.
+The data is converted to 32 bits floating point number.
 */
 void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
 {
@@ -333,10 +333,9 @@ void AbstractAudioFile::incrementReadPos(size_t size)
 }
 
 /*
-Seeking a position (in frames) in 32 bits floating 
-point number in the audio stream. This will clear
-all the buffers and start playing at the position
-needed if the position if valid.
+Seeking a position (in frames) in the raw stream.
+This will clear all the buffers and start playing at 
+the position needed if the position if valid.
 */
 void AbstractAudioFile::seek(size_t pos)
 {

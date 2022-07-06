@@ -14,6 +14,15 @@ namespace SAL
 {
 class CallbackInterface;
 
+/*
+This class is doing all the job to communicate with PortAudio by
+creating the stream and sending data to PortAudio.
+
+It is managing the file queue, create new file stream and delete
+them when necessary.
+
+The stream is always readed has 32 bits floating point numbers.
+*/
 class Player
 {
     Player(const Player& other) = delete;
@@ -82,14 +91,14 @@ public:
     bool isFileReady() const;
 
     /*
-    Return stream size in seconds.
+    Return stream size of the raw stream (not necessarily in 32 bits floating).
     timeType: choose between frames or seconds base time.
     Wrapper to the _streamSize method.
     */
     inline size_t streamSize(TimeType timeType) const noexcept;
 
     /*
-    Return stream pos in seconds.
+    Return stream pos of the raw stream (not necessarily in 32 bits floating).
     timeType: choose between frames or seconds base time.
     Wrapper to the _streamPos method.
     */
@@ -186,13 +195,13 @@ private:
     bool _isPlaying() const;
 
     /*
-    Return stream size in seconds.
+    Return stream size of the raw stream (not necessarily in 32 bits floating).
     timeType: choose between frames or seconds base time.
     */
     size_t _streamSize(TimeType timeType) const noexcept;
 
     /*
-    Return stream pos in seconds.
+    Return stream pos of the raw stream (not necessarily in 32 bits floating).
     timeType: choose between frames or seconds base time.
     */
     size_t _streamPos(TimeType timeType) const noexcept;
@@ -345,7 +354,7 @@ inline void Player::setCallbackInterface(CallbackInterface* interface) noexcept
 }
 
 /*
-Return stream size in seconds.
+Return stream size of the raw stream (not necessarily in 32 bits floating).
 timeType: choose between frames or seconds base time.
 Wrapper to the _streamSize method.
 */
@@ -356,7 +365,7 @@ inline size_t Player::streamSize(TimeType timeType) const noexcept
 }
 
 /*
-Return stream size.
+Return stream size of the raw stream (not necessarily in 32 bits floating).
 timeType: choose between frames or seconds base time.
 */
 inline size_t Player::_streamSize(TimeType timeType) const noexcept
@@ -375,7 +384,7 @@ inline size_t Player::_streamSize(TimeType timeType) const noexcept
 }
 
 /*
-Return stream pos in seconds.
+Return stream pos of the raw stream (not necessarily in 32 bits floating).
 timeType: choose between frames or seconds base time.
 Wrapper to the _streamPos method.
 */
@@ -386,7 +395,7 @@ inline size_t Player::streamPos(TimeType timeType) const noexcept
 }
 
 /*
-Return stream pos.
+Return stream pos of the raw stream (not necessarily in 32 bits floating).
 timeType: choose between frames or seconds base time.
 */
 inline size_t Player::_streamPos(TimeType timeType) const noexcept

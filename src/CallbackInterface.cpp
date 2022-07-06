@@ -57,6 +57,7 @@ void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 Add a stream position (in frames or seconds) change callback.
 This callback is called when the position of the stream
 is changing.
+This is the position of the raw PCM stream (decoded from the file).
 */
 void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callback, TimeType timeType)
 {

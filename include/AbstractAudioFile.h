@@ -21,6 +21,10 @@ The stream of every file is converted to
 32 bits floating point numbers. The base
 class is doing the convertion, the subclass
 don't need to do it.
+
+Howether, the size and position of the stream is
+based on the actual raw PCM size and not in the
+converted stream.
 */
 class AbstractAudioFile
 {
@@ -66,10 +70,9 @@ public:
     void flush();
 
     /*
-    Seeking a position (in frames) in 32 bits floating 
-    point number in the audio stream. This will clear
-    all the buffers and start playing at the position
-    needed if the position if valid.
+    Seeking a position (in frames) in the raw stream.
+    This will clear all the buffers and start playing at 
+    the position needed if the position if valid.
     */
     void seek(size_t pos);
 
@@ -122,17 +125,17 @@ public:
     size_t read(char* data, size_t sizeInFrames);
 
     /*
-    Return the position of the stream in frames.
+    Return the position in the raw stream in frames.
     */
     inline size_t streamPos() const noexcept;
 
     /*
-    Return the position of the stream in samples.
+    Return the position in the raw stream in samples.
     */
     inline size_t streamPosInSamples() const noexcept;
 
     /*
-    Return the position of the stream in bytes.
+    Return the position in the raw stream in bytes.
     */
     inline size_t streamPosInBytes() const noexcept;
 
@@ -185,7 +188,7 @@ protected:
 
     /*
     Insert data into the tmp buffer.
-    Before, convert any integers samples to float samples.
+    The data is converted to 32 bits floating point number.
     */
     void insertDataInfoTmpBuffer(char* buffer, size_t size);
 
@@ -244,7 +247,7 @@ protected:
     void incrementReadPos(size_t size);
 
     /*
-    Set sampleType of the raw stream, if it's a integer or a floating point number.
+    Set sampleType of the raw stream, if it's an integer or a floating point number.
     */
     inline void setSampleType(SampleType type) noexcept;
 
@@ -423,7 +426,7 @@ inline size_t AbstractAudioFile::streamSize() const noexcept
 }
 
 /*
-Return the position of the stream in frames.
+Return the position in the raw stream in frames.
 */
 inline size_t AbstractAudioFile::streamPos() const noexcept
 {
@@ -431,7 +434,7 @@ inline size_t AbstractAudioFile::streamPos() const noexcept
 }
 
 /*
-Return the position of the stream in samples.
+Return the position in the raw stream in samples.
 */
 inline size_t AbstractAudioFile::streamPosInSamples() const noexcept
 {
@@ -439,7 +442,7 @@ inline size_t AbstractAudioFile::streamPosInSamples() const noexcept
 }
 
 /*
-Return the position of the stream in bytes.
+Return the position in the raw stream in bytes.
 */
 inline size_t AbstractAudioFile::streamPosInBytes() const noexcept
 {
@@ -532,7 +535,7 @@ inline size_t AbstractAudioFile::readPos() const noexcept
 }
 
 /*
-Set sampleType of the raw stream, if it's a integer or a floating point number.
+Set sampleType of the raw stream, if it's an integer or a floating point number.
 */
 inline void AbstractAudioFile::setSampleType(SampleType type) noexcept
 {
