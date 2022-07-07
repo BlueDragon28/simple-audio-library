@@ -78,7 +78,7 @@ size_t RingBuffer::read(char* buffer, size_t size)
     
     if (size > m_size-m_tailPos)
     {
-        int lenght = m_size-m_tailPos;
+        size_t lenght = m_size-m_tailPos;
         memcpy(buffer, m_data+m_tailPos, lenght);
         memcpy(buffer+lenght, m_data, size-lenght);
     }
@@ -106,7 +106,7 @@ size_t RingBuffer::write(const char* buffer, size_t size)
     
     if (size > m_size-m_headPos)
     {
-        int lenght = m_size-m_headPos;
+        size_t lenght = m_size-m_headPos;
         memcpy(m_data+m_headPos, buffer, lenght);
         memcpy(m_data, buffer+lenght, size-lenght);
     }
