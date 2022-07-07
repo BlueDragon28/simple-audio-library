@@ -1,5 +1,6 @@
 #include "WaveAudioFile.h"
 #include <cstring>
+#include <vector>
 
 namespace SAL
 {
@@ -103,8 +104,8 @@ void WaveAudioFile::open()
         // Read extra bytes.
         if (fmt_size == 18 || fmt_size == 40)
         {
-            char extraBytes[fmt_size-16];
-            m_audioFile.read(extraBytes, fmt_size-16);
+            std::vector<char> extraBytes(fmt_size-16);
+            m_audioFile.read(extraBytes.data(), fmt_size-16);
             if (m_audioFile.fail())
                 return;
         }
@@ -127,9 +128,9 @@ void WaveAudioFile::open()
                 return;
             
             // Reading the fact section without processing it.
-            char factData[factSize];
-            memset(factData, 0, factSize);
-            m_audioFile.read(factData, factSize);
+            std::vector<char> factData(factSize);
+            memset(factData.data(), 0, factSize);
+            m_audioFile.read(factData.data(), factSize);
             if (m_audioFile.fail())
                 return;
             
@@ -152,9 +153,9 @@ void WaveAudioFile::open()
                 return;
             
             // Read track name.
-            char trackName[listSize+1];
-            memset(trackName, 0, listSize+1);
-            m_audioFile.read(trackName, listSize);
+            std::vector<char> trackName(listSize+1);
+            memset(trackName.data(), 0, listSize+1);
+            m_audioFile.read(trackName.data(), listSize);
             if (m_audioFile.fail())
                 return;
             
@@ -227,10 +228,10 @@ void WaveAudioFile::readDataFromFile()
     if (readPos() + readSize > streamSizeInBytes())
         readSize = streamSizeInBytes() - readPos();
     
-    char data[readSize];
-    memset(data, 0, readSize);
+    std::vector<char> data(readSize);
+    memset(data.data(), 0, readSize);
 
-    m_audioFile.read(data, readSize);
+    m_audioFile.read(data.data(), readSize);
 
     if (m_audioFile.fail())
     {
@@ -238,7 +239,7 @@ void WaveAudioFile::readDataFromFile()
         return;
     }
 
-    insertDataInfoTmpBuffer(data, readSize);
+    insertDataInfoTmpBuffer(data.data(), readSize);
 
     incrementReadPos(readSize);
 }
