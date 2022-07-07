@@ -6,6 +6,7 @@ project(simple-audio-library
 
 # Options
 # Use the libsndfile to read audio files.
+option(USE_WAVE "Use the built-in WAVE file reader. It will be used to open WAVE file instead of libsndfile (if on)." ON)
 option(USE_LIBSNDFILE "Use the libsndfile backend to read audio files." OFF)
 
 # C++ standard
@@ -40,13 +41,11 @@ set(PROJECT_HEADERS
     "include/Player.h"
     "include/PortAudioRAII.h"
     "include/RingBuffer.h"
-    "include/WaveAudioFile.h"
     "${CMAKE_BINARY_DIR}/include/config.h")
 
 set(PROJECT_SOURCES
     "src/RingBuffer.cpp"
     "src/AbstractAudioFile.cpp"
-    "src/WaveAudioFile.cpp"
     "src/Player.cpp"
     "src/EventList.cpp"
     "src/PortAudioRAII.cpp"
@@ -54,6 +53,18 @@ set(PROJECT_SOURCES
     "src/CallbackInterface.cpp"
     "src/FlacAudioFile.cpp")
 
+# Compile the WAVE file is it is used.
+if (USE_WAVE)
+    set(PROJECT_HEADERS 
+        "${PROJECT_HEADERS}"
+        "include/WaveAudioFile.h")
+
+    set(PROJECT_SOURCES 
+        "${PROJECT_SOURCES}"
+        "src/WaveAudioFile.cpp")
+endif()
+
+# Compile the libsndfile if it is used.
 if (USE_LIBSNDFILE)
     set(PROJECT_HEADERS 
         "${PROJECT_HEADERS}"

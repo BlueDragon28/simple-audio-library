@@ -6,7 +6,9 @@
 #include <functional>
 #include <limits>
 
+#ifdef USE_WAVE
 #include "WaveAudioFile.h"
+#endif
 #include "FlacAudioFile.h"
 #ifdef USE_LIBSNDFILE
 #include "SndAudioFile.h"
@@ -322,10 +324,12 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
     // Create the audio file stream base on the file format (if supported).
     switch (format)
     {
+#ifdef USE_WAVE
     case WAVE:
     {
         pAudioFile = new WaveAudioFile(filePath);
     } break;
+#endif
 
     case FLAC:
     {
@@ -353,8 +357,10 @@ Trying to detect the file format.
 int Player::checkFileFormat(const std::string& filePath) const
 {
     // Trying to read the file with the different implementation to check which one to use.
+#ifdef USE_WAVE
     if (WaveAudioFile(filePath).isOpen())
         return WAVE;
+#endif
     if (FlacAudioFile(filePath).isOpen())
         return FLAC;
 #ifdef USE_LIBSNDFILE
