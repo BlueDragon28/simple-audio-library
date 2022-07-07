@@ -9,7 +9,9 @@
 #ifdef USE_WAVE
 #include "WaveAudioFile.h"
 #endif
+#ifdef USE_FLAC
 #include "FlacAudioFile.h"
+#endif
 #ifdef USE_LIBSNDFILE
 #include "SndAudioFile.h"
 #endif
@@ -331,10 +333,12 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
     } break;
 #endif
 
+#ifdef USE_FLAC
     case FLAC:
     {
         pAudioFile = new FlacAudioFile(filePath);
     } break;
+#endif
 
 #ifdef USE_LIBSNDFILE
     case SNDFILE:
@@ -361,8 +365,10 @@ int Player::checkFileFormat(const std::string& filePath) const
     if (WaveAudioFile(filePath).isOpen())
         return WAVE;
 #endif
+#ifdef USE_FLAC
     if (FlacAudioFile(filePath).isOpen())
         return FLAC;
+#endif
 #ifdef USE_LIBSNDFILE
     if (SndAudioFile(filePath).isOpen())
         return SNDFILE;

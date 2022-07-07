@@ -7,6 +7,7 @@ project(simple-audio-library
 # Options
 # Use the libsndfile to read audio files.
 option(USE_WAVE "Use the built-in WAVE file reader. It will be used to open WAVE file instead of libsndfile (if on)." ON)
+option(USE_FLAC "Use the libFLAC++ backend to read and decode FLAC file. It will be used to open FLAC file instead of libsndfile (if on)." ON)
 option(USE_LIBSNDFILE "Use the libsndfile backend to read audio files." OFF)
 
 # C++ standard
@@ -18,7 +19,10 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 
 # FLAC library
-pkg_check_modules(FLAC++ REQUIRED flac++)
+if (USE_FLAC)
+    pkg_check_modules(FLAC++ REQUIRED flac++)
+    set(LIBFLAC_PKG_LINK "-lFLAC++")
+endif()
 
 # libsndfile library
 if (USE_LIBSNDFILE)
@@ -37,7 +41,6 @@ set(PROJECT_HEADERS
     "include/CallbackInterface.h"
     "include/Common.h"
     "include/EventList.h"
-    "include/FlacAudioFile.h"
     "include/Player.h"
     "include/PortAudioRAII.h"
     "include/RingBuffer.h"
@@ -50,10 +53,9 @@ set(PROJECT_SOURCES
     "src/EventList.cpp"
     "src/PortAudioRAII.cpp"
     "src/AudioPlayer.cpp"
-    "src/CallbackInterface.cpp"
-    "src/FlacAudioFile.cpp")
+    "src/CallbackInterface.cpp")
 
-# Compile the WAVE file is it is used.
+# Compile the WAVE file if it is used.
 if (USE_WAVE)
     set(PROJECT_HEADERS 
         "${PROJECT_HEADERS}"
@@ -62,6 +64,17 @@ if (USE_WAVE)
     set(PROJECT_SOURCES 
         "${PROJECT_SOURCES}"
         "src/WaveAudioFile.cpp")
+endif()
+
+# Compile the FLAC file if it is used.
+if (USE_FLAC)
+    set(PROJECT_HEADERS 
+        "${PROJECT_HEADERS}"
+        "include/FlacAudioFile.h")
+    
+    set(PROJECT_SOURCES 
+        "${PROJECT_SOURCES}"
+        "src/FlacAudioFile.cpp")
 endif()
 
 # Compile the libsndfile if it is used.
