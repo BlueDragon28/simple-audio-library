@@ -14,6 +14,19 @@ option(USE_LIBSNDFILE "Use the libsndfile backend to read audio files." OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# On windows, include cmake prefix path and include directories of the libraries
+if (WIN32)
+    # Find PortAudio
+    if (
+        (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/include/portaudio.h") AND
+        (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib"))
+        # Include directory of PortAudio
+        include_directories(${CMAKE_SOURCE_DIR}/dependencies/portaudio/include)
+    else()
+        message(FATAL_ERROR "Cannot find portaudio")
+    endif()
+endif()
+
 # Check for package with pkgconfig only on linux.
 if (UNIX)
     # PortAudio
@@ -98,6 +111,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMA
 # On linux link the libraries with the variable made by pkgconfig.
 if (UNIX)
     target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES} ${LIBSNDFILE_LIBRARIES})
+elseif(WIN32)
+    target_link_libraries(${PROJECT_NAME} 
+        ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib)
 endif()
 
 # If CMAKE_INSTALL_LIBDIR is not define, set it to libdir
