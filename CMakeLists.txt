@@ -14,20 +14,23 @@ option(USE_LIBSNDFILE "Use the libsndfile backend to read audio files." OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# PortAudio
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
+# Check for package with pkgconfig only on linux.
+if (UNIX)
+    # PortAudio
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 
-# FLAC library
-if (USE_FLAC)
-    pkg_check_modules(FLAC++ REQUIRED flac++)
-    set(LIBFLAC_PKG_LINK "-lFLAC++")
-endif()
+    # FLAC library
+    if (USE_FLAC)
+        pkg_check_modules(FLAC++ REQUIRED flac++)
+        set(LIBFLAC_PKG_LINK "-lFLAC++")
+    endif()
 
-# libsndfile library
-if (USE_LIBSNDFILE)
-    pkg_check_modules(LIBSNDFILE REQUIRED sndfile)
-    set(LIBSNDFILE_PKG_LINK "-lsndfile")
+    # libsndfile library
+    if (USE_LIBSNDFILE)
+        pkg_check_modules(LIBSNDFILE REQUIRED sndfile)
+        set(LIBSNDFILE_PKG_LINK "-lsndfile")
+    endif()
 endif()
 
 # Configure the config.h file.
@@ -90,19 +93,25 @@ endif()
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES} ${LIBSNDFILE_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+
+# On linux link the libraries with the variable made by pkgconfig.
+if (UNIX)
+    target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES} ${LIBSNDFILE_LIBRARIES})
+endif()
 
 # If CMAKE_INSTALL_LIBDIR is not define, set it to libdir
 if (NOT DEFINED CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR lib)
 endif()
 
-# Generate the pkgconfig file
-configure_file(
-    "${CMAKE_SOURCE_DIR}/simple-audio-library_static.pc.in"
-    "${CMAKE_BINARY_DIR}/simple-audio-library_static.pc"
-    @ONLY)
+# Generate the pkgconfig file (only on linux)
+if (UNIX)
+    configure_file(
+        "${CMAKE_SOURCE_DIR}/simple-audio-library_static.pc.in"
+        "${CMAKE_BINARY_DIR}/simple-audio-library_static.pc"
+        @ONLY)
+endif()
 
 # Add the install target
 # Copy the library
@@ -123,7 +132,9 @@ install (
     FILES ${PROJECT_HEADERS}
     DESTINATION include/simple-audio-library)
 
-# Copy the pkgconfig file
-install (
-    FILES ${CMAKE_BINARY_DIR}/simple-audio-library_static.pc
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+# Copy the pkgconfig file (only on linux)
+if (UNIX)
+    install (
+        FILES ${CMAKE_BINARY_DIR}/simple-audio-library_static.pc
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+endif()
