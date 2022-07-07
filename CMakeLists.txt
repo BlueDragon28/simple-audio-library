@@ -4,6 +4,10 @@ project(simple-audio-library
     VERSION 0.1
     LANGUAGES CXX)
 
+# Options
+# Use the libsndfile to read audio files.
+option(USE_LIBSNDFILE "Use the libsndfile backend to read audio files." OFF)
+
 # C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,9 +20,15 @@ pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 pkg_check_modules(FLAC++ REQUIRED flac++)
 
 # libsndfile library
-pkg_check_modules(LIBSNDFILE REQUIRED sndfile)
+if (USE_LIBSNDFILE)
+    pkg_check_modules(LIBSNDFILE REQUIRED sndfile)
+    set(LIBSNDFILE_PKG_LINK "-lsndfile")
+endif()
 
-include_directories(include/)
+# Configure the config.h file.
+configure_file(include/config.h.in ${CMAKE_BINARY_DIR}/include/config.h)
+
+include_directories(include/ ${CMAKE_BINARY_DIR}/include/)
 
 set(PROJECT_HEADERS
     "include/AbstractAudioFile.h"
@@ -31,7 +41,7 @@ set(PROJECT_HEADERS
     "include/PortAudioRAII.h"
     "include/RingBuffer.h"
     "include/WaveAudioFile.h"
-    "include/SndAudioFile.h")
+    "${CMAKE_BINARY_DIR}/include/config.h")
 
 set(PROJECT_SOURCES
     "src/RingBuffer.cpp"
@@ -42,8 +52,17 @@ set(PROJECT_SOURCES
     "src/PortAudioRAII.cpp"
     "src/AudioPlayer.cpp"
     "src/CallbackInterface.cpp"
-    "src/FlacAudioFile.cpp"
-    "src/SndAudioFile.cpp")
+    "src/FlacAudioFile.cpp")
+
+if (USE_LIBSNDFILE)
+    set(PROJECT_HEADERS 
+        "${PROJECT_HEADERS}"
+        "include/SndAudioFile.h")
+    
+    set(PROJECT_SOURCES 
+        "${PROJECT_SOURCES}"
+        "src/SndAudioFile.cpp")
+endif()
 
 # Default static library
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})

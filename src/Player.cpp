@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "config.h"
 #include <filesystem>
 #include <fstream>
 #include <cstring>
@@ -7,7 +8,9 @@
 
 #include "WaveAudioFile.h"
 #include "FlacAudioFile.h"
+#ifdef USE_LIBSNDFILE
 #include "SndAudioFile.h"
+#endif
 #include "CallbackInterface.h"
 
 namespace SAL
@@ -329,10 +332,12 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
         pAudioFile = new FlacAudioFile(filePath);
     } break;
 
+#ifdef USE_LIBSNDFILE
     case SNDFILE:
     {
         pAudioFile = new SndAudioFile(filePath);
     } break;
+#endif
 
     case UNKNOWN_FILE:
     default:
@@ -350,10 +355,12 @@ int Player::checkFileFormat(const std::string& filePath) const
     // Trying to read the file with the different implementation to check which one to use.
     if (WaveAudioFile(filePath).isOpen())
         return WAVE;
-    else if (FlacAudioFile(filePath).isOpen())
+    if (FlacAudioFile(filePath).isOpen())
         return FLAC;
-    else if (SndAudioFile(filePath).isOpen())
+#ifdef USE_LIBSNDFILE
+    if (SndAudioFile(filePath).isOpen())
         return SNDFILE;
+#endif
 
     return UNKNOWN_FILE;
 }
