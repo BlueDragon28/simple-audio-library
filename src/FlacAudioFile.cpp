@@ -1,6 +1,7 @@
 #include "FlacAudioFile.h"
 #include <filesystem>
 #include <cstring>
+#include <vector>
 
 namespace SAL
 {
@@ -121,7 +122,7 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
         frame->header.sample_rate != sampleRate() ||
         frame->header.channels != numChannels())
     {
-        m_isError == true;
+        m_isError = true;
         endFile(true);
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
@@ -138,7 +139,8 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
     }
 
     // Temporary buffer
-    char data[frame->header.blocksize * numChannels() * bytesPerSample()];
+    //char data[frame->header.blocksize * numChannels() * bytesPerSample()];
+    std::vector<char> data(frame->header.blocksize * numChannels() * bytesPerSample());
     // Hold the position of the buffer in bytes.
     size_t dataPos = 0;
 
@@ -147,13 +149,13 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
     {
         for (int j = 0; j < numChannels(); j++)
         {
-            memcpy(data+dataPos, &buffer[j][i], bytesPerSample());
+            memcpy(data.data()+dataPos, &buffer[j][i], bytesPerSample());
             dataPos += bytesPerSample();
         }
     }
 
     // Copy the buffer (data) into the temporary buffer of (AbstractAudioFile).
-    insertDataInfoTmpBuffer(data, dataPos);
+    insertDataInfoTmpBuffer(data.data(), dataPos);
     incrementReadPos(dataPos);
 
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
