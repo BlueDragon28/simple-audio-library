@@ -25,6 +25,21 @@ if (WIN32)
     else()
         message(FATAL_ERROR "Cannot find portaudio")
     endif()
+
+    # Find FLAC++
+    if (USE_FLAC)
+        if (
+            (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/flac/include/FLAC++/decoder.h") AND
+            (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/flac/lib/FLAC++.lib"))
+            # Include directory of FLAC++ library
+            include_directories("${CMAKE_SOURCE_DIR}/dependencies/flac/include/")
+            # Set the FLAC++ library path.
+            set(FLAC_LIBRARY 
+                "${CMAKE_SOURCE_DIR}/dependencies/flac/lib/FLAC++.lib")
+        else ()
+            message(FATAL_ERROR "Cannot find FLAC++ library")
+        endif()
+    endif()
 endif()
 
 # Check for package with pkgconfig only on linux.
@@ -113,7 +128,8 @@ if (UNIX)
     target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES} ${LIBSNDFILE_LIBRARIES})
 elseif(WIN32)
     target_link_libraries(${PROJECT_NAME} 
-        ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib)
+        ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib
+        "${FLAC_LIBRARY}")
 endif()
 
 # If CMAKE_INSTALL_LIBDIR is not define, set it to libdir
