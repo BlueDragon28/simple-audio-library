@@ -40,6 +40,16 @@ if (WIN32)
             message(FATAL_ERROR "Cannot find FLAC++ library")
         endif()
     endif()
+
+    # Find LIBSNDFILE
+    if (USE_LIBSNDFILE)
+        set(CMAKE_PREFIX_PATH 
+            "${CMAKE_PREFIX_PATH}"
+            "${CMAKE_SOURCE_DIR}/dependencies/libsndfile/cmake")
+        find_package(SndFile REQUIRED)
+        set(LIBSNDFILE_LIBRARY 
+            ${SndFile_LIBRARIES})
+    endif()
 endif()
 
 # Check for package with pkgconfig only on linux.
@@ -129,7 +139,8 @@ if (UNIX)
 elseif(WIN32)
     target_link_libraries(${PROJECT_NAME} 
         ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib
-        "${FLAC_LIBRARY}")
+        "${FLAC_LIBRARY}"
+        ${LIBSNDFILE_LIBRARY})
 endif()
 
 # If CMAKE_INSTALL_LIBDIR is not define, set it to libdir
