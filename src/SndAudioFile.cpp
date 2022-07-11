@@ -1,6 +1,7 @@
 #include "SndAudioFile.h"
 #include <cstring>
-#include <iostream>
+#include <vector>
+
 namespace SAL
 {
 SndAudioFile::SndAudioFile(const char* filePath) :
@@ -118,15 +119,15 @@ void SndAudioFile::readDataFromFile()
         readSize = streamSizeInBytes() - readPos();
     
     // Allocate an array of chars to store the audio data.
-    char data[readSize];
-    memset(data, 0, readSize);
+    std::vector<char> data(readSize);
+    memset(data.data(), 0, readSize);
 
     // Get the number of items in the sample.
     size_t readItems = readSize / bytesPerSample();
 
     // Retrieve the data from the libsndfile library and listen
     // to the number of bytes read.
-    size_t itemsRead = m_file->read((float*)data, readItems);
+    size_t itemsRead = m_file->read((float*)data.data(), readItems);
 
     // Convert itemsRead to bytes.
     itemsRead *= bytesPerSample();
@@ -134,7 +135,7 @@ void SndAudioFile::readDataFromFile()
     // Push the buffer to the tmp buffer.
     if (itemsRead > 0)
     {
-        insertDataInfoTmpBuffer(data, itemsRead);
+        insertDataInfoTmpBuffer(data.data(), itemsRead);
         incrementReadPos(itemsRead);
     }
 }
