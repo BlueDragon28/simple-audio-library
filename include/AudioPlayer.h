@@ -30,8 +30,7 @@ public:
     /*
     Create or return the existing instance
     of the AudioPlayer class. The instance
-    is deleted by itself, you do not need
-    to delete it.
+    is deleted by itself.
     */
     static AudioPlayer* instance();
 
@@ -41,7 +40,7 @@ public:
     inline CallbackInterface& callback() noexcept;
 
     /*
-    Destroy the the instance (if one is exinsting).
+    Destroy the instance (if one is existing).
     */
     static void deinit();
 
@@ -58,33 +57,27 @@ public:
 
     /*
     Return true if the player is playing.
+    Wait until the next iteration of the main loop to be sure
+    the player had time to start playing.
     */
     bool isPlaying();
 
     /*
-    Is files are ready to be playing or playing.
+    Are files ready to play or are playing.
+    Wait until the next iteration of the main loop to be sure
+    the player had time to start playing.
     */
     bool isReady();
 
     /*
-    Return stream size in frames.
-    */
-    //inline size_t streamSizeInFrames() const noexcept;
-
-    /*
-    Return stream pos in frames.
-    */
-    //inline size_t streamPosInFrames() const noexcept;
-
-    /*
-    Return stream size.
-    timeType: choose between frames or seconds base time.
+    Return stream size in frames or seconds.
+    timeType: choose between frames or seconds.
     */
     inline size_t streamSize(TimeType timeType = TimeType::SECONDS) const noexcept;
 
     /*
-    Return stream pos.
-    timeType: choose between frames or seconds base time.
+    Return stream pos in frames or seconds.
+    timeType: choose between frames or seconds.
     */
     inline size_t streamPos(TimeType timeType = TimeType::SECONDS) const noexcept;
 
@@ -95,7 +88,7 @@ public:
     /*
     Add a file into the playing list.
     filePath: the file path to open.
-    clearQueue: stop file played and clear queue.
+    clearQueue: stop the player and clear the playing list.
     */
     void open(const std::string& filePath, bool clearQueue = false);
 
@@ -115,12 +108,12 @@ public:
     inline void pause() noexcept;
 
     /*
-    Stop the audio stream and clear file queue.
+    Stop the audio stream and clear the playing list.
     */
     inline void stop() noexcept;
 
     /*
-    Seeking position in the audio stream.
+    Seeking a position in the audio stream.
     - pos: position in seconds if inSeconds is true,
     otherwise in frames.
     */
@@ -182,7 +175,7 @@ private:
     the constructor is private and only a static class
     allow him to retrieve the instance.
     To prevent both the user and the smart_pointer to delete
-    the instance, and the destructor of the object release the
+    the instance, the destructor of the object release the
     ptr of the smart_pointer if the user delete it.
     */
     static bool doNotReset;
@@ -209,8 +202,8 @@ inline bool AudioPlayer::isRunning() const
 }
 
 /*
-Return stream size.
-timeType: choose between frames or seconds base time.
+Return stream size in frames or seconds.
+timeType: choose between frames or seconds.
 */
 inline size_t AudioPlayer::streamSize(TimeType timeType) const noexcept
 {
@@ -220,8 +213,8 @@ inline size_t AudioPlayer::streamSize(TimeType timeType) const noexcept
 }
 
 /*
-Return stream pos.
-timeType: choose between frames or seconds base time.
+Return stream pos in frames or seconds.
+timeType: choose between frames or seconds.
 */
 inline size_t AudioPlayer::streamPos(TimeType timeType) const noexcept
 {
@@ -248,6 +241,9 @@ Destroy the the instance (if one is exinsting).
 */
 inline void AudioPlayer::deinit() { obj.reset(); }
 
+/*
+Destroy the instance (if one is existing).
+*/
 inline void AudioPlayer::destroy(AudioPlayer* ptr)
 {
     doNotReset = true;
@@ -273,7 +269,7 @@ inline void AudioPlayer::pause() noexcept
 }
 
 /*
-Stop the audio stream and clear file queue.
+Stop the audio stream and clear the playing list.
 */
 inline void AudioPlayer::stop() noexcept
 {
