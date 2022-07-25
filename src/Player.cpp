@@ -45,13 +45,6 @@ Player::Player() :
 Player::~Player()
 {}
 
-/*
-Add a new file into the queue and stream it when the queue is empty.
-filePath - path to the file.
-clearQueue - clear the queue and stop stream and use this file has
-current stream. If the previous file was playing, the new one will
-also play.
-*/
 void Player::open(const char* filePath, bool clearQueue)
 {
     open(std::string(filePath), clearQueue);
@@ -80,18 +73,12 @@ void Player::open(const std::string& filePath, bool clearQueue)
         play();
 }
 
-/*
-Checking if a file is readable by this library.
-*/
 int Player::isReadable(const std::string& filePath) const
 {
     return checkFileFormat(filePath);
     return UNKNOWN_FILE;
 }
 
-/*
-Start paying if there is any stream to play.
-*/
 void Player::play()
 {
     if (m_isPlaying)
@@ -149,9 +136,6 @@ void Player::play()
     }
 }
 
-/*
-Pause the stream.
-*/
 void Player::pause()
 {
     std::scoped_lock lock(m_paStreamMutex);
@@ -163,9 +147,6 @@ void Player::pause()
     m_isPlaying = false;
 }
 
-/*
-Stop playing and delete the queues.
-*/
 void Player::stop()
 {
     // Notify that the stream is stopping.
@@ -201,12 +182,6 @@ void Player::stop()
     m_isStopping = false;
 }
 
-/*
-Move to the next audio stream (if available).
-The method check if the opened file array have
-at least two items or if the opened file array have 
-one item and the file path array have at least one item.
-*/
 void Player::next()
 {
     if (m_queueOpenedFile.size() > 1 || (m_queueOpenedFile.size() == 1 && m_queueFilePath.size() >= 1))
@@ -239,19 +214,12 @@ void Player::next()
     }
 }
 
-/*
-Wrapper to the _isPlaying private method.
-The wrapper lock the opened file mutex.
-*/
 bool Player::isPlaying() const
 {
     std::scoped_lock lock(m_queueOpenedFileMutex);
     return _isPlaying();
 }
 
-/*
-Return true if the stream if playing.
-*/
 bool Player::_isPlaying() const
 {
     if (m_isPlaying && !m_queueOpenedFile.empty())
@@ -265,10 +233,6 @@ bool Player::_isPlaying() const
         return false;
 }
 
-/*
-Return true if any of the opened file
-are ready.
-*/
 bool Player::isFileReady() const
 {
     for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
@@ -279,12 +243,6 @@ bool Player::isFileReady() const
     return false;
 }
 
-/*
-Remove ended file from m_queueOpenedFile and
-add file from m_queueFilePath if m_queueOpenedFile
-is empty or if they have the same stream info
-then the same file in m_queueOpenedFile.
-*/
 void Player::pushFile()
 {
     if (m_queueOpenedFile.size() >= m_maxInStreamQueue ||
@@ -313,9 +271,6 @@ void Player::pushFile()
     m_queueFilePath.erase(m_queueFilePath.begin());
 }
 
-/*
-Check what type is the file and opening it.
-*/
 AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
 {
     AbstractAudioFile* pAudioFile = nullptr;
@@ -355,9 +310,6 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
     return pAudioFile;
 }
 
-/*
-Trying to detect the file format.
-*/
 int Player::checkFileFormat(const std::string& filePath) const
 {
     // Trying to read the file with the different implementation to check which one to use.
@@ -377,9 +329,6 @@ int Player::checkFileFormat(const std::string& filePath) const
     return UNKNOWN_FILE;
 }
 
-/*
-Reset stream info.
-*/
 void Player::_resetStreamInfo()
 {
     m_paStream.reset();
@@ -402,20 +351,12 @@ void Player::_resetStreamInfo()
     m_doNotCheckFile = false;
 }
 
-/*
-Wrapper to the _resetStreamInfo.
-This method lock opened file mutex.
-*/
 void Player::resetStreamInfo()
 {
     std::scoped_lock lock(m_queueOpenedFileMutex);
     _resetStreamInfo();
 }
 
-/*
-Check if the audio file (file) have the info than the
-currently played file.
-*/
 bool Player::checkStreamInfo(const AbstractAudioFile* const file) const
 {
     if (!file)
@@ -432,9 +373,6 @@ bool Player::checkStreamInfo(const AbstractAudioFile* const file) const
     return isSame;
 }
 
-/*
-Create the PaStream.
-*/
 bool Player::createStream()
 {
     if (m_paStream)
@@ -443,6 +381,7 @@ bool Player::createStream()
     if (m_queueOpenedFile.empty())
         return false;
 
+    // Retrieve PCM info from the stream.
     AbstractAudioFile* audioFile;
     audioFile = m_queueOpenedFile.at(0).get();
     m_numChannels = audioFile->numChannels();
@@ -450,6 +389,7 @@ bool Player::createStream()
     m_bytesPerSample = audioFile->streamBytesPerSample();
     m_sampleType = audioFile->streamSampleType();
 
+    // Check if the PCM info are valid.
     if (m_numChannels == 0 || m_sampleRate == 0 ||
         m_bytesPerSample == 0 || m_sampleType == SampleType::UNKNOWN)
     {
@@ -457,8 +397,10 @@ bool Player::createStream()
         return false;
     }
 
+    // Retrieve the default output device.
     int defaultOutputDevice = Pa_GetDefaultOutputDevice();
 
+    // Set the info of the PortAudio stream.
     PaStreamParameters outParams = {};
     outParams.device = defaultOutputDevice;
     outParams.channelCount = m_numChannels;
@@ -475,6 +417,7 @@ bool Player::createStream()
     outParams.suggestedLatency = Pa_GetDeviceInfo(defaultOutputDevice)->defaultHighOutputLatency;
     outParams.hostApiSpecificStreamInfo = nullptr;
 
+    // Create the PortAudio stream.
     PaStream* pStream;
     PaError err = Pa_OpenStream(
         &pStream,
@@ -503,10 +446,6 @@ bool Player::createStream()
     return true;
 }
 
-/*
-Static C callback use to make a bridge between
-PortAudio and this class.
-*/
 int Player::staticPortAudioStreamCallback(
     const void* inputBuffer,
     void* outputBuffer,
@@ -526,11 +465,6 @@ void Player::staticPortAudioEndStream(void* data)
     std::invoke(&Player::streamEndCallback, pPlayer);
 }
 
-/*
-Stream callback used to collect audio stream
-from the audio file interface and sending it to
-PortAudio.
-*/
 int Player::streamCallback(
     const void* inputBuffer,
     void* outputBuffer,
@@ -545,8 +479,10 @@ int Player::streamCallback(
 
     if (!m_isBuffering)
     {
+        // Process all the opened files until outputBuffer is full.
         for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
         {
+            // Get data from file until the outputBuffer is full and audioFile is not at the end.
             while (framesWrited < framesPerBuffer && !audioFile->isEnded())
             {
                 framesWrited += audioFile->read(static_cast<char*>(outputBuffer)+framesWrited*audioFile->streamBytesPerFrame(),
@@ -556,6 +492,7 @@ int Player::streamCallback(
                     break;
             }
 
+            // If not enough data, pause the stream to let the audio file buffer to fill.
             if (audioFile->bufferingSize() == 0 && (!audioFile->isEnded() && !audioFile->isEndFile()))
             {
                 isBuffering = true;
@@ -563,6 +500,7 @@ int Player::streamCallback(
                 break;
             }
 
+            // Check if output buffer is full.
             if (framesWrited == framesPerBuffer)
                 break;
         }
@@ -573,6 +511,7 @@ int Player::streamCallback(
 
     if (framesWrited < framesPerBuffer)
     {
+        // If the output buffer is not full, fill the end of the buffer with null data (to prevent artefacts).
         memset(
             static_cast<char*>(outputBuffer)+(framesWrited*m_bytesPerSample*m_numChannels),
             0,
@@ -591,10 +530,6 @@ int Player::streamCallback(
     return paContinue;
 }
 
-/*
-    When the stream reach end, this member function
-is called.
-*/
 void Player::streamEndCallback()
 {
     if (!m_isPaused && !m_isBuffering)
@@ -609,11 +544,6 @@ void Player::streamEndCallback()
     }
 }
 
-/*
-Read audio data from file and push it
-into the ring buffer and push file from
-m_queueFilePath to m_queueOpenedFile.
-*/
 void Player::update()
 {
     pauseIfBuffering();
@@ -632,9 +562,6 @@ bool Player::isPaused() const
     return m_isPaused;
 }
 
-/*
-Pause the stream if buffering.
-*/
 void Player::pauseIfBuffering()
 {
     if (m_isBuffering && !m_isPaused)
@@ -652,9 +579,6 @@ void Player::pauseIfBuffering()
     }
 }
 
-/*
-Restart stream if buffering enough.
-*/
 void Player::continuePlayingIfEnoughBuffering()
 {
     if (_isPlaying() && m_isBuffering)
@@ -683,9 +607,6 @@ void Player::continuePlayingIfEnoughBuffering()
     }
 }
 
-/*
-Remove the ended stream of m_queueOpenedFile.
-*/
 void Player::clearUnneededStream()
 {
     while (m_queueOpenedFile.size() > 0)
@@ -709,10 +630,6 @@ void Player::clearUnneededStream()
     }
 }
 
-/*
-Recreate the PortAudio stream for new files
-with different stream info.
-*/
 void Player::recreateStream()
 {
     if (!m_isPlaying)
@@ -746,11 +663,6 @@ void Player::recreateStream()
     }
 }
 
-/*
-Update audio stream buffer.
-Read from the audio files and push the data
-into the ring buffer.
-*/
 void Player::updateStreamBuffer()
 {
     for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
@@ -760,11 +672,6 @@ void Player::updateStreamBuffer()
     }
 }
 
-/*
-Update audio stream buffer.
-Read from the audio files and push the data
-into the ring buffer.
-*/
 void Player::checkIfNoStream()
 {
     if (m_isPlaying && m_queueFilePath.empty() && m_queueOpenedFile.empty())
@@ -774,9 +681,6 @@ void Player::checkIfNoStream()
     }
 }
 
-/*
-Call the start file callback.
-*/
 inline void Player::startStreamingFile(const std::string& filePath)
 {
     if (m_callbackInterface)

@@ -45,25 +45,16 @@ AudioPlayer::~AudioPlayer()
         m_loopThread.join();
 }
 
-/*
-Add a file into the playing list.
-filePath: the file path to open.
-clearQueue: stop the player and clear the playing list.
-*/
 void AudioPlayer::open(const std::string& filePath, bool clearQueue)
 {
     if (!isRunning())
         return;
     
+    // Push the event into the events list.
     LoadFile loadFile = { filePath, clearQueue };
     m_events.push(EventType::OPEN_FILE, loadFile);
 }
 
-/*
-Add a file into the playing list.
-filePath: the file path to open.
-clearQueue: stop file played and clear queue.
-*/
 void AudioPlayer::loop()
 {
     if (!m_isInit)
@@ -86,9 +77,6 @@ void AudioPlayer::loop()
     }
 }
 
-/*
-Process the event send by the user.
-*/
 void AudioPlayer::processEvents()
 {
     while (m_events.containEvents())
@@ -174,11 +162,6 @@ void AudioPlayer::processEvents()
     }
 }
 
-/*
-Return true if the player is playing.
-Wait until the next iteration of the main loop to be sure
-the player had time to start playing.
-*/
 bool AudioPlayer::isPlaying()
 {
     if (isRunning())
@@ -196,11 +179,6 @@ bool AudioPlayer::isPlaying()
         return false;
 }
 
-/*
-Are files ready to play or are playing.
-Wait until the next iteration of the main loop to be sure
-the player had time to start playing.
-*/
 bool AudioPlayer::isReady()
 {
     if (isRunning())

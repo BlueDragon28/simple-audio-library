@@ -33,32 +33,18 @@ CallbackInterface::~CallbackInterface()
     }
 }
 
-/*
-Add a start file callback to the list of callback.
-This callback if called when a (new) file start to play.
-*/
 void CallbackInterface::addStartFileCallback(StartFileCallback callback)
 {
     std::scoped_lock lock(m_startFileCallbackMutex);
     m_startFileCallback.push_back(callback);
 }
 
-/*
-Add a end file callback to the list of callback.
-This callback if called when a (new) file start to play.
-*/
 void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 {
     std::scoped_lock lock(m_endFileCallbackMutex);
     m_endFileCallback.push_back(callback);
 }
 
-/*
-Add a stream position (in frames or seconds) change callback.
-This callback is called when the position of the stream
-is changing.
-This is the position of the raw PCM stream (decoded from the file).
-*/
 void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callback, TimeType timeType)
 {
     if (timeType == TimeType::SECONDS)
@@ -73,91 +59,54 @@ void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callb
     }
 }
 
-/*
-Add a stream paused callback.
-This callback is called when the stream is paused.
-*/
 void CallbackInterface::addStreamPausedCallback(StreamPausedCallback callback)
 {
     std::scoped_lock lock(m_streamPausedMutex);
     m_streamPausedCallback.push_back(callback);
 }
 
-/*
-Add a stream playing callback.
-This callback is called when the stream start playing or is resuming.
-*/
 void CallbackInterface::addStreamPlayingCallback(StreamPlayingCallback callback)
 {
     std::scoped_lock lock(m_streamPlayingMutex);
     m_streamPlayingCallback.push_back(callback);
 }
 
-/*
-Add a stream stopping callback.
-This callback is called when a stream stop playing.
-*/
 void CallbackInterface::addStreamStoppingCallback(StreamStoppingCallback callback)
 {
     std::scoped_lock lock(m_streamStoppingMutex);
     m_streamStoppingCallback.push_back(callback);
 }
 
-/*
-Add a stream buffering callback.
-This callback is called when the stream is buffering.
-*/
 void CallbackInterface::addStreamBufferingCallback(StreamBufferingCallback callback)
 {
     std::scoped_lock lock(m_streamBufferingMutex);
     m_streamBufferingCallback.push_back(callback);
 }
 
-/*
-Add a stream enough buffering callback.
-This callback is called when the stream have finish buffering
-*/
 void CallbackInterface::addStreamEnoughBufferingCallback(StreamEnoughBufferingCallback callback)
 {
     std::scoped_lock lock(m_streamEnoughBufferingMutex);
     m_streamEnoughBufferingCallback.push_back(callback);
 }
 
-/*
-Add is ready changed callback.
-This callback is called whenever the isReady is called.
-*/
 void CallbackInterface::addIsReadyChangedCallback(IsReadyChangedCallback callback)
 {
     std::scoped_lock lock(m_isReadyChangedMutex);
     m_isReadyChangedCallback.push_back(callback);
 }
 
-/*
-Calling start file callback.
-This event is store inside a list and is then call
-from the main loop of the AudioPlayer class.
-*/
 void CallbackInterface::callStartFileCallback(const std::string& filePath)
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::START_FILE, filePath});
 }
 
-/*
-Calling end file callback.
-This event is store inside a list and is then call
-from the main loop of the AudioPlayer class.
-*/
 void CallbackInterface::callEndFileCallback(const std::string& filePath)
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::END_FILE, filePath});
 }
 
-/*
-Calling stream position (in frames or seconds) change callback.
-*/
 void CallbackInterface::callStreamPosChangeCallback(size_t streamPos, TimeType timeType)
 {
     // Frames are placed first, because they will be called more often than seconds.
@@ -173,63 +122,42 @@ void CallbackInterface::callStreamPosChangeCallback(size_t streamPos, TimeType t
     }
 }
 
-/*
-Calling stream paused callback.
-*/
 void CallbackInterface::callStreamPausedCallback()
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_PAUSED});
 }
 
-/*
-Calling stream playing callback
-*/
 void CallbackInterface::callStreamPlayingCallback()
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_PLAYING});
 }
 
-/*
-Calling stream stopping callback.
-*/
 void CallbackInterface::callStreamStoppingCallback()
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_STOPPING});
 }
 
-/*
-Calling stream buffering callback.
-*/
 void CallbackInterface::callStreamBufferingCallback()
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_BUFFERING});
 }
 
-/*
-Calling stream enough buffering callback.
-*/
 void CallbackInterface::callStreamEnoughBufferingCallback()
 {
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_ENOUGH_BUFFERING});
 }
 
-/*
-Calling the is ready changed callback.
-*/
 void CallbackInterface::callIsReadyChangedCallback(bool isReady)
 {
     std::scoped_lock lack(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::IS_READY_CHANCHED, isReady});
 }
 
-/*
-Call every callback inside the callback queue.
-*/
 void CallbackInterface::callback() 
 {
     std::scoped_lock lock(m_callbackCallMutex);
@@ -491,9 +419,6 @@ void CallbackInterface::isReadyChangedCallback(bool isReady)
     callbackCallTemplate(m_isReadyChangedCallback, isReady);
 }
 
-/*
-Set the is ready getter.
-*/
 void CallbackInterface::setIsReadyGetter(std::function<bool()> getter)
 {
     m_isReadyGetter = getter;

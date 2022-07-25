@@ -20,9 +20,6 @@ FlacAudioFile::FlacAudioFile(const std::string& filePath, bool load) :
 FlacAudioFile::~FlacAudioFile()
 {}
 
-/*
-Opening the Flac file.
-*/
 void FlacAudioFile::open()
 {
     if (filePath().empty())
@@ -70,10 +67,6 @@ void FlacAudioFile::open()
     fileOpened();
 }
 
-/*
-This virtual method call the init function of the FLAC++ api.
-This is set to be able to use another function on a subclass.
-*/
 void FlacAudioFile::initFile()
 {
     FLAC__StreamDecoderInitStatus status = init(filePath());
@@ -81,10 +74,6 @@ void FlacAudioFile::initFile()
         m_isError = true;
 }
 
-/*
-Read the headers of the flac file.
-This method is called by FLAC::Decoder::File.
-*/
 void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
 {
     // Reading the streaming information of the FLAC file.
@@ -100,10 +89,6 @@ void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
     }
 }
 
-/*
-Read a block from the flac file.
-This method is called by FLAC::Decoder::File.
-*/
 FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* frame, const FLAC__int32* const buffer[])
 {
     // Check if the header information of the block is valid.
@@ -161,21 +146,12 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
-/*
-Reporting an error while reading the flac file.
-This method is called by FLAC::Decoder::File.
-*/
 void FlacAudioFile::error_callback(FLAC__StreamDecoderErrorStatus status)
 {
     m_isError = true;
     endFile(true);
 }
 
-/*
-Read from the audio file and put it into
-the temporary buffer before going into the 
-ring buffer.
-*/
 void FlacAudioFile::readDataFromFile()
 {
     if (m_isError || streamSizeInBytes() == 0)
@@ -192,10 +168,6 @@ void FlacAudioFile::readDataFromFile()
         endFile(true);
 }
 
-/*
-Updating the reading position (in frames) of the audio file
-to the new position pos.
-*/
 bool FlacAudioFile::updateReadingPos(size_t pos)
 {
     if (seek_absolute(pos))

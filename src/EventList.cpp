@@ -8,10 +8,6 @@ EventList::EventList()
 EventList::~EventList()
 {}
 
-/*
-Retrieve an event (if available) and
-remove it from the queue.
-*/
 EventData EventList::get()
 {
     if (containEvents())
@@ -24,9 +20,6 @@ EventData EventList::get()
     return {EventType::INVALID, EventVariant()};
 }
 
-/*
-Set a wait event and return the ID.
-*/
 int EventList::waitEvent()
 {
     std::scoped_lock lock(m_queueMutex);
@@ -51,9 +44,6 @@ int EventList::waitEvent()
     return max;
 }
 
-/*
-Return true if WAIT_EVENT ID is in the queue.
-*/
 bool EventList::isWaitEventIDPresent(int id) const
 {
     std::scoped_lock lock(m_queueMutex);

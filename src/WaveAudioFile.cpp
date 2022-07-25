@@ -23,9 +23,6 @@ WaveAudioFile::~WaveAudioFile()
     close();
 }
 
-/*
-Open the Wave file and read all the headers.
-*/
 void WaveAudioFile::open()
 {
     if (filePath().empty())
@@ -205,29 +202,24 @@ void WaveAudioFile::open()
     }
 }
 
-/*
-Close the Wave file and release resources.
-*/
 void WaveAudioFile::close()
 {
     if (m_audioFile.is_open())
         m_audioFile.close();
 }
 
-/*
-Read from the audio file and put it into
-the temporary buffer before going into the 
-ring buffer.
-*/
 void WaveAudioFile::readDataFromFile()
 {
+    // Check if the file is open and there is data to read.
     if (!m_audioFile.is_open() || streamSizeInBytes() == 0)
         return;
     
+    // Get the size of the tmp buffer.
     size_t readSize = minimumSizeTemporaryBuffer();
     if (readPos() + readSize > streamSizeInBytes())
         readSize = streamSizeInBytes() - readPos();
     
+    // Get data from file.
     std::vector<char> data(readSize);
     memset(data.data(), 0, readSize);
 
@@ -239,15 +231,11 @@ void WaveAudioFile::readDataFromFile()
         return;
     }
 
+    // Send data into the tmp buffer.
     insertDataInfoTmpBuffer(data.data(), readSize);
-
     incrementReadPos(readSize);
 }
 
-/*
-Updating the reading position (in frames) of the audio file
-to the new position pos.
-*/
 bool WaveAudioFile::updateReadingPos(size_t pos)
 {
     // Pos in bytes.

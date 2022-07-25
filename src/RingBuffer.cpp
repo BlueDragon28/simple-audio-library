@@ -40,12 +40,6 @@ RingBuffer::~RingBuffer()
     delete[] m_data;
 }
 
-/*
-Resize the circular buffer to *bufferSize.
-Remove remove any data inside the circular buffer.
-This function is not thread safe, so be carefull when
-calling it.
-*/
 void RingBuffer::resizeBuffer(size_t bufferSize)
 {
     std::scoped_lock lock(m_readMutex);
@@ -61,21 +55,20 @@ void RingBuffer::resizeBuffer(size_t bufferSize)
     }
 }
 
-/*
-Read *size data inside the circular buffer
-into the *buffer. Return how many bytes readed.
-*/
 size_t RingBuffer::read(char* buffer, size_t size)
 {
     std::scoped_lock lock(m_readMutex);
+    // Check if there is data available to read.
     if (!buffer || !m_data || m_size == 0 || 
         size == 0 || m_writeAvailable == m_size)
         return 0;
     
+    // Get the number in bytes of data to read.
     size_t readAvailable = m_size - m_writeAvailable;
     if (size > readAvailable)
         size = readAvailable;
     
+    // Copy data into the output buffer.
     if (size > m_size-m_tailPos)
     {
         size_t lenght = m_size-m_tailPos;
@@ -85,25 +78,25 @@ size_t RingBuffer::read(char* buffer, size_t size)
     else
         memcpy(buffer, m_data+m_tailPos, size);
     
+    // Move the tail position foward.
     m_tailPos = (m_tailPos + size) % m_size;
     m_writeAvailable += size;
 
     return size;
 }
 
-/*
-Write *size of *buffer into the circular buffer.
-Return how many bytes writed.
-*/
 size_t RingBuffer::write(const char* buffer, size_t size)
 {
+    // Check if there is data to write.
     if (!buffer || !m_data || m_size == 0 ||
         size == 0 || m_writeAvailable == 0)
         return 0;
     
+    // Get the number in bytes of data to write.
     if (size > m_writeAvailable)
         size = m_writeAvailable;
     
+    // Copy data from input buffer into the ring buffer.
     if (size > m_size-m_headPos)
     {
         size_t lenght = m_size-m_headPos;
@@ -113,14 +106,12 @@ size_t RingBuffer::write(const char* buffer, size_t size)
     else
         memcpy(m_data+m_headPos, buffer, size);
     
+    // Move the head position foward.
     m_headPos = (m_headPos + size) % m_size;
     m_writeAvailable -= size;
     return size;
 }
 
-/*
-Clearing the ring buffer of all data.
-*/
 void RingBuffer::clear()
 {
     std::scoped_lock lock(m_readMutex);

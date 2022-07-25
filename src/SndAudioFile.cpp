@@ -23,9 +23,6 @@ SndAudioFile::SndAudioFile(const std::string& filePath) :
 SndAudioFile::~SndAudioFile()
 {}
 
-/*
-Open the file with the libsndfile library.
-*/
 void SndAudioFile::open()
 {
     // Opening the file with libsndfile library.
@@ -103,11 +100,6 @@ void SndAudioFile::open()
     fileOpened();
 }
 
-/*
-Get data from the libsndfile library and put it into
-the temporary buffer before going into the 
-ring buffer.
-*/
 void SndAudioFile::readDataFromFile()
 {
     if (streamSizeInBytes() == 0 || !m_file || !*m_file.get() || sampleType() != SampleType::FLOAT)
@@ -140,10 +132,6 @@ void SndAudioFile::readDataFromFile()
     }
 }
 
-/*
-Updating the reading position (in frames) of the audio file
-to the new position pos.
-*/
 bool SndAudioFile::updateReadingPos(size_t pos)
 {
     size_t newPosition = m_file->seek(pos, SF_SEEK_SET);

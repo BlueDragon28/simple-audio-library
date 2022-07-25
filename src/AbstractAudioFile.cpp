@@ -5,10 +5,6 @@
 
 namespace SAL
 {
-/*
-Opening a file *filePath and prepare it
-for streaming.
-*/
 AbstractAudioFile::AbstractAudioFile(const char* filePath) :
     m_filePath(filePath),
     m_isOpen(false),
@@ -55,12 +51,12 @@ AbstractAudioFile::~AbstractAudioFile()
     delete[] m_tmpBuffer;
 }
 
-/*
-Read data from the file and put it into
-the temporaty buffer.
-*/
 void AbstractAudioFile::readFromFile()
 {
+    /*
+    Check if the file is open and not at the end,
+    reset tmp buffer information and read data from the file.
+    */
     std::scoped_lock lock(m_readFromFileMutex);
     if (!m_isOpen || m_endFile)
         return;
@@ -76,13 +72,12 @@ void AbstractAudioFile::readFromFile()
         readDataFromFile();
 }
 
-/*
-Resize the temporary buffer.
-*/
 void AbstractAudioFile::resizeTmpBuffer(size_t size)
 {
+    // Create a new tmpBuffer with the new size.
     char* tmpBuffer = new char[size];
 
+    // Copy previous data into the new tmp buffer and delete the previous buffer.
     if (m_tmpBuffer)
     {
         size_t bufferSize;
@@ -94,6 +89,7 @@ void AbstractAudioFile::resizeTmpBuffer(size_t size)
         delete m_tmpBuffer;
     }
 
+    // Update tmp buffer information.
     m_tmpBuffer = tmpBuffer;
     m_tmpSize = size;
     if (m_tmpTailPos > size)
@@ -176,10 +172,6 @@ std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
     return fBuffer;
 }
 
-/*
-Insert data into the tmp buffer.
-The data is converted to 32 bits floating point number.
-*/
 void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
 {
     if (size == 0)
@@ -243,9 +235,6 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
     m_tmpSizeDataWritten += sizeDataInBytes;
 }
 
-/*
-Flush the temporary data into the ring buffer.
-*/
 void AbstractAudioFile::flush()
 {
     std::scoped_lock lock(m_readFromFileMutex);
@@ -265,23 +254,20 @@ void AbstractAudioFile::updateStreamSizeInfo()
     m_sizeStreamInFrames = m_sizeStream / m_bytesPerSample / m_numChannels;
 }
 
-/*
-Extract data from the audio files has 32 bits floating point numbers.
-- data = a pointer to a sound buffer.
-- sizeInFrames = the size of the buffers in frames.
-- return the size of data read in frames.
-*/
 size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
 {
+    // Check if the file is open and not at the end.
     if (!m_isOpen || m_ringBuffer.size() == 0 || m_isEnded)
         return 0;
     std::scoped_lock lock(m_seekMutex);
     
+    // Read data from the ring buffer.
     size_t sizeInBytes = sizeInFrames * numChannels() * sizeof(float);
     size_t bytesReaded = m_ringBuffer.read(data, sizeInBytes);
     m_streamPos += bytesReaded / sizeof(float) * m_bytesPerSample;
     updateStreamPosInfo();
 
+    // Check if the stream is not at the end.
     if (m_streamPos == m_sizeStream)
         m_isEnded = true;
 
@@ -299,10 +285,6 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     return bytesReadedInFrames;
 }
 
-/*
-Update the buffers size when the 
-audio file header is readed.
-*/
 void AbstractAudioFile::updateBuffersSize()
 {
     resizeTmpBuffer(sampleRate() * numChannels() * sizeof(float));
@@ -316,11 +298,6 @@ void AbstractAudioFile::updateStreamPosInfo()
     m_streamPosInFrames = m_streamPosInSamples / numChannels();
 }
 
-/*
-Increment the position of the reading position
-of the audio data and set endFile to true when the data
-has reach the end of the file.
-*/
 void AbstractAudioFile::incrementReadPos(size_t size)
 {
     if (size == 0)
@@ -332,16 +309,13 @@ void AbstractAudioFile::incrementReadPos(size_t size)
         endFile();
 }
 
-/*
-Seeking a position (in frames) in the raw stream.
-This will clear all the buffers and start playing at 
-the position needed if the position if valid.
-*/
 void AbstractAudioFile::seek(size_t pos)
 {
     std::scoped_lock lock(m_seekMutex);
+    // Check if the pos is less than the size of the stream.
     if (pos < streamSize())
     {
+        // Clear the ring buffer and move the stream to the new position;
         m_ringBuffer.clear();
         if (updateReadingPos(pos))
         {
