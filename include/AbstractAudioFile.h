@@ -11,7 +11,7 @@
 namespace SAL
 {
 /*
-Prototype class to open a file.
+Abstract class to open a file.
 The goal of this class is to have 
 all the basic tools common to any
 files streaming available. This prevent
@@ -118,7 +118,7 @@ public:
 
     /*
     Extract data from the audio files has 32 bits floating point numbers.
-    - data = a pointer to a sound buffer.
+    - data = a pointer to an audio buffer.
     - sizeInFrames = the size of the buffers in frames.
     - return the size of data read in frames.
     */
@@ -181,7 +181,7 @@ protected:
     inline void fileOpened(bool value = true) noexcept;
 
     /*
-    Pure virtual method who read from the audio
+    Pure virtual method to read from the audio
     file and put the data into the temporary buffer.
     */
     virtual void readDataFromFile() = 0;

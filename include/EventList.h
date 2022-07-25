@@ -10,8 +10,8 @@
 namespace SAL
 {
 /*
-Class used to contain all the event send by
-the user. Play, Pause, Stop, Open etc.
+Class used to contain all the events send by
+the user. Play, Pause, Stop, Open, etc.
 */
 class EventList
 {

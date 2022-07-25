@@ -50,7 +50,7 @@ Add a new file into the queue and stream it when the queue is empty.
 filePath - path to the file.
 clearQueue - clear the queue and stop stream and use this file has
 current stream. If the previous file was playing, the new one will
-play too.
+also play.
 */
 void Player::open(const char* filePath, bool clearQueue)
 {

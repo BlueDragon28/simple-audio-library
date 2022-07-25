@@ -23,14 +23,16 @@ public:
     into the *buffer. Return how many bytes readed.
     */
     size_t read(char* buffer, size_t size);
+
     /*
     Write *size of *buffer into the circular buffer.
     Return how many bytes writed.
     */
     size_t write(const char* buffer, size_t size);
+
     /*
     Resize the circular buffer to *bufferSize.
-    Remove remove any data inside the circular buffer.
+    Remove any data inside the circular buffer.
     This function is not thread safe, so be carefull when
     calling it.
     */

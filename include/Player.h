@@ -35,7 +35,7 @@ public:
     filePath - path to the file.
     clearQueue - clear the queue and stop stream and use this file has
     current stream. If the previous file was playing, the new one will
-    play too.
+    also play.
     */
     void open(const char* filePath, bool clearQueue = false);
     void open(const std::string& filePath, bool clearQueue = false);
@@ -49,10 +49,12 @@ public:
     Start paying if there is any stream to play.
     */
     void play();
+
     /*
     Pause the stream.
     */
     void pause();
+
     /*
     Stop playing and delete the queues.
     */
@@ -91,14 +93,14 @@ public:
     bool isFileReady() const;
 
     /*
-    Return stream size of the raw stream (not necessarily in 32 bits floating).
+    Return stream size of the raw stream (not necessarily in 32 bits float).
     timeType: choose between frames or seconds base time.
     Wrapper to the _streamSize method.
     */
     inline size_t streamSize(TimeType timeType) const noexcept;
 
     /*
-    Return stream pos of the raw stream (not necessarily in 32 bits floating).
+    Return stream pos of the raw stream (not necessarily in 32 bits float).
     timeType: choose between frames or seconds base time.
     Wrapper to the _streamPos method.
     */
@@ -195,16 +197,16 @@ private:
     bool _isPlaying() const;
 
     /*
-    Return stream size of the raw stream (not necessarily in 32 bits floating).
+    Return stream size of the raw stream (not necessarily in 32 bits float).
     timeType: choose between frames or seconds base time.
     */
-    size_t _streamSize(TimeType timeType) const noexcept;
+    inline size_t _streamSize(TimeType timeType) const noexcept;
 
     /*
-    Return stream pos of the raw stream (not necessarily in 32 bits floating).
+    Return stream pos of the raw stream (not necessarily in 32 bits float).
     timeType: choose between frames or seconds base time.
     */
-    size_t _streamPos(TimeType timeType) const noexcept;
+    inline size_t _streamPos(TimeType timeType) const noexcept;
 
     /*
     Static C callback use to make a bridge between
@@ -284,9 +286,10 @@ private:
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     std::mutex m_queueFilePathMutex;
+
     /*
     Current streamed file and the next file that have the same
-    channels, bit depth, samplerate, sampleType.
+    channels and samplerate.
     */
     std::vector<std::unique_ptr<AbstractAudioFile>> m_queueOpenedFile;
     mutable std::mutex m_queueOpenedFileMutex;
@@ -321,7 +324,7 @@ private:
     */
     size_t m_streamPosLastCallback;
 
-    // Prevent to loop trying to open a file if the file have a different stream information.
+    // Prevent infinity loop trying to open a file if the file have a different stream information.
     bool m_doNotCheckFile;
 
     // Prevent streamEndCallback to call endStreamingFile callback if the stop method is called.
@@ -354,7 +357,7 @@ inline void Player::setCallbackInterface(CallbackInterface* interface) noexcept
 }
 
 /*
-Return stream size of the raw stream (not necessarily in 32 bits floating).
+Return stream size of the raw stream (not necessarily in 32 bits float).
 timeType: choose between frames or seconds base time.
 Wrapper to the _streamSize method.
 */
@@ -365,7 +368,7 @@ inline size_t Player::streamSize(TimeType timeType) const noexcept
 }
 
 /*
-Return stream size of the raw stream (not necessarily in 32 bits floating).
+Return stream size of the raw stream (not necessarily in 32 bits float).
 timeType: choose between frames or seconds base time.
 */
 inline size_t Player::_streamSize(TimeType timeType) const noexcept
@@ -384,7 +387,7 @@ inline size_t Player::_streamSize(TimeType timeType) const noexcept
 }
 
 /*
-Return stream pos of the raw stream (not necessarily in 32 bits floating).
+Return stream pos of the raw stream (not necessarily in 32 bits float).
 timeType: choose between frames or seconds base time.
 Wrapper to the _streamPos method.
 */
@@ -395,7 +398,7 @@ inline size_t Player::streamPos(TimeType timeType) const noexcept
 }
 
 /*
-Return stream pos of the raw stream (not necessarily in 32 bits floating).
+Return stream pos of the raw stream (not necessarily in 32 bits float).
 timeType: choose between frames or seconds base time.
 */
 inline size_t Player::_streamPos(TimeType timeType) const noexcept
