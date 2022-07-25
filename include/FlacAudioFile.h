@@ -18,8 +18,8 @@ public:
     for streaming.
     The load paremeter indicate if the file must be load or not.
     */
-    FlacAudioFile(const char* filePath, bool load = true);
-    FlacAudioFile(const std::string& filePath, bool load = true);
+    FlacAudioFile(const char* filePath);
+    FlacAudioFile(const std::string& filePath);
     virtual ~FlacAudioFile();
 
 protected:
@@ -58,12 +58,6 @@ protected:
     Opening the Flac file.
     */
     void open();
-
-    /*
-    This virtual method call the init function of the FLAC++ api.
-    This is set to be able to use another function on a subclass.
-    */
-    virtual void initFile();
 
 private:
     // Is there an error while reading the file.

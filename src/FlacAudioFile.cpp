@@ -5,16 +5,15 @@
 
 namespace SAL
 {
-FlacAudioFile::FlacAudioFile(const char* filePath, bool load) :
+FlacAudioFile::FlacAudioFile(const char* filePath) :
     AbstractAudioFile(filePath),
     m_isError(false)
 {
-    if (load)
-        open();
+    open();
 }
 
-FlacAudioFile::FlacAudioFile(const std::string& filePath, bool load) :
-    FlacAudioFile(filePath.c_str(), load)
+FlacAudioFile::FlacAudioFile(const std::string& filePath) :
+    FlacAudioFile(filePath.c_str())
 {}
 
 FlacAudioFile::~FlacAudioFile()
@@ -39,7 +38,9 @@ void FlacAudioFile::open()
     set_md5_checking(true);
 
     // Opening the flac file.
-    initFile();
+    FLAC__StreamDecoderInitStatus status = init(filePath());
+    if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
+        m_isError = true;
 
     // check if an error occured while initializing the flac file.
     if (m_isError)
@@ -65,13 +66,6 @@ void FlacAudioFile::open()
     }
 
     fileOpened();
-}
-
-void FlacAudioFile::initFile()
-{
-    FLAC__StreamDecoderInitStatus status = init(filePath());
-    if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
-        m_isError = true;
 }
 
 void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
