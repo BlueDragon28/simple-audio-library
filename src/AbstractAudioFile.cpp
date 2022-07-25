@@ -5,7 +5,7 @@
 
 namespace SAL
 {
-AbstractAudioFile::AbstractAudioFile(const char* filePath) :
+AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
     m_filePath(filePath),
     m_isOpen(false),
     m_tmpBuffer(nullptr),
@@ -40,10 +40,6 @@ AbstractAudioFile::AbstractAudioFile(const char* filePath) :
 
     // Streaming pos from audio file.
     m_readPos(0)
-{}
-
-AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
-    AbstractAudioFile(filePath.c_str())
 {}
 
 AbstractAudioFile::~AbstractAudioFile()

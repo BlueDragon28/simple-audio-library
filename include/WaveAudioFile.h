@@ -17,7 +17,6 @@ public:
     Opening a file *filePath and prepare it
     for streaming.
     */
-    WaveAudioFile(const char* filePath);
     WaveAudioFile(const std::string& filePath);
     virtual ~WaveAudioFile();
 

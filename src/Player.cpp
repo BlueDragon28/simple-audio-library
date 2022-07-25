@@ -45,11 +45,6 @@ Player::Player() :
 Player::~Player()
 {}
 
-void Player::open(const char* filePath, bool clearQueue)
-{
-    open(std::string(filePath), clearQueue);
-}
-
 void Player::open(const std::string& filePath, bool clearQueue)
 {
     if (filePath.empty())

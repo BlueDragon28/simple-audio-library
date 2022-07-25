@@ -37,7 +37,6 @@ public:
     current stream. If the previous file was playing, the new one will
     also play.
     */
-    void open(const char* filePath, bool clearQueue = false);
     void open(const std::string& filePath, bool clearQueue = false);
 
     /*

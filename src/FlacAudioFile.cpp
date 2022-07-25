@@ -5,16 +5,12 @@
 
 namespace SAL
 {
-FlacAudioFile::FlacAudioFile(const char* filePath) :
+FlacAudioFile::FlacAudioFile(const std::string& filePath) :
     AbstractAudioFile(filePath),
     m_isError(false)
 {
     open();
 }
-
-FlacAudioFile::FlacAudioFile(const std::string& filePath) :
-    FlacAudioFile(filePath.c_str())
-{}
 
 FlacAudioFile::~FlacAudioFile()
 {}

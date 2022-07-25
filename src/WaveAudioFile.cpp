@@ -8,15 +8,11 @@ namespace SAL
 Opening a file *filePath and prepare it
 for streaming.
 */
-WaveAudioFile::WaveAudioFile(const char* filePath) :
+WaveAudioFile::WaveAudioFile(const std::string& filePath) :
     AbstractAudioFile(filePath)
 {
     open();
 }
-
-WaveAudioFile::WaveAudioFile(const std::string& filePath) :
-    WaveAudioFile(filePath.c_str())
-{}
 
 WaveAudioFile::~WaveAudioFile()
 {

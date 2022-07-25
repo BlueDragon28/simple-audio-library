@@ -13,7 +13,6 @@ Open files with the libsndfile audio library.
 class SndAudioFile : public AbstractAudioFile
 {
 public:
-    SndAudioFile(const char* filePath);
     SndAudioFile(const std::string& filePath);
     virtual ~SndAudioFile();
 

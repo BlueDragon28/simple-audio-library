@@ -18,7 +18,6 @@ public:
     for streaming.
     The load paremeter indicate if the file must be load or not.
     */
-    FlacAudioFile(const char* filePath);
     FlacAudioFile(const std::string& filePath);
     virtual ~FlacAudioFile();
 

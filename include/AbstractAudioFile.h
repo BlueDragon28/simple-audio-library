@@ -34,7 +34,6 @@ public:
     Opening a file *filePath and prepare it
     for streaming.
     */
-    AbstractAudioFile(const char* filePath);
     AbstractAudioFile(const std::string& filePath);
     virtual ~AbstractAudioFile();
 

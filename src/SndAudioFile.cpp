@@ -4,7 +4,7 @@
 
 namespace SAL
 {
-SndAudioFile::SndAudioFile(const char* filePath) :
+SndAudioFile::SndAudioFile(const std::string& filePath) :
     AbstractAudioFile(filePath),
     m_file(new SndfileHandle(filePath))
 {
@@ -15,10 +15,6 @@ SndAudioFile::SndAudioFile(const char* filePath) :
 
     open();
 }
-
-SndAudioFile::SndAudioFile(const std::string& filePath) :
-    SndAudioFile(filePath.c_str())
-{}
 
 SndAudioFile::~SndAudioFile()
 {}
