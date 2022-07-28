@@ -239,7 +239,7 @@ inline AudioPlayer* AudioPlayer::instance()
 /*
 Destroy the the instance (if one is exinsting).
 */
-inline void AudioPlayer::deinit() { obj.reset(); }
+inline void AudioPlayer::deinit() { doNotReset = true; obj.reset(); }
 
 /*
 Destroy the instance (if one is existing).
