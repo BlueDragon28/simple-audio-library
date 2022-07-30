@@ -255,7 +255,6 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     // Check if the file is open and not at the end.
     if (!m_isOpen || m_ringBuffer.size() == 0 || m_isEnded)
         return 0;
-    std::scoped_lock lock(m_seekMutex);
     
     // Read data from the ring buffer.
     size_t sizeInBytes = sizeInFrames * numChannels() * sizeof(float);
@@ -307,7 +306,6 @@ void AbstractAudioFile::incrementReadPos(size_t size)
 
 void AbstractAudioFile::seek(size_t pos)
 {
-    std::scoped_lock lock(m_seekMutex);
     // Check if the pos is less than the size of the stream.
     if (pos < streamSize())
     {

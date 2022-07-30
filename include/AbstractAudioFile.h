@@ -283,9 +283,6 @@ private:
     */
     std::mutex m_readFromFileMutex;
 
-    // Preventing reading and seeking at the same time.
-    std::mutex m_seekMutex;
-
     /*
     Temprary buffer where data is writen
     in wait to be put into the ring buffer.
