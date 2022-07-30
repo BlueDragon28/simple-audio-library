@@ -102,7 +102,6 @@ void Player::play()
         
         if (!m_queueOpenedFile.empty())
         {
-            std::scoped_lock lock(m_queueOpenedFileMutex);
             if (!createStream())
             {
                 resetStreamInfo();
@@ -111,6 +110,7 @@ void Player::play()
             PaError err = Pa_StartStream(m_paStream.get());
             if (err == paNoError)
             {
+                std::scoped_lock lock(m_queueOpenedFileMutex);
                 // Notify that the stream is starting.
                 for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
                 {
