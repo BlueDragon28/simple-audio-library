@@ -22,6 +22,7 @@ namespace SAL
 Player::Player() :
     // PortAudio stream interface.
     m_paStream(nullptr, Pa_CloseStream),
+    m_isClosingStreamTheStream(false),
 
     // If the stream is playing or not.
     m_isPlaying(false),
@@ -327,6 +328,7 @@ int Player::checkFileFormat(const std::string& filePath) const
 void Player::_resetStreamInfo()
 {
     m_paStream.reset();
+    m_isClosingStreamTheStream = false;
     m_queueOpenedFile.clear();
     m_numChannels = 0;
     m_sampleRate = 0;
@@ -535,12 +537,15 @@ void Player::streamEndCallback()
             if (!m_queueOpenedFile.empty() && !m_isStopping)
                 endStreamingFile(m_queueOpenedFile.at(0)->filePath());
         }
-        resetStreamInfo();
+        //resetStreamInfo();
+        m_isClosingStreamTheStream = true;
     }
 }
 
 void Player::update()
 {
+    static int counter = 0;
+    closeStreamWhenNeeded();
     pauseIfBuffering();
     std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     updateStreamBuffer();
@@ -655,6 +660,15 @@ void Player::recreateStream()
                 m_isPaused = false;
             }
         }
+    }
+}
+
+void Player::closeStreamWhenNeeded()
+{
+    if (m_isClosingStreamTheStream)
+    {
+        std::scoped_lock lock(m_paStreamMutex);
+        resetStreamInfo();
     }
 }
 

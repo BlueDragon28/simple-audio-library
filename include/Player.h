@@ -179,6 +179,11 @@ private:
     void recreateStream();
 
     /*
+    Close the PortAudio stream when asked.
+    */
+    void closeStreamWhenNeeded();
+
+    /*
     Update audio stream buffer.
     Read from the audio files and push the data
     into the ring buffer.
@@ -296,6 +301,7 @@ private:
     // PortAudio stream interface.
     std::unique_ptr<PaStream, decltype(&Pa_CloseStream)> m_paStream;
     std::mutex m_paStreamMutex;
+    std::atomic<bool> m_isClosingStreamTheStream; // When a stream stop, it ask to close the stream.
 
     // If the stream is playing or not.
     std::atomic<bool> m_isPlaying;
