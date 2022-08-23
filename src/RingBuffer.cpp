@@ -87,6 +87,7 @@ size_t RingBuffer::read(char* buffer, size_t size)
 
 size_t RingBuffer::write(const char* buffer, size_t size)
 {
+    std::scoped_lock lock(m_readMutex);
     // Check if there is data to write.
     if (!buffer || !m_data || m_size == 0 ||
         size == 0 || m_writeAvailable == 0)
