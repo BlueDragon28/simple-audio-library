@@ -162,7 +162,7 @@ void AudioPlayer::processEvents()
     }
 }
 
-bool AudioPlayer::isPlaying()
+bool AudioPlayer::isPlaying(bool isWaiting)
 {
     if (isRunning())
     {
@@ -170,16 +170,17 @@ bool AudioPlayer::isPlaying()
         Push an wait event id into the event queue
         and wait until it disappear.
         */
-        int id = m_events.waitEvent();
-        while (m_events.isWaitEventIDPresent(id))
-            std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
+        if (isWaiting)
+        {
+            waitEvent();
+        }
         return m_player->isPlaying();
     }
     else
         return false;
 }
 
-bool AudioPlayer::isReady()
+bool AudioPlayer::isReady(bool isWaiting)
 {
     if (isRunning())
     {
@@ -187,12 +188,26 @@ bool AudioPlayer::isReady()
         Push an wait event id into the event queue
         and wait until it disappear.
         */
-        int id = m_events.waitEvent();
-        while (m_events.isWaitEventIDPresent(id))
-            std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
+        if (isWaiting)
+        {
+            waitEvent();
+        }
         return m_player->isFileReady();
     }
     else
         return false;
+}
+
+void AudioPlayer::waitEvent()
+{
+    /*
+    Push an wait event id into the event queue
+    and wait until it disappear.
+    */
+    int id = m_events.waitEvent();
+    while (m_events.isWaitEventIDPresent(id))
+    {
+        std::this_thread::sleep_for(std::chrono::microseconds(m_sleepTime));
+    }
 }
 }

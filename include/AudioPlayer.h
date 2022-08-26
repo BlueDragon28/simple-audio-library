@@ -57,17 +57,17 @@ public:
 
     /*
     Return true if the player is playing.
-    Wait until the next iteration of the main loop to be sure
+    - isWaiting : if true, wait until the next iteration of the main loop to be sure
     the player had time to start playing.
     */
-    bool isPlaying();
+    bool isPlaying(bool isWaiting = false);
 
     /*
     Are files ready to play or are playing.
-    Wait until the next iteration of the main loop to be sure
+    - waitEvent : if true, wait until the next iteration of the main loop to be sure
     the player had time to start playing.
     */
-    bool isReady();
+    bool isReady(bool isWaiting = false);
 
     /*
     Return stream size in frames or seconds.
@@ -142,6 +142,12 @@ private:
     Process the event send by the user.
     */
     void processEvents();
+
+    /*
+    Wait until the next iteration of the main loop to be sure
+    the player had time to start playing.
+    */
+    void waitEvent();
 
     /*
     The thread where the loop is executed.
