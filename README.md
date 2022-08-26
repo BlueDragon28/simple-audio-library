@@ -69,10 +69,10 @@ The **CallbackInterface** is an interface between your callback functions and th
     - **clearQueue**: Stop streaming and clear the current playing list. If the player was playing, it will start automatically playing the new file.
 
 - ``` C++
-  bool isReady();
+  bool isReady(bool isWaiting = false);
   ```
   - Are audio files ready to play or are playing.
-    The method wait until the next iteration of the main loop.
+    - **isWaiting**: If true, the method wait until the next iteration of the main loop.
 
 - ``` C++
   inline void play() noexcept;
@@ -90,10 +90,10 @@ The **CallbackInterface** is an interface between your callback functions and th
   - Stop the stream and clear the playing list.
 
 - ``` C++
-  bool isPlaying();
+  bool isPlaying(bool isWaiting = false);
   ```
   - Return true if the player is playing.
-  The method wait until the next iteration of the main loop.
+    - **isWaiting**: If true, the method wait until the next iteration of the main loop.
 
 - ``` C++
   inline void seek(size_t pos, bool inSeconds = true) noexcept;
