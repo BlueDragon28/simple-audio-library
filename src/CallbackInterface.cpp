@@ -355,7 +355,7 @@ inline void callbackCallTemplate(CallbackArrayType& callbackArray, const Args&..
          crit != indexToRemove.crend();
          crit++)
     {
-        callbackArray.erase(*crit);
+        callbackArray.erase(*(crit+1));
     }
 }
 
