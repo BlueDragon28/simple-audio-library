@@ -115,7 +115,7 @@ public:
     /*
     Set the pointer of the callback interface.
     */
-    inline void setCallbackInterface(CallbackInterface* interface) noexcept;
+    inline void setCallbackInterface(CallbackInterface* callbackInterface) noexcept;
 
 private:
     /*
@@ -356,9 +356,9 @@ inline void Player::seek(size_t pos, bool inSeconds) noexcept
 /*
 Set the pointer of the callback interface.
 */
-inline void Player::setCallbackInterface(CallbackInterface* interface) noexcept
+inline void Player::setCallbackInterface(CallbackInterface* callbackInterface) noexcept
 {
-    m_callbackInterface = interface;
+    m_callbackInterface = callbackInterface;
 }
 
 /*
