@@ -190,4 +190,4 @@ All the callback parameters are **std::function**.
 
 ## License
 
-The library is licenced under the **MIT** license. Check the [LICENSE](LICENSE) file.
+The library is licensed under the **MIT** license. Check the [LICENSE](LICENSE) file.
