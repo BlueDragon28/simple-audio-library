@@ -85,6 +85,7 @@ set(PROJECT_HEADERS
     "include/Player.h"
     "include/PortAudioRAII.h"
     "include/RingBuffer.h"
+    "include/DebugLog.h"
     "${CMAKE_BINARY_DIR}/include/config.h")
 
 set(PROJECT_SOURCES
@@ -94,7 +95,8 @@ set(PROJECT_SOURCES
     "src/EventList.cpp"
     "src/PortAudioRAII.cpp"
     "src/AudioPlayer.cpp"
-    "src/CallbackInterface.cpp")
+    "src/CallbackInterface.cpp"
+    "src/DebugLog.cpp")
 
 # Compile the WAVE file if it is used.
 if (USE_WAVE)
