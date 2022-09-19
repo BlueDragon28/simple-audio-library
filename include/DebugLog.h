@@ -42,6 +42,11 @@ public:
             const std::string& functionName,
             std::string msg);
 
+    /*
+    Flush data into the file.
+    */
+    void flush();
+
 private:
     /*
     Instance of the singleton class.
@@ -72,6 +77,11 @@ private:
         std::string functionName;
         std::chrono::system_clock::time_point time;
         std::string msg;
+
+        /*
+        Convert debug item into a string.
+        */
+        std::string toString() const;
     };
 
     /*

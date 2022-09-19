@@ -1,5 +1,6 @@
 #include "DebugLog.h"
 #include <filesystem>
+#include <ctime>
 
 namespace SAL
 {
@@ -54,5 +55,37 @@ void DebugLog::append(const std::string &className, const std::string &functionN
               msg
           });
     }
+}
+
+void DebugLog::flush()
+{
+    // If there is a file opened, flush the data into it.
+    if (m_stream.is_open())
+    {
+        // Serialize every item in the debug listItems list.
+        for (const DebugOutputItem& item : m_listItems)
+        {
+            // Convert the item into a string and send it into the file.
+            m_stream << item.toString();
+        }
+    }
+}
+
+std::string DebugLog::DebugOutputItem::toString() const
+{
+    std::string str;
+
+    // Convert the time into a string.
+    std::time_t timeT = std::chrono::system_clock::to_time_t(time);
+    str += std::ctime(&timeT);
+
+    // Append class name, function/method name and the message.
+    if (!className.empty())
+    {
+        str += " " + className + "::";
+    }
+    str += functionName + ": " + msg + ".";
+
+    return str;
 }
 }
