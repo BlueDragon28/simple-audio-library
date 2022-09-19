@@ -14,7 +14,8 @@ bool AudioPlayer::doNotReset = false;
 AudioPlayer::AudioPlayer() :
     m_isInit(false),
     m_isRunning(false),
-    m_sleepTime(SLEEP_PAUSED)
+    m_sleepTime(SLEEP_PAUSED),
+    m_debugLog(DebugLog::instance())
 {
     m_pa = std::unique_ptr<PortAudioRAII>(new PortAudioRAII());
     if (m_pa->isInit())
@@ -71,6 +72,9 @@ void AudioPlayer::loop()
         // Update stream buffers and push files in the
         // playing queue.
         m_player->update();
+
+        // Flush debug log into the log file.
+        m_debugLog->flush();
 
         // Wait time before next iteration.
         std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));

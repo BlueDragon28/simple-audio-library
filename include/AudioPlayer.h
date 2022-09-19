@@ -5,6 +5,7 @@
 #include "EventList.h"
 #include "PortAudioRAII.h"
 #include "CallbackInterface.h"
+#include "DebugLog.h"
 #include "Common.h"
 #include <string>
 #include <memory>
@@ -174,6 +175,12 @@ private:
     by the main loop.
     */
     CallbackInterface m_callbackInterface;
+
+    /*
+    DebugLog instance to handle flush debug log item into the
+    log file.
+    */
+    DebugLog* m_debugLog;
 
     /*
     Only one instance of AudioPlayer is possible.
