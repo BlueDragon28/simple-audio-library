@@ -5,6 +5,8 @@
 #include <memory>
 #include <fstream>
 #include <mutex>
+#include <chrono>
+#include <vector>
 
 namespace SAL
 {
@@ -29,6 +31,17 @@ public:
     */
     bool setFilePath(const std::string& filePath);
 
+    /*
+    Append a debug item.
+    className: the class name,
+    functionName: the function or member name,
+    msg: the message to output.
+    */
+    void append(
+            const std::string& className,
+            const std::string& functionName,
+            std::string msg);
+
 private:
     /*
     Instance of the singleton class.
@@ -49,6 +62,22 @@ private:
     Mutex to block the stream to be called simultaneously from different thread.
     */
     std::mutex m_streamMutex;
+
+    /*
+    Struct holding informations about a debug output item.
+    */
+    struct DebugOutputItem
+    {
+        std::string className;
+        std::string functionName;
+        std::chrono::system_clock::time_point time;
+        std::string msg;
+    };
+
+    /*
+    List of the debug output to flush into the debug file.
+    */
+    std::vector<DebugOutputItem> m_listItems;
 };
 }
 

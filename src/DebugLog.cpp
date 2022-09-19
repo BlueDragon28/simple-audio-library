@@ -41,4 +41,18 @@ bool DebugLog::setFilePath(const std::string &filePath)
 
     return false;
 }
+
+void DebugLog::append(const std::string &className, const std::string &functionName, std::string msg)
+{
+    if (!functionName.empty() && !msg.empty())
+    {
+        // Pushing the debug item into the list.
+        m_listItems.push_back({
+              className,
+              functionName,
+              std::chrono::system_clock::now(),
+              msg
+          });
+    }
+}
 }
