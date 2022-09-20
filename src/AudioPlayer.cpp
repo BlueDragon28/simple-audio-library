@@ -5,6 +5,14 @@
 #define SLEEP_PLAYING 10
 #define SLEEP_PAUSED 50
 
+// Redefine CLASS_NAME to have the name of the class.
+#undef CLASS_NAME
+#define CLASS_NAME "AudioPlayer"
+
+// MACRO for redudent code of processEvents
+#define SAL_DEBUG_PROCESS_EVENTS(type) \
+    SAL_DEBUG(std::string("Processing ") + type + " event")
+
 namespace SAL
 {
 AudioPlayer::AudioPlayerPtr AudioPlayer::obj =
@@ -17,6 +25,8 @@ AudioPlayer::AudioPlayer() :
     m_sleepTime(SLEEP_PAUSED),
     m_debugLog(DebugLog::instance())
 {
+    SAL_DEBUG("Initializing SAL")
+
     m_pa = std::unique_ptr<PortAudioRAII>(new PortAudioRAII());
     if (m_pa->isInit())
     {
@@ -30,6 +40,8 @@ AudioPlayer::AudioPlayer() :
 
         m_loopThread = std::thread(&AudioPlayer::loop, this);
     }
+
+    SAL_DEBUG("Initialization done")
 }
 
 AudioPlayer::~AudioPlayer()
@@ -48,12 +60,21 @@ AudioPlayer::~AudioPlayer()
 
 void AudioPlayer::open(const std::string& filePath, bool clearQueue)
 {
+    SAL_DEBUG(std::string("Opening the file \"") + filePath + "\" with clear queue " + (clearQueue ? "true" : " false"))
+
     if (!isRunning())
+    {
+        SAL_DEBUG("Failed to open the file, main loop not running")
         return;
+    }
     
+    SAL_DEBUG("Adding the file into the event list with the type OPEN_FILE")
+
     // Push the event into the events list.
     LoadFile loadFile = { filePath, clearQueue };
     m_events.push(EventType::OPEN_FILE, loadFile);
+
+    SAL_DEBUG("Adding the file done")
 }
 
 void AudioPlayer::loop()
@@ -61,8 +82,12 @@ void AudioPlayer::loop()
     if (!m_isInit)
         return;
     
+    SAL_DEBUG("Starting main loop")
+
     while (isRunning())
     {
+        SAL_DEBUG("Main loop iteration")
+
         // Call the callbacks.
         m_callbackInterface.callback();
 
@@ -83,6 +108,8 @@ void AudioPlayer::loop()
 
 void AudioPlayer::processEvents()
 {
+    SAL_DEBUG("Processing pending events")
+
     while (m_events.containEvents())
     {
         EventData event = m_events.get();
@@ -92,6 +119,8 @@ void AudioPlayer::processEvents()
         // Open a file
         case EventType::OPEN_FILE:
         {
+            SAL_DEBUG_PROCESS_EVENTS("OPEN_FILE")
+
             LoadFile fileInfo;
             try
             {
@@ -107,6 +136,8 @@ void AudioPlayer::processEvents()
         // Play
         case EventType::PLAY:
         {
+            SAL_DEBUG_PROCESS_EVENTS("PLAY")
+
             m_player->play();
             m_sleepTime = SLEEP_PLAYING;
         } break;
@@ -114,6 +145,8 @@ void AudioPlayer::processEvents()
         // Pause
         case EventType::PAUSE:
         {
+            SAL_DEBUG_PROCESS_EVENTS("PAUSE")
+
             m_player->pause();
             m_sleepTime = SLEEP_PAUSED;
         } break;
@@ -121,6 +154,8 @@ void AudioPlayer::processEvents()
         // Stop
         case EventType::STOP:
         {
+            SAL_DEBUG_PROCESS_EVENTS("STOP")
+
             m_player->stop();
             m_sleepTime = SLEEP_PAUSED;
         } break;
@@ -129,6 +164,8 @@ void AudioPlayer::processEvents()
         case EventType::SEEK:
         case EventType::SEEK_SECONDS:
         {
+            SAL_DEBUG_PROCESS_EVENTS("SEEK/SEEK_SECONDS")
+
             size_t pos;
             try
             {
@@ -145,12 +182,16 @@ void AudioPlayer::processEvents()
         // Move to the next audio stream.
         case EventType::NEXT:
         {
+            SAL_DEBUG_PROCESS_EVENTS("NEXT")
+
             m_player->next();
         } break;
 
         // Quit
         case EventType::QUIT:
         {
+            SAL_DEBUG_PROCESS_EVENTS("QUIT")
+
             m_player->stop();
             m_isRunning = false;
         } break;
@@ -160,14 +201,20 @@ void AudioPlayer::processEvents()
         case EventType::INVALID:
         default:
         {
+            SAL_DEBUG_PROCESS_EVENTS("WAIT/INVALID")
+
             continue;
         } break;
         }
     }
+
+    SAL_DEBUG("Processing pending events done")
 }
 
 bool AudioPlayer::isPlaying(bool isWaiting)
 {
+    SAL_DEBUG("Check if a stream is playing")
+
     if (isRunning())
     {
         /*
@@ -186,6 +233,8 @@ bool AudioPlayer::isPlaying(bool isWaiting)
 
 bool AudioPlayer::isReady(bool isWaiting)
 {
+    SAL_DEBUG("Check if a stream is ready to play")
+
     if (isRunning())
     {
         /*
@@ -204,6 +253,8 @@ bool AudioPlayer::isReady(bool isWaiting)
 
 void AudioPlayer::waitEvent()
 {
+    SAL_DEBUG("Waiting for the next main loop iteration")
+
     /*
     Push an wait event id into the event queue
     and wait until it disappear.
