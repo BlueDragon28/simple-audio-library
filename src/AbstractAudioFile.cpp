@@ -1,7 +1,12 @@
 #include "AbstractAudioFile.h"
+#include "DebugLog.h"
 #include <cstring>
 #include <limits>
 #include <vector>
+
+// Redefine CLASS_NAME to have the name of the class.
+#undef CLASS_NAME
+#define CLASS_NAME "AbstractAudioFile"
 
 namespace SAL
 {
@@ -40,15 +45,21 @@ AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
 
     // Streaming pos from audio file.
     m_readPos(0)
-{}
+{
+    SAL_DEBUG("Preparing to open the file " + filePath)
+}
 
 AbstractAudioFile::~AbstractAudioFile()
 {
+    SAL_DEBUG("Destroying the file " + m_filePath);
+
     delete[] m_tmpBuffer;
 }
 
 void AbstractAudioFile::readFromFile()
 {
+    SAL_DEBUG("Reading from file into temporary buffer")
+
     /*
     Check if the file is open and not at the end,
     reset tmp buffer information and read data from the file.
@@ -66,10 +77,16 @@ void AbstractAudioFile::readFromFile()
     
     if (m_tmpWritePos < m_tmpMinimumSize)
         readDataFromFile();
+
+    SAL_DEBUG("Temporary buffer filled")
 }
 
 void AbstractAudioFile::resizeTmpBuffer(size_t size)
 {
+#ifndef NDEBUG
+    SAL_DEBUG("Resizing the tmpBuffer from " + std::to_string(m_tmpSize) + "o to " + std::to_string(size) + "o")
+#endif
+
     // Create a new tmpBuffer with the new size.
     char* tmpBuffer = new char[size];
 
@@ -94,12 +111,16 @@ void AbstractAudioFile::resizeTmpBuffer(size_t size)
         m_tmpSizeDataWritten = size;
     if (m_tmpWritePos > size)
         m_tmpWritePos = size;
+
+    SAL_DEBUG("Resizing tmpBuffer done")
 }
 
 // Template to convert data from an integer to a float number.
 template<typename T>
 std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
 {
+    SAL_DEBUG("Convert integer array to float array")
+
     std::vector<float> fBuffer(samples);
 
     for (size_t i = 0; i < samples; i++)
@@ -129,6 +150,8 @@ std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
         fBuffer[i] = number / (number < 0 ? (float)min : (float)max);
     }
 
+    SAL_DEBUG("Converting integer array to float array done")
+
     return fBuffer;
 }
 
@@ -137,6 +160,8 @@ std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
 template<>
 std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
 {
+    SAL_DEBUG("Convert 24bit integer array to float array")
+
     std::vector<float> fBuffer(samples);
 
     for (size_t i = 0; i < samples; i++)
@@ -165,6 +190,8 @@ std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
         fBuffer[i] = fNumber / (fNumber < 0 ? (float)min : (float)max);
     }
 
+    SAL_DEBUG("Convert 24bit integer array to float array done")
+
     return fBuffer;
 }
 
@@ -172,6 +199,8 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
 {
     if (size == 0)
         return;
+
+    SAL_DEBUG("Insert data into the temporary buffer")
 
     std::vector<float> data;
 
@@ -229,25 +258,35 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
 
     m_tmpWritePos += sizeDataInBytes;
     m_tmpSizeDataWritten += sizeDataInBytes;
+
+    SAL_DEBUG("Insert data into the temporary buffer done")
 }
 
 void AbstractAudioFile::flush()
 {
+    SAL_DEBUG("Flush data from the temporary buffer to the ring buffer")
+
     std::scoped_lock lock(m_readFromFileMutex);
     if (m_tmpTailPos == m_tmpSizeDataWritten || !m_tmpBuffer)
         return;
     
     size_t nbWrited = m_ringBuffer.write(m_tmpBuffer+m_tmpTailPos, m_tmpSizeDataWritten-m_tmpTailPos);
     m_tmpTailPos += nbWrited;
+
+    SAL_DEBUG("Flush data from the temporary buffer to the ring buffer done")
 }
 
 void AbstractAudioFile::updateStreamSizeInfo()
 {
+    SAL_DEBUG("Update stream size info")
+
     if (m_sizeStream == 0 || m_bytesPerSample == 0 || m_numChannels == 0)
         return;
     m_bytesPerFrame = m_bytesPerSample * m_numChannels;
     m_sizeStreamInSamples = m_sizeStream / m_bytesPerSample;
     m_sizeStreamInFrames = m_sizeStream / m_bytesPerSample / m_numChannels;
+
+    SAL_DEBUG("Update stream size info done")
 }
 
 size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
@@ -255,6 +294,8 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     // Check if the file is open and not at the end.
     if (!m_isOpen || m_ringBuffer.size() == 0 || m_isEnded)
         return 0;
+
+    SAL_DEBUG("Read data from the temporary buffer")
     
     // Read data from the ring buffer.
     size_t sizeInBytes = sizeInFrames * numChannels() * sizeof(float);
@@ -277,35 +318,57 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
         bytesReadedInFrames = 0;
     }
 
+    SAL_DEBUG("Read data from the temporary buffer done")
+
     return bytesReadedInFrames;
 }
 
 void AbstractAudioFile::updateBuffersSize()
 {
+    SAL_DEBUG("Update buffer size info")
+
     resizeTmpBuffer(sampleRate() * numChannels() * sizeof(float));
     m_tmpMinimumSize = m_tmpSize;
     m_ringBuffer.resizeBuffer(sampleRate() * numChannels() * sizeof(float) * 5);
+
+    SAL_DEBUG("Update buffer size info done")
 }
 
 void AbstractAudioFile::updateStreamPosInfo()
 {
+    SAL_DEBUG("Update stream position info")
+
     m_streamPosInSamples = m_streamPos / bytesPerSample();
     m_streamPosInFrames = m_streamPosInSamples / numChannels();
+
+    SAL_DEBUG("Update stream position info done")
 }
 
 void AbstractAudioFile::incrementReadPos(size_t size)
 {
     if (size == 0)
         return;
+
+    SAL_DEBUG("Increment read position")
     
     m_readPos += size;
 
     if (m_readPos >= streamSizeInBytes())
+    {
         endFile();
+
+        SAL_DEBUG("ncrement read position: reach end of file")
+    }
+
+    SAL_DEBUG("Increment read position done")
 }
 
 void AbstractAudioFile::seek(size_t pos)
 {
+#ifndef NDEBUG
+    SAL_DEBUG("Seeking position " + std::to_string(pos) + " in the stream")
+#endif
+
     // Check if the pos is less than the size of the stream.
     if (pos < streamSize())
     {
@@ -323,5 +386,7 @@ void AbstractAudioFile::seek(size_t pos)
             m_isEnded = false;
         }
     }
+
+    SAL_DEBUG("Seeking position done")
 }
 }
