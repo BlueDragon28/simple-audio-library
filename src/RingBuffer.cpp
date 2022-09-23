@@ -1,5 +1,10 @@
 #include "RingBuffer.h"
+#include "DebugLog.h"
 #include <cstring>
+
+// Redefine CLASS_NAME to have the name of the class.
+#undef CLASS_NAME
+#define CLASS_NAME "RingBuffer"
 
 namespace SAL
 {
@@ -42,6 +47,10 @@ RingBuffer::~RingBuffer()
 
 void RingBuffer::resizeBuffer(size_t bufferSize)
 {
+#ifndef NDEBUG
+    SAL_DEBUG("Resizing ring buffer from " + std::to_string(m_size) + "o to " + std::to_string(bufferSize) + "o");
+#endif
+
     std::scoped_lock lock(m_readMutex);
     delete[] m_data;
     m_data = nullptr;
@@ -53,6 +62,8 @@ void RingBuffer::resizeBuffer(size_t bufferSize)
         m_headPos = 0;
         m_writeAvailable = (size_t)m_size;
     }
+
+    SAL_DEBUG("Resizing ring buffer done")
 }
 
 size_t RingBuffer::read(char* buffer, size_t size)
@@ -67,6 +78,10 @@ size_t RingBuffer::read(char* buffer, size_t size)
     size_t readAvailable = m_size - m_writeAvailable;
     if (size > readAvailable)
         size = readAvailable;
+
+#ifndef NDEBUG
+    SAL_DEBUG("Reading " + std::to_string(size) + "o of data from the ring buffer")
+#endif
     
     // Copy data into the output buffer.
     if (size > m_size-m_tailPos)
@@ -82,6 +97,8 @@ size_t RingBuffer::read(char* buffer, size_t size)
     m_tailPos = (m_tailPos + size) % m_size;
     m_writeAvailable += size;
 
+    SAL_DEBUG("Reading data from the ring buffer done")
+
     return size;
 }
 
@@ -96,6 +113,10 @@ size_t RingBuffer::write(const char* buffer, size_t size)
     // Get the number in bytes of data to write.
     if (size > m_writeAvailable)
         size = m_writeAvailable;
+
+#ifndef NDEBUG
+    SAL_DEBUG("Writing " + std::to_string(size) + "o of data to the ring buffer")
+#endif
     
     // Copy data from input buffer into the ring buffer.
     if (size > m_size-m_headPos)
@@ -110,11 +131,16 @@ size_t RingBuffer::write(const char* buffer, size_t size)
     // Move the head position foward.
     m_headPos = (m_headPos + size) % m_size;
     m_writeAvailable -= size;
+
+    SAL_DEBUG("Writing data from the ring buffer done")
+
     return size;
 }
 
 void RingBuffer::clear()
 {
+    SAL_DEBUG("Clearing the ring buffer")
+
     std::scoped_lock lock(m_readMutex);
     memset(m_data, 0, m_size);
     m_tailPos = 0;
