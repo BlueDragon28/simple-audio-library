@@ -1,6 +1,11 @@
 #include "WaveAudioFile.h"
+#include "DebugLog.h"
 #include <cstring>
 #include <vector>
+
+// Redefine CLASS_NAME to have the name of the class.
+#undef CLASS_NAME
+#define CLASS_NAME "WaveAudioFile"
 
 namespace SAL
 {
@@ -21,6 +26,10 @@ WaveAudioFile::~WaveAudioFile()
 
 void WaveAudioFile::open()
 {
+#ifndef NDEBUG
+    SAL_DEBUG("Opening file " + filePath());
+#endif
+
     if (filePath().empty())
         return;
     
@@ -196,6 +205,8 @@ void WaveAudioFile::open()
         setSampleType(pcmFormatType);
         fileOpened();
     }
+
+    SAL_DEBUG("Opening file done")
 }
 
 void WaveAudioFile::close()
@@ -209,6 +220,8 @@ void WaveAudioFile::readDataFromFile()
     // Check if the file is open and there is data to read.
     if (!m_audioFile.is_open() || streamSizeInBytes() == 0)
         return;
+
+    SAL_DEBUG("Reading data from file")
     
     // Get the size of the tmp buffer.
     size_t readSize = minimumSizeTemporaryBuffer();
@@ -230,10 +243,14 @@ void WaveAudioFile::readDataFromFile()
     // Send data into the tmp buffer.
     insertDataInfoTmpBuffer(data.data(), readSize);
     incrementReadPos(readSize);
+
+    SAL_DEBUG("Reading data from file done")
 }
 
 bool WaveAudioFile::updateReadingPos(size_t pos)
 {
+    SAL_DEBUG("Update reading position")
+
     // Pos in bytes.
     pos *= bytesPerSample() * numChannels();
     // Headers offset.
