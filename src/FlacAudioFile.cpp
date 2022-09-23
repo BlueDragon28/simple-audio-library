@@ -1,7 +1,12 @@
 #include "FlacAudioFile.h"
+#include "DebugLog.h"
 #include <filesystem>
 #include <cstring>
 #include <vector>
+
+// Redefine CLASS_NAME to have the name of the class.
+#undef CLASS_NAME
+#define CLASS_NAME "FlacAudioFile"
 
 namespace SAL
 {
@@ -17,9 +22,14 @@ FlacAudioFile::~FlacAudioFile()
 
 void FlacAudioFile::open()
 {
+#ifndef NDEBUG
+    SAL_DEBUG("Opening file " + filePath());
+#endif
+
     if (filePath().empty())
     {
         m_isError = true;
+        SAL_DEBUG("Opening file failed: file path empty")
         return;
     }
 
@@ -27,6 +37,7 @@ void FlacAudioFile::open()
     if (!std::filesystem::exists(filePath()))
     {
         m_isError = true;
+        SAL_DEBUG("Opening file failed: file do no exists")
         return;
     }
 
@@ -40,13 +51,17 @@ void FlacAudioFile::open()
 
     // check if an error occured while initializing the flac file.
     if (m_isError)
+    {
+        SAL_DEBUG("Opening file failed while initializing")
         return;
+    }
     
     // Reading the matadata of the flac file.
     FLAC__bool result = process_until_end_of_metadata();
     if (!result || m_isError)
     {
         m_isError = true;
+        SAL_DEBUG("Opening file failed while processing metadata")
         return;
     }
 
@@ -58,14 +73,19 @@ void FlacAudioFile::open()
         streamSizeInBytes() == 0)
     {
         m_isError = true;
+        SAL_DEBUG("Opening file failed: file data info is not valid")
         return;
     }
 
     fileOpened();
+
+    SAL_DEBUG("Opening file done")
 }
 
 void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
 {
+    SAL_DEBUG("Processing metadata")
+
     // Reading the streaming information of the FLAC file.
     if (metadata->type == FLAC__METADATA_TYPE_STREAMINFO)
     {
@@ -77,10 +97,14 @@ void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
         updateBuffersSize();
         setSampleType(SampleType::INT);
     }
+
+    SAL_DEBUG("Processing metadata done")
 }
 
 FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* frame, const FLAC__int32* const buffer[])
 {
+    SAL_DEBUG("Read data from file")
+
     // Check if the header information of the block is valid.
     if (frame->header.blocksize == 0 ||
         frame->header.bits_per_sample == 0 ||
@@ -89,6 +113,9 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
     {
         m_isError = true;
         endFile(true);
+
+        SAL_DEBUG("Read data from file failed: data information are not valid")
+
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
@@ -99,6 +126,9 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
     {
         m_isError = true;
         endFile(true);
+
+        SAL_DEBUG("Read data from file failed: data informations not the same has the stream")
+
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
@@ -109,6 +139,9 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
         {
             m_isError = true;
             endFile(true);
+
+            SAL_DEBUG("Read data from file failed: buffers not valid")
+
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
     }
@@ -133,17 +166,23 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
     insertDataInfoTmpBuffer(data.data(), dataPos);
     incrementReadPos(dataPos);
 
+    SAL_DEBUG("Read data from file done")
+
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
 void FlacAudioFile::error_callback(FLAC__StreamDecoderErrorStatus status)
 {
+    SAL_DEBUG("Error callback called")
+
     m_isError = true;
     endFile(true);
 }
 
 void FlacAudioFile::readDataFromFile()
 {
+    SAL_DEBUG("Reading a frame")
+
     if (m_isError || streamSizeInBytes() == 0)
         return;
 
@@ -156,10 +195,16 @@ void FlacAudioFile::readDataFromFile()
 
     if (get_state() == FLAC__STREAM_DECODER_END_OF_STREAM)
         endFile(true);
+
+    SAL_DEBUG("Reading a frame done")
 }
 
 bool FlacAudioFile::updateReadingPos(size_t pos)
 {
+#ifndef NDEBUG
+    SAL_DEBUG("Update reading pos to " + std::to_string(pos) + "o")
+#endif
+
     if (seek_absolute(pos))
         return true;
     else
