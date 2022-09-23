@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "DebugLog.h"
 #include "config.h"
 #include <filesystem>
 #include <fstream>
@@ -16,6 +17,10 @@
 #include "SndAudioFile.h"
 #endif
 #include "CallbackInterface.h"
+
+// Redefine CLASS_NAME to have the name of the class.
+#undef CLASS_NAME
+#define CLASS_NAME "AudioPlayer"
 
 namespace SAL
 {
@@ -48,16 +53,31 @@ Player::~Player()
 
 void Player::open(const std::string& filePath, bool clearQueue)
 {
+#ifndef NDEBUG
+    SAL_DEBUG ("Opening file: " + filePath)
+#endif
+
     if (filePath.empty())
+    {
+        SAL_DEBUG("Opening file failed: file path empty")
         return;
+    }
     
     bool isCurrentPlaying = isPlaying();
     if (clearQueue)
+    {
+        SAL_DEBUG("Opening file: clearing the playing/pending queue")
+
         stop();
+    }
 
     bool isExisting = std::filesystem::exists(filePath);
     if (!isExisting)
+    {
+        SAL_DEBUG("Opening file failed: the file do not exists")
+
         return;
+    }
     
     {
         std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
@@ -67,18 +87,25 @@ void Player::open(const std::string& filePath, bool clearQueue)
 
     if (clearQueue && isCurrentPlaying)
         play();
+
+    SAL_DEBUG("Opening file done")
 }
 
 int Player::isReadable(const std::string& filePath) const
 {
+#ifndef NDEBUG
+    SAL_DEBUG("Checking is file " + filePath + " is readable")
+#endif
+
     return checkFileFormat(filePath);
-    return UNKNOWN_FILE;
 }
 
 void Player::play()
 {
     if (m_isPlaying)
         return;
+
+    SAL_DEBUG("Start playing stream")
     
     std::scoped_lock lock(m_paStreamMutex);
     
@@ -130,10 +157,14 @@ void Player::play()
             }
         }
     }
+
+    SAL_DEBUG("Start playing stream done")
 }
 
 void Player::pause()
 {
+    SAL_DEBUG("Pausing stream")
+
     std::scoped_lock lock(m_paStreamMutex);
     m_isPaused = true;
     if (m_paStream)
@@ -141,10 +172,14 @@ void Player::pause()
     if (m_isPlaying == true)
         streamPausedCallback();
     m_isPlaying = false;
+
+    SAL_DEBUG("Pausing stream done")
 }
 
 void Player::stop()
 {
+    SAL_DEBUG("Stopping stream")
+
     // Notify that the stream is stopping.
     bool hasAStreamPlaying = false;
     {
@@ -176,10 +211,14 @@ void Player::stop()
     Pa_StopStream(m_paStream.get());
     resetStreamInfo();
     m_isStopping = false;
+
+    SAL_DEBUG("Stopping stream done")
 }
 
 void Player::next()
 {
+    SAL_DEBUG("Playing next file in the queue")
+
     if (m_queueOpenedFile.size() > 1 || (m_queueOpenedFile.size() == 1 && m_queueFilePath.size() >= 1))
     {
         // Removing the current stream.
@@ -208,6 +247,8 @@ void Player::next()
         if (!m_queueOpenedFile.empty())
             startStreamingFile(m_queueOpenedFile.at(0)->filePath());
     }
+
+    SAL_DEBUG("Playing next file in the queue done")
 }
 
 bool Player::isPlaying() const
@@ -231,6 +272,8 @@ bool Player::_isPlaying() const
 
 bool Player::isFileReady() const
 {
+    SAL_DEBUG("Checking if there are file ready to play")
+
     for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
     {
         if (file->isOpen() && !file->isEnded())
@@ -245,12 +288,17 @@ void Player::pushFile()
         m_queueFilePath.size() == 0 || m_doNotCheckFile)
         return;
 
+    SAL_DEBUG("Starting to stream a new file")
+
     std::unique_ptr<AbstractAudioFile> pAudioFile(
         detectAndOpenFile(m_queueFilePath.at(0)));
     
     if (!pAudioFile)
     {
         m_queueFilePath.erase(m_queueFilePath.begin());
+
+        SAL_DEBUG("Starting to stream a new file failed: invalid file")
+
         return;
     }
 
@@ -258,6 +306,8 @@ void Player::pushFile()
     {
         if (!checkStreamInfo(pAudioFile.get()))
         {
+            SAL_DEBUG("Starting to stream a new file failed: data information not the same has current stream")
+
             m_doNotCheckFile = true;
             return;
         }
@@ -265,10 +315,14 @@ void Player::pushFile()
 
     m_queueOpenedFile.push_back(std::move(pAudioFile));
     m_queueFilePath.erase(m_queueFilePath.begin());
+
+    SAL_DEBUG("Starting to stream a new file done")
 }
 
 AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
 {
+    SAL_DEBUG("Detecting audio format type of a file and opening it")
+
     AbstractAudioFile* pAudioFile = nullptr;
 
     // Get the file format.
@@ -302,6 +356,8 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
     default:
     {} break;
     }
+
+    SAL_DEBUG("Detecting audio format type of a file and opening it done")
     
     return pAudioFile;
 }
@@ -327,6 +383,8 @@ int Player::checkFileFormat(const std::string& filePath) const
 
 void Player::_resetStreamInfo()
 {
+    SAL_DEBUG("Resetting stream informations and closing stream")
+
     m_paStream.reset();
     m_isClosingStreamTheStream = false;
     m_queueOpenedFile.clear();
@@ -346,6 +404,8 @@ void Player::_resetStreamInfo()
     }
     // Restart checking file.
     m_doNotCheckFile = false;
+
+    SAL_DEBUG("Resetting stream informations and closing stream done")
 }
 
 void Player::resetStreamInfo()
@@ -372,11 +432,21 @@ bool Player::checkStreamInfo(const AbstractAudioFile* const file) const
 
 bool Player::createStream()
 {
+    SAL_DEBUG("Creating a new stream sink")
+
     if (m_paStream)
+    {
+        SAL_DEBUG("Closing current stream sink")
+
         m_paStream.reset();
+    }
     
     if (m_queueOpenedFile.empty())
+    {
+        SAL_DEBUG("Creating a new stream sink failed: no files to stream")
+
         return false;
+    }
 
     // Retrieve PCM info from the stream.
     AbstractAudioFile* audioFile;
@@ -390,6 +460,8 @@ bool Player::createStream()
     if (m_numChannels == 0 || m_sampleRate == 0 ||
         m_bytesPerSample == 0 || m_sampleType == SampleType::UNKNOWN)
     {
+        SAL_DEBUG("Creating a new stream sink failed: audio data informations not valid")
+
         _resetStreamInfo();
         return false;
     }
@@ -407,6 +479,8 @@ bool Player::createStream()
             outParams.sampleFormat = paFloat32;
         else
         {
+            SAL_DEBUG("Creating a new stream sink failed: not valid floating point number")
+
             resetStreamInfo();
             return false;
         }
@@ -428,6 +502,8 @@ bool Player::createStream()
     
     if (err != paNoError)
     {
+        SAL_DEBUG("Creating a new stream sink failed: creating portaudio stream failed")
+
         resetStreamInfo();
         return false;
     }
@@ -439,6 +515,8 @@ bool Player::createStream()
 
     // checkStreamInfo may be called before createStream, which lead to a fail even if the next stream is compatible.
     m_doNotCheckFile = false;
+
+    SAL_DEBUG("Creating a new stream sink done")
     
     return true;
 }
@@ -467,9 +545,15 @@ int Player::streamCallback(
     void* outputBuffer,
     unsigned long framesPerBuffer)
 {
+    SAL_DEBUG("Send audio from ring buffer to PortAudio")
+
     std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_queueOpenedFile.empty())
+    {
+        SAL_DEBUG("No audio data to stream, closing the stream")
+
         return paComplete;
+    }
 
     size_t framesWrited = 0;
     bool isBuffering = false;
@@ -516,19 +600,29 @@ int Player::streamCallback(
 
         if (isBuffering) 
         {
+            SAL_DEBUG("Stream buffering")
+
             m_isBuffering = true; 
             return paContinue;
         }
 
         if (!m_isBuffering)
+        {
+            SAL_DEBUG("No more data to read")
+
             return paComplete;
+        }
     }
+
+    SAL_DEBUG("Send audio from ring buffer to PortAudio done")
 
     return paContinue;
 }
 
 void Player::streamEndCallback()
 {
+    SAL_DEBUG("End of stream callback")
+
     if (!m_isPaused && !m_isBuffering)
     {
         {
@@ -540,10 +634,14 @@ void Player::streamEndCallback()
         //resetStreamInfo();
         m_isClosingStreamTheStream = true;
     }
+
+    SAL_DEBUG("End of stream callback done")
 }
 
 void Player::update()
 {
+    SAL_DEBUG("update loop: reading data from file and clearing unneeded streams")
+
     static int counter = 0;
     closeStreamWhenNeeded();
     pauseIfBuffering();
@@ -555,6 +653,8 @@ void Player::update()
     recreateStream();
     checkIfNoStream();
     streamPosChangeCallback();
+
+    SAL_DEBUG("update loop: reading data from file and clearing unneeded streams done")
 }
 
 bool Player::isPaused() const
@@ -564,6 +664,8 @@ bool Player::isPaused() const
 
 void Player::pauseIfBuffering()
 {
+    SAL_DEBUG("Buffering: pausing the steam")
+
     if (m_isBuffering && !m_isPaused)
     {
         bool isError = false;
@@ -575,12 +677,20 @@ void Player::pauseIfBuffering()
                 isError = true;
         }
         if (isError)
+        {
+            SAL_DEBUG("Buffering: pausing the steam failed: cannot pause the stream")
+
             _resetStreamInfo();
+        }
     }
+
+    SAL_DEBUG("Buffering: pausing the steam done")
 }
 
 void Player::continuePlayingIfEnoughBuffering()
 {
+    SAL_DEBUG("Enough buffering, resume stream")
+
     if (_isPlaying() && m_isBuffering)
     {
         bool isStartStreamFailed = false;
@@ -603,12 +713,20 @@ void Player::continuePlayingIfEnoughBuffering()
             }
         }
         if (isStartStreamFailed)    
+        {
+            SAL_DEBUG("Enough buffering, resume stream failed: starting stream failed")
+
             _resetStreamInfo();
+        }
     }
+
+    SAL_DEBUG("Enough buffering, resume stream done")
 }
 
 void Player::clearUnneededStream()
 {
+    SAL_DEBUG("Clearing unneeded streams")
+
     while (m_queueOpenedFile.size() > 0)
     {
         if (!m_queueOpenedFile.at(0)->isEnded())
@@ -628,10 +746,14 @@ void Player::clearUnneededStream()
             m_doNotCheckFile = false;
         }
     }
+
+    SAL_DEBUG("Clearing unneeded streams done")
 }
 
 void Player::recreateStream()
 {
+    SAL_DEBUG("Recreating a new stream sink (the new file have not the same data informations)")
+
     if (!m_isPlaying)
         return;
     
@@ -649,6 +771,8 @@ void Player::recreateStream()
             PaError err = Pa_StartStream(m_paStream.get());
             if (err == paNoError)
             {
+                SAL_DEBUG("Recreating a new stream sink failed: starting the stream failed")
+
                 m_isPlaying = true;
                 
                 // Call end stream callback.
@@ -661,6 +785,8 @@ void Player::recreateStream()
             }
         }
     }
+
+    SAL_DEBUG("Recreating a new stream sink done")
 }
 
 void Player::closeStreamWhenNeeded()
@@ -674,11 +800,15 @@ void Player::closeStreamWhenNeeded()
 
 void Player::updateStreamBuffer()
 {
+    SAL_DEBUG("Reading data from files")
+
     for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
     {
         audioFile->readFromFile();
         audioFile->flush();
     }
+
+    SAL_DEBUG("Reading data from files done")
 }
 
 void Player::checkIfNoStream()
