@@ -1,4 +1,9 @@
 #include "CallbackInterface.h"
+#include "DebugLog.h"
+
+// Redefine CLASS_NAME to have the name of the class.
+#undef CLASS_NAME
+#define CLASS_NAME "CallbackInterface"
 
 namespace SAL
 {
@@ -35,18 +40,26 @@ CallbackInterface::~CallbackInterface()
 
 void CallbackInterface::addStartFileCallback(StartFileCallback callback)
 {
+    SAL_DEBUG("Adding a start file callback")
+
     std::scoped_lock lock(m_startFileCallbackMutex);
     m_startFileCallback.push_back(callback);
 }
 
 void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 {
+    SAL_DEBUG("Adding a end file callback")
+
     std::scoped_lock lock(m_endFileCallbackMutex);
     m_endFileCallback.push_back(callback);
 }
 
 void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callback, TimeType timeType)
 {
+#ifndef NDEBUG
+    SAL_DEBUG(std::string("Adding a stream pos in ") + (timeType == TimeType::FRAMES ? "frames" : "seconds") + std::string(" change callback"))
+#endif
+
     if (timeType == TimeType::SECONDS)
     {
         std::scoped_lock lock(m_streamPosChangeMutex);
@@ -61,54 +74,74 @@ void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callb
 
 void CallbackInterface::addStreamPausedCallback(StreamPausedCallback callback)
 {
+    SAL_DEBUG("Add stream paused callback")
+
     std::scoped_lock lock(m_streamPausedMutex);
     m_streamPausedCallback.push_back(callback);
 }
 
 void CallbackInterface::addStreamPlayingCallback(StreamPlayingCallback callback)
 {
+    SAL_DEBUG("Add stream playing callback")
+
     std::scoped_lock lock(m_streamPlayingMutex);
     m_streamPlayingCallback.push_back(callback);
 }
 
 void CallbackInterface::addStreamStoppingCallback(StreamStoppingCallback callback)
 {
+    SAL_DEBUG("Add stream stopping callback")
+
     std::scoped_lock lock(m_streamStoppingMutex);
     m_streamStoppingCallback.push_back(callback);
 }
 
 void CallbackInterface::addStreamBufferingCallback(StreamBufferingCallback callback)
 {
+    SAL_DEBUG("Add stream buffering callback")
+
     std::scoped_lock lock(m_streamBufferingMutex);
     m_streamBufferingCallback.push_back(callback);
 }
 
 void CallbackInterface::addStreamEnoughBufferingCallback(StreamEnoughBufferingCallback callback)
 {
+    SAL_DEBUG("Add stream enough buffering callback")
+
     std::scoped_lock lock(m_streamEnoughBufferingMutex);
     m_streamEnoughBufferingCallback.push_back(callback);
 }
 
 void CallbackInterface::addIsReadyChangedCallback(IsReadyChangedCallback callback)
 {
+    SAL_DEBUG("Add is ready changed callback")
+
     std::scoped_lock lock(m_isReadyChangedMutex);
     m_isReadyChangedCallback.push_back(callback);
 }
 
 void CallbackInterface::callStartFileCallback(const std::string& filePath)
 {
+    SAL_DEBUG("Calling start file callback")
+
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::START_FILE, filePath});
 }
 
 void CallbackInterface::callEndFileCallback(const std::string& filePath)
 {
+    SAL_DEBUG("Calling end file callback")
+
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::END_FILE, filePath});
 }
 
 void CallbackInterface::callStreamPosChangeCallback(size_t streamPos, TimeType timeType)
 {
+#ifndef NDEBUG
+    SAL_DEBUG(std::string("Call stream pos in ") + (timeType == TimeType::FRAMES ? "frames" : "seconds") + std::string(" change callback"))
+#endif
+
     // Frames are placed first, because they will be called more often than seconds.
     if (timeType == TimeType::FRAMES)
     {
@@ -124,42 +157,56 @@ void CallbackInterface::callStreamPosChangeCallback(size_t streamPos, TimeType t
 
 void CallbackInterface::callStreamPausedCallback()
 {
+    SAL_DEBUG("Calling stream paused callback")
+
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_PAUSED});
 }
 
 void CallbackInterface::callStreamPlayingCallback()
 {
+    SAL_DEBUG("Calling stream playing callback")
+
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_PLAYING});
 }
 
 void CallbackInterface::callStreamStoppingCallback()
 {
+    SAL_DEBUG("Calling stream stopping callback")
+
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_STOPPING});
 }
 
 void CallbackInterface::callStreamBufferingCallback()
 {
+    SAL_DEBUG("Calling stream buffering callback")
+
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_BUFFERING});
 }
 
 void CallbackInterface::callStreamEnoughBufferingCallback()
 {
+    SAL_DEBUG("Calling stream enough buffering callback")
+
     std::scoped_lock lock(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::STREAM_ENOUGH_BUFFERING});
 }
 
 void CallbackInterface::callIsReadyChangedCallback(bool isReady)
 {
+    SAL_DEBUG("Calling is ready changed callback")
+
     std::scoped_lock lack(m_callbackCallMutex);
     m_callbackCall.push_back({CallbackType::IS_READY_CHANCHED, isReady});
 }
 
 void CallbackInterface::callback() 
 {
+    SAL_DEBUG("Processing callbacks")
+
     std::scoped_lock lock(m_callbackCallMutex);
     for (const CallbackData& data : m_callbackCall)
     {
@@ -310,6 +357,8 @@ void CallbackInterface::callback()
     }
     m_callbackCall.clear();
 
+    SAL_DEBUG("Removing unneeded threads")
+
     // Remove unneeded threads.
     std::scoped_lock btLock(m_backgroundThreadMutex);
     for (std::vector<std::thread>::const_reverse_iterator crit = m_backgroundThread.crbegin();
@@ -321,6 +370,8 @@ void CallbackInterface::callback()
             m_backgroundThread.erase((crit+1).base());
         }
     }
+
+    SAL_DEBUG("Processing callbacks done")
 }
 
 /*
