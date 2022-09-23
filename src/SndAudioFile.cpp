@@ -1,6 +1,11 @@
 #include "SndAudioFile.h"
+#include "DebugLog.h"
 #include <cstring>
 #include <vector>
+
+// Redefine CLASS_NAME to have the name of the class.
+#undef CLASS_NAME
+#define CLASS_NAME "SndAudioFile"
 
 namespace SAL
 {
@@ -21,17 +26,29 @@ SndAudioFile::~SndAudioFile()
 
 void SndAudioFile::open()
 {
+#ifndef NDEBUG
+    SAL_DEBUG("Opening file " + filePath());
+#endif
+
     // Opening the file with libsndfile library.
     m_file = std::unique_ptr<SndfileHandle>(new SndfileHandle(filePath()));
     if (!*m_file.get())
+    {
+        SAL_DEBUG("Opening file failed: sndfile cannot read file")
+
         return;
+    }
     
     // Get header information of the audio file.
     setNumChannels(m_file->channels());
     setSampleRate(m_file->samplerate());
 
     if (numChannels() <= 0 || sampleRate() <= 0)
+    {
+        SAL_DEBUG("Opening file failed: number of channels and/or sample rate invalid")
+
         return;
+    }
     
     // Check if it's a valid encoding.
     int format = m_file->format() & SF_FORMAT_SUBMASK;
@@ -82,6 +99,8 @@ void SndAudioFile::open()
     // Not a compatible format, leaving.
     default:
     {
+        SAL_DEBUG("Opening file failed: incompatible file format")
+
         return;
     } break;
     }
@@ -89,15 +108,23 @@ void SndAudioFile::open()
     // Set stream size in bytes.
     setSizeStream(m_file->frames() * numChannels() * bytesPerSample());
     if (streamSizeInBytes() == 0)
+    {
+        SAL_DEBUG("Opening file failed: invalid stream size")
+
         return;
+    }
     updateBuffersSize();
 
     // The file opened successfully.
     fileOpened();
+
+    SAL_DEBUG("Opening file done")
 }
 
 void SndAudioFile::readDataFromFile()
 {
+    SAL_DEBUG("Read data from file")
+
     if (streamSizeInBytes() == 0 || !m_file || !*m_file.get() || sampleType() != SampleType::FLOAT)
         return;
     
@@ -126,10 +153,14 @@ void SndAudioFile::readDataFromFile()
         insertDataInfoTmpBuffer(data.data(), itemsRead);
         incrementReadPos(itemsRead);
     }
+
+    SAL_DEBUG("Read data from file done")
 }
 
 bool SndAudioFile::updateReadingPos(size_t pos)
 {
+    SAL_DEBUG("Update reading position")
+
     size_t newPosition = m_file->seek(pos, SF_SEEK_SET);
     if (newPosition >= 0)
         return true;
