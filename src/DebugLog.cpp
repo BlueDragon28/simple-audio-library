@@ -24,6 +24,8 @@ DebugLog* DebugLog::instance()
 
 bool DebugLog::setFilePath(const std::string &filePath)
 {
+    std::scoped_lock lock(m_streamMutex);
+
     if (!filePath.empty() && filePath != m_filePath && std::filesystem::exists(filePath) && std::filesystem::is_regular_file(filePath))
     {
         std::ofstream file(filePath);
@@ -45,6 +47,8 @@ bool DebugLog::setFilePath(const std::string &filePath)
 
 void DebugLog::append(const std::string &className, const std::string &functionName, std::string msg)
 {
+    std::scoped_lock lock(m_streamMutex);
+
     if (!functionName.empty() && !msg.empty())
     {
         // Pushing the debug item into the list.
@@ -59,6 +63,8 @@ void DebugLog::append(const std::string &className, const std::string &functionN
 
 void DebugLog::flush()
 {
+    std::scoped_lock lock(m_streamMutex);
+
     // If there is a file opened, flush the data into it.
     if (m_stream.is_open())
     {
