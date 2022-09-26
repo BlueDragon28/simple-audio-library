@@ -31,6 +31,12 @@ bool DebugLog::setFilePath(const std::string &filePath)
     if (!filePath.empty() && filePath != m_filePath && 
         ((isFileExist && std::filesystem::is_regular_file(filePath)) || !isFileExist))
     {
+        // If the file do not exist, try to create the directory containing it to be sure.
+        if (!isFileExist)
+        {
+            createFolder(filePath);
+        }
+
         std::ofstream file(filePath);
         if (file.is_open() && file.good())
         {
@@ -104,5 +110,53 @@ std::string DebugLog::DebugOutputItem::toString() const
     str += functionName + ": " + msg + ".";
 
     return str;
+}
+
+std::string DebugLog::getFolderPart(const std::string& filePath) const
+{
+    if (!filePath.empty() && !std::filesystem::is_directory(filePath))
+    {
+        // Retrieving the part of the directory location.
+        size_t dashPos = filePath.find_last_of('/');
+
+#ifdef WIN32
+        // If it fail, check using the windows backdash instead.
+        if (dashPos == std::string::npos)
+        {
+            dashPos == filePath.find_last_of('\\');
+        }
+#endif
+
+        // If the last occurent of a dash has been found, retrieve the string to this dash.
+        if (dashPos != std::string::npos)
+        {
+            return filePath.substr(0, dashPos);
+        }
+    }
+    
+    // No valid directory path found.
+    return "";
+}
+
+bool DebugLog::createFolder(const std::string& filePath) const
+{
+    if (!filePath.empty())
+    {
+        // Retrieve the directory part of the file.
+        const std::string dirPath = getFolderPart(filePath);
+
+        // If there is a directory part and it does not exist, create it.
+        if (!dirPath.empty() && !std::filesystem::exists(dirPath))
+        {
+            std::filesystem::create_directory(dirPath);
+        }
+
+        if (std::filesystem::is_directory(dirPath))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 }

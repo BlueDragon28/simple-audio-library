@@ -55,6 +55,16 @@ public:
 
 private:
     /*
+    Getting the folder part of a file path.
+    */
+    std::string getFolderPart(const std::string& filePath) const;
+
+    /*
+    Create the folders of the log if not existing.
+    */
+    bool createFolder(const std::string& filePath) const;
+
+    /*
     Instance of the singleton class.
     */
     static std::unique_ptr<DebugLog> _instance;
