@@ -1,6 +1,7 @@
 #include "DebugLog.h"
 #include <filesystem>
 #include <ctime>
+#include <iostream>
 
 namespace SAL
 {
@@ -34,8 +35,6 @@ bool DebugLog::setFilePath(const std::string &filePath)
         std::ofstream file(filePath);
         if (file.is_open() && file.good())
         {
-            std::scoped_lock lock(m_streamMutex);
-
             // Close the test file stream.
             file.close();
 
