@@ -76,7 +76,7 @@ void DebugLog::flush()
         for (const DebugOutputItem& item : m_listItems)
         {
             // Convert the item into a string and send it into the file.
-            m_stream << item.toString();
+            m_stream << item.toString() + '\n';
         }
 
         // Remove every elements in the list.
