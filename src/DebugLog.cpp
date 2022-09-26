@@ -36,6 +36,9 @@ bool DebugLog::setFilePath(const std::string &filePath)
         {
             std::scoped_lock lock(m_streamMutex);
 
+            // Close the test file stream.
+            file.close();
+
             // If the file exists and is writable, open the file to stream it.
             m_filePath = filePath;
             m_stream.close();
