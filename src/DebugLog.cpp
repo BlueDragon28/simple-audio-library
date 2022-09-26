@@ -26,7 +26,10 @@ bool DebugLog::setFilePath(const std::string &filePath)
 {
     std::scoped_lock lock(m_streamMutex);
 
-    if (!filePath.empty() && filePath != m_filePath && std::filesystem::exists(filePath) && std::filesystem::is_regular_file(filePath))
+    bool isFileExist = std::filesystem::exists(filePath);
+
+    if (!filePath.empty() && filePath != m_filePath && 
+        ((isFileExist && std::filesystem::is_regular_file(filePath)) || !isFileExist))
     {
         std::ofstream file(filePath);
         if (file.is_open() && file.good())
