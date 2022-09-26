@@ -664,7 +664,7 @@ bool Player::isPaused() const
 
 void Player::pauseIfBuffering()
 {
-    SAL_DEBUG("Buffering: pausing the steam")
+    SAL_DEBUG("Buffering: pausing the stream")
 
     if (m_isBuffering && !m_isPaused)
     {
@@ -684,7 +684,7 @@ void Player::pauseIfBuffering()
         }
     }
 
-    SAL_DEBUG("Buffering: pausing the steam done")
+    SAL_DEBUG("Buffering: pausing the stream done")
 }
 
 void Player::continuePlayingIfEnoughBuffering()
