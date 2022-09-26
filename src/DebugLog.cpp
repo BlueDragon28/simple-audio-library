@@ -74,6 +74,9 @@ void DebugLog::flush()
             // Convert the item into a string and send it into the file.
             m_stream << item.toString();
         }
+
+        // Remove every elements in the list.
+        m_listItems.clear();
     }
 }
 
