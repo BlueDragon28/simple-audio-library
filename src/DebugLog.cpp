@@ -1,7 +1,6 @@
 #include "DebugLog.h"
 #include <filesystem>
 #include <ctime>
-#include <iostream>
 
 namespace SAL
 {
@@ -91,7 +90,11 @@ std::string DebugLog::DebugOutputItem::toString() const
 
     // Convert the time into a string.
     std::time_t timeT = std::chrono::system_clock::to_time_t(time);
-    str += std::ctime(&timeT);
+    const std::string timeStr = std::ctime(&timeT);
+    if (!timeStr.empty())
+    {
+        str.append(timeStr.cbegin(), timeStr.cend()-1);
+    }
 
     // Append class name, function/method name and the message.
     if (!className.empty())
