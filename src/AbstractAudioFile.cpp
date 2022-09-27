@@ -57,8 +57,6 @@ AbstractAudioFile::~AbstractAudioFile()
 
 void AbstractAudioFile::readFromFile()
 {
-    SAL_DEBUG("Reading from file into temporary buffer")
-
     /*
     Check if the file is open and not at the end,
     reset tmp buffer information and read data from the file.
@@ -75,9 +73,13 @@ void AbstractAudioFile::readFromFile()
     }
     
     if (m_tmpWritePos < m_tmpMinimumSize)
+    {
+        SAL_DEBUG("Reading from file into temporary buffer")
+
         readDataFromFile();
 
-    SAL_DEBUG("Temporary buffer filled")
+        SAL_DEBUG("Reading from file into temporary buffer done")
+    }
 }
 
 void AbstractAudioFile::resizeTmpBuffer(size_t size)
@@ -118,8 +120,6 @@ void AbstractAudioFile::resizeTmpBuffer(size_t size)
 template<typename T>
 std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
 {
-    SAL_DEBUG("Convert integer array to float array")
-
     std::vector<float> fBuffer(samples);
 
     for (size_t i = 0; i < samples; i++)
@@ -149,8 +149,6 @@ std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
         fBuffer[i] = number / (number < 0 ? (float)min : (float)max);
     }
 
-    SAL_DEBUG("Converting integer array to float array done")
-
     return fBuffer;
 }
 
@@ -159,8 +157,6 @@ std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
 template<>
 std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
 {
-    SAL_DEBUG("Convert 24bit integer array to float array")
-
     std::vector<float> fBuffer(samples);
 
     for (size_t i = 0; i < samples; i++)
@@ -189,8 +185,6 @@ std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
         fBuffer[i] = fNumber / (fNumber < 0 ? (float)min : (float)max);
     }
 
-    SAL_DEBUG("Convert 24bit integer array to float array done")
-
     return fBuffer;
 }
 
@@ -199,7 +193,7 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
     if (size == 0)
         return;
 
-    SAL_DEBUG("Insert data into the temporary buffer")
+    SAL_DEBUG("Inserting data into the temporary buffer")
 
     std::vector<float> data;
 
@@ -258,34 +252,31 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
     m_tmpWritePos += sizeDataInBytes;
     m_tmpSizeDataWritten += sizeDataInBytes;
 
-    SAL_DEBUG("Insert data into the temporary buffer done")
+    SAL_DEBUG("Inserting data into the temporary buffer done")
 }
 
 void AbstractAudioFile::flush()
 {
-    SAL_DEBUG("Flush data from the temporary buffer to the ring buffer")
-
     std::scoped_lock lock(m_readFromFileMutex);
     if (m_tmpTailPos == m_tmpSizeDataWritten || !m_tmpBuffer)
         return;
+
+    SAL_DEBUG("Flushing data from the temporary buffer to the ring buffer")
     
     size_t nbWrited = m_ringBuffer.write(m_tmpBuffer+m_tmpTailPos, m_tmpSizeDataWritten-m_tmpTailPos);
     m_tmpTailPos += nbWrited;
 
-    SAL_DEBUG("Flush data from the temporary buffer to the ring buffer done")
+    SAL_DEBUG("Flushing data from the temporary buffer to the ring buffer done")
 }
 
 void AbstractAudioFile::updateStreamSizeInfo()
 {
-    SAL_DEBUG("Update stream size info")
-
     if (m_sizeStream == 0 || m_bytesPerSample == 0 || m_numChannels == 0)
         return;
+    
     m_bytesPerFrame = m_bytesPerSample * m_numChannels;
     m_sizeStreamInSamples = m_sizeStream / m_bytesPerSample;
     m_sizeStreamInFrames = m_sizeStream / m_bytesPerSample / m_numChannels;
-
-    SAL_DEBUG("Update stream size info done")
 }
 
 size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
@@ -294,7 +285,7 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     if (!m_isOpen || m_ringBuffer.size() == 0 || m_isEnded)
         return 0;
 
-    SAL_DEBUG("Read data from the temporary buffer")
+    SAL_DEBUG("Reading data from the temporary buffer")
     
     // Read data from the ring buffer.
     size_t sizeInBytes = sizeInFrames * numChannels() * sizeof(float);
@@ -315,62 +306,50 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
         if (m_endFile)
             m_isEnded = true;
         bytesReadedInFrames = 0;
+
+        SAL_DEBUG("End file reached")
     }
 
-    SAL_DEBUG("Read data from the temporary buffer done")
+    SAL_DEBUG("Reading data from the temporary buffer done")
 
     return bytesReadedInFrames;
 }
 
 void AbstractAudioFile::updateBuffersSize()
 {
-    SAL_DEBUG("Update buffer size info")
-
     resizeTmpBuffer(sampleRate() * numChannels() * sizeof(float));
     m_tmpMinimumSize = m_tmpSize;
     m_ringBuffer.resizeBuffer(sampleRate() * numChannels() * sizeof(float) * 5);
-
-    SAL_DEBUG("Update buffer size info done")
 }
 
 void AbstractAudioFile::updateStreamPosInfo()
 {
-    SAL_DEBUG("Update stream position info")
-
     m_streamPosInSamples = m_streamPos / bytesPerSample();
     m_streamPosInFrames = m_streamPosInSamples / numChannels();
-
-    SAL_DEBUG("Update stream position info done")
 }
 
 void AbstractAudioFile::incrementReadPos(size_t size)
 {
     if (size == 0)
         return;
-
-    SAL_DEBUG("Increment read position")
     
     m_readPos += size;
 
     if (m_readPos >= streamSizeInBytes())
     {
         endFile();
-
-        SAL_DEBUG("ncrement read position: reach end of file")
     }
-
-    SAL_DEBUG("Increment read position done")
 }
 
 void AbstractAudioFile::seek(size_t pos)
 {
-#ifndef NDEBUG
-    SAL_DEBUG("Seeking position " + std::to_string(pos) + " in the stream")
-#endif
-
     // Check if the pos is less than the size of the stream.
     if (pos < streamSize())
     {
+#ifndef NDEBUG
+        SAL_DEBUG("Seeking position " + std::to_string(pos) + " in the stream")
+#endif
+
         // Clear the ring buffer and move the stream to the new position;
         m_ringBuffer.clear();
         if (updateReadingPos(pos))
@@ -384,8 +363,10 @@ void AbstractAudioFile::seek(size_t pos)
             m_endFile = false;
             m_isEnded = false;
         }
-    }
 
-    SAL_DEBUG("Seeking position done")
+#ifndef NDEBUG
+        SAL_DEBUG("Seeking position " + std::to_string(pos) + " done")
+#endif
+    }
 }
 }

@@ -55,11 +55,13 @@ AudioPlayer::~AudioPlayer()
     m_isRunning = false;
     if (m_loopThread.joinable())
         m_loopThread.join();
+
+    SAL_DEBUG("Deinitializing SAL")
 }
 
 void AudioPlayer::open(const std::string& filePath, bool clearQueue)
 {
-    SAL_DEBUG(std::string("Opening the file \"") + filePath + "\" with clear queue " + (clearQueue ? "true" : " false"))
+    SAL_DEBUG(std::string("Opening the file \"") + filePath + "\" with clear queue set to " + (clearQueue ? "true" : " false"))
 
     if (!isRunning())
     {
@@ -73,7 +75,7 @@ void AudioPlayer::open(const std::string& filePath, bool clearQueue)
     LoadFile loadFile = { filePath, clearQueue };
     m_events.push(EventType::OPEN_FILE, loadFile);
 
-    SAL_DEBUG("Adding the file done")
+    SAL_DEBUG("Adding the file into the event list done")
 }
 
 void AudioPlayer::loop()
@@ -212,8 +214,6 @@ void AudioPlayer::processEvents()
 
 bool AudioPlayer::isPlaying(bool isWaiting)
 {
-    SAL_DEBUG("Check if a stream is playing")
-
     if (isRunning())
     {
         /*
@@ -232,8 +232,6 @@ bool AudioPlayer::isPlaying(bool isWaiting)
 
 bool AudioPlayer::isReady(bool isWaiting)
 {
-    SAL_DEBUG("Check if a stream is ready to play")
-
     if (isRunning())
     {
         /*
@@ -252,8 +250,6 @@ bool AudioPlayer::isReady(bool isWaiting)
 
 void AudioPlayer::waitEvent()
 {
-    SAL_DEBUG("Waiting for the next main loop iteration")
-
     /*
     Push an wait event id into the event queue
     and wait until it disappear.

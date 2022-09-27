@@ -180,10 +180,10 @@ void FlacAudioFile::error_callback(FLAC__StreamDecoderErrorStatus status)
 
 void FlacAudioFile::readDataFromFile()
 {
-    SAL_DEBUG("Reading a frame")
-
     if (m_isError || streamSizeInBytes() == 0)
         return;
+
+    SAL_DEBUG("Reading a frame")
 
     // Reading a block from the flac file.
     if (!process_single())
