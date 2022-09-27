@@ -2,9 +2,8 @@
 #include "DebugLog.h"
 #include <cstring>
 
-// Redefine CLASS_NAME to have the name of the class.
-#undef CLASS_NAME
-#define CLASS_NAME "RingBuffer"
+// Define CLASS_NAME to have the name of the class.
+const std::string CLASS_NAME = "RingBuffer";
 
 namespace SAL
 {

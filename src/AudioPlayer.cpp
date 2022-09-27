@@ -5,9 +5,8 @@
 #define SLEEP_PLAYING 10
 #define SLEEP_PAUSED 50
 
-// Redefine CLASS_NAME to have the name of the class.
-#undef CLASS_NAME
-#define CLASS_NAME "AudioPlayer"
+// Define CLASS_NAME to have the name of the class.
+const std::string CLASS_NAME = "AudioPlayer";
 
 // MACRO for redudent code of processEvents
 #define SAL_DEBUG_PROCESS_EVENTS(type) \

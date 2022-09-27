@@ -1,9 +1,8 @@
 #include "EventList.h"
 #include "DebugLog.h"
 
-// Redefine CLASS_NAME to have the name of the class.
-#undef CLASS_NAME
-#define CLASS_NAME "EventList"
+// Define CLASS_NAME to have the name of the class.
+const std::string CLASS_NAME = "EventList";
 
 namespace SAL 
 {

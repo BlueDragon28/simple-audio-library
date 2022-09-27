@@ -8,8 +8,6 @@
 #include <chrono>
 #include <vector>
 
-#define CLASS_NAME ""
-
 // Macro to help write debug message.
 #define SAL_DEBUG(msg) \
     DebugLog::instance()->append(CLASS_NAME, __func__, msg);

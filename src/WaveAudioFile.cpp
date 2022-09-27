@@ -3,9 +3,8 @@
 #include <cstring>
 #include <vector>
 
-// Redefine CLASS_NAME to have the name of the class.
-#undef CLASS_NAME
-#define CLASS_NAME "WaveAudioFile"
+// Define CLASS_NAME to have the name of the class.
+const std::string CLASS_NAME = "WaveAudioFile";
 
 namespace SAL
 {

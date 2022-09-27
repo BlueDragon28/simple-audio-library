@@ -4,9 +4,8 @@
 #include <limits>
 #include <vector>
 
-// Redefine CLASS_NAME to have the name of the class.
-#undef CLASS_NAME
-#define CLASS_NAME "AbstractAudioFile"
+// Define CLASS_NAME to have the name of the class.
+const std::string CLASS_NAME = "AbstractAudioFile";
 
 namespace SAL
 {
