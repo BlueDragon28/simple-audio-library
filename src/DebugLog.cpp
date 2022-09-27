@@ -6,11 +6,14 @@ namespace SAL
 {
 std::unique_ptr<DebugLog> DebugLog::_instance;
 
-DebugLog::DebugLog()
+DebugLog::DebugLog() :
+    m_isRunning(false)
 {}
 
 DebugLog::~DebugLog()
-{}
+{
+    destroyUpdateThread();
+}
 
 DebugLog* DebugLog::instance()
 {
@@ -24,6 +27,9 @@ DebugLog* DebugLog::instance()
 
 bool DebugLog::setFilePath(const std::string &filePath)
 {
+    // Stop the update thread.
+    destroyUpdateThread();
+
     std::scoped_lock lock(m_streamMutex);
 
     bool isFileExist = std::filesystem::exists(filePath);
@@ -47,6 +53,9 @@ bool DebugLog::setFilePath(const std::string &filePath)
             m_filePath = filePath;
             m_stream.close();
             m_stream.open(m_filePath);
+
+            // Creating the update thread to write the logs
+            createUpdateThread();
 
             return true;
         }
@@ -87,6 +96,50 @@ void DebugLog::flush()
 
         // Remove every elements in the list.
         m_listItems.clear();
+    }
+}
+
+void DebugLog::update()
+{
+    // Using to know when to flush
+    int counter = 0;
+
+    while (m_isRunning)
+    {
+        // Flush the logs once every seconds.
+        if (counter % 3000 == 0)
+        {
+            flush();
+            counter = 0;
+            continue;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        counter += 50;
+    }
+}
+
+void DebugLog::createUpdateThread()
+{
+    // First destroying the existing thread.
+    destroyUpdateThread();
+
+    // Creating the new thread
+    m_isRunning = true;
+    m_flushThread = std::thread(&DebugLog::update, this);
+}
+
+void DebugLog::destroyUpdateThread()
+{
+    // Check if the thread is running
+    if (m_isRunning && m_flushThread.joinable())
+    {
+        // Setting isRunning to false to stop the loop and wait until it stop.
+        m_isRunning = false;
+        m_flushThread.join();
+
+        // Then flush, to be sure that no log is lost.
+        flush();
     }
 }
 

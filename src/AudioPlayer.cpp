@@ -99,9 +99,6 @@ void AudioPlayer::loop()
         // playing queue.
         m_player->update();
 
-        // Flush debug log into the log file.
-        m_debugLog->flush();
-
         // Wait time before next iteration.
         std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
     }

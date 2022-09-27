@@ -5,6 +5,7 @@
 #include <memory>
 #include <fstream>
 #include <mutex>
+#include <thread>
 #include <chrono>
 #include <vector>
 
@@ -46,12 +47,27 @@ public:
             const std::string& functionName,
             std::string msg);
 
+private:
     /*
     Flush data into the file.
     */
     void flush();
 
-private:
+    /*
+    Loop running in a separate thread flushing log every 3 seconds.
+    */
+    void update();
+
+    /*
+    Creating update thread
+    */
+    void createUpdateThread();
+
+    /*
+    Destroying update thread
+    */
+    void destroyUpdateThread();
+
     /*
     Getting the folder part of a file path.
     */
@@ -102,6 +118,16 @@ private:
     List of the debug output to flush into the debug file.
     */
     std::vector<DebugOutputItem> m_listItems;
+
+    /*
+    The log flushing method running in a separate thread.
+    */
+    std::thread m_flushThread;
+
+    /*
+    The update loop is running until this variable is false
+    */
+    bool m_isRunning;
 };
 }
 
