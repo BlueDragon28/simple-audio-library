@@ -10,9 +10,14 @@
 #include <vector>
 
 // Macro to help write debug message.
+#ifndef NDEBUG
 #define SAL_DEBUG(msg) \
     DebugLog::instance()->append(CLASS_NAME, __func__, msg);
+#else
+#define SAL_DEBUG(msg)
+#endif
 
+#ifndef NDEBUG
 namespace SAL
 {
 /*
@@ -130,5 +135,6 @@ private:
     bool m_isRunning;
 };
 }
+#endif
 
 #endif // SIMPLE_AUDIO_LIBRARY_SMDEBUGLOG_H

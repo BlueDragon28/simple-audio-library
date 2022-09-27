@@ -177,12 +177,6 @@ private:
     CallbackInterface m_callbackInterface;
 
     /*
-    DebugLog instance to handle flush debug log item into the
-    log file.
-    */
-    DebugLog* m_debugLog;
-
-    /*
     Only one instance of AudioPlayer is possible.
     To prevent the user to create multiple instance,
     the constructor is private and only a static class

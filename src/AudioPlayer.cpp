@@ -21,10 +21,14 @@ bool AudioPlayer::doNotReset = false;
 AudioPlayer::AudioPlayer() :
     m_isInit(false),
     m_isRunning(false),
-    m_sleepTime(SLEEP_PAUSED),
-    m_debugLog(DebugLog::instance())
+    m_sleepTime(SLEEP_PAUSED)
 {
     SAL_DEBUG("Initializing SAL")
+
+    // Initializing DebugLog
+#ifndef NDEBUG
+    DebugLog::instance();
+#endif
 
     m_pa = std::unique_ptr<PortAudioRAII>(new PortAudioRAII());
     if (m_pa->isInit())

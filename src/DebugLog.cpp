@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <ctime>
 
+#ifndef NDEBUG
 namespace SAL
 {
 std::unique_ptr<DebugLog> DebugLog::_instance;
@@ -213,3 +214,4 @@ bool DebugLog::createFolder(const std::string& filePath) const
     return false;
 }
 }
+#endif
