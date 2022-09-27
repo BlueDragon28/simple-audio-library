@@ -39,60 +39,100 @@ void WaveAudioFile::open()
         char RIFF[5] = {0, 0, 0, 0, 0};
         m_audioFile.read(RIFF, 4);
         if (strcmp(RIFF, "RIFF") != 0 || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: RIFF identifier not available")
+
             return;
+        }
         
         unsigned int fileSize = 0;
         m_audioFile.read((char*)&fileSize, 4);
         if (fileSize == 0 || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: invalid file size")
+
             return;
+        }
         
         // WAVE identifier.
         char WAVE[5] = {0, 0, 0, 0, 0};
         m_audioFile.read(WAVE, 4);
         if (strcmp(WAVE, "WAVE") != 0 || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: WAVE indentifier not available")
+
             return;
+        }
         
         // "fmt " identifier.
         char fmt_[5] = {0, 0, 0, 0, 0};
         m_audioFile.read(fmt_, 4);
         if (strcmp(fmt_, "fmt ") != 0 || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: \"fmt \" identifier not available")
+
             return;
+        }
         
         // "fmt " size.
         int fmt_size = 0;
         m_audioFile.read((char*)&fmt_size, 4);
         if (fmt_size != 16 && fmt_size != 18 
             && fmt_size != 40 || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: invalid fmt_size section")
+
             return;
+        }
         
         // PCM format
         unsigned short pcmFormat = 0;
         m_audioFile.read((char*)&pcmFormat, 2);
         if ((pcmFormat != 1 && pcmFormat != 65534) || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: invalid pcm format")
+
             return;
+        }
         
         // Channels
         short channels = 0;
         m_audioFile.read((char*)&channels, 2);
         if (channels < 1 && channels > 6 || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: invalid channels number")
+
             return;
+        }
         
         // Sample rate
         int sampleRate = 0;
         m_audioFile.read((char*)&sampleRate, 4);
         if (sampleRate <= 0 || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: invalid sample rate")
+
             return;
+        }
         
         // Passing 4 bytes
         int dummyInteger;
         m_audioFile.read((char*)&dummyInteger, 4);
         if (m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file")
+
             return;
+        }
         
         // Passing 2 bytes.
         m_audioFile.read((char*)&dummyInteger, 2);
         if (m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file")
+
             return;
+        }
         
         // Bits per sample
         short bitsPerSample = 0;
@@ -100,7 +140,13 @@ void WaveAudioFile::open()
         if (bitsPerSample != 8 && bitsPerSample != 16 && 
             bitsPerSample != 24 && bitsPerSample != 32 ||
             m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: invalid bits per sample")
+
             return;
+        }
+
+        SAL_DEBUG(std::string("bits per sample: ") + std::to_string(bitsPerSample))
         
         // Read extra bytes.
         if (fmt_size == 18 || fmt_size == 40)
@@ -108,14 +154,22 @@ void WaveAudioFile::open()
             std::vector<char> extraBytes(fmt_size-16);
             m_audioFile.read(extraBytes.data(), fmt_size-16);
             if (m_audioFile.fail())
+            {
+                SAL_DEBUG("Failed to open file")
+
                 return;
+            }
         }
 
         // Next identifier
         char nextIdentifier[5] = {0, 0, 0, 0, 0};
         m_audioFile.read(nextIdentifier, 4);
         if (m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: failed to read next identifier, not valid WAVE file")
+
             return;
+        }
         
         bool isFloatStream = false;
 
@@ -126,22 +180,36 @@ void WaveAudioFile::open()
             int factSize = 0;
             m_audioFile.read((char*)&factSize, 4);
             if (factSize <= 0 || m_audioFile.fail())
+            {
+                SAL_DEBUG("Failed to open file: invalid fact size")
+
                 return;
+            }
             
             // Reading the fact section without processing it.
             std::vector<char> factData(factSize);
             memset(factData.data(), 0, factSize);
             m_audioFile.read(factData.data(), factSize);
             if (m_audioFile.fail())
+            {
+                SAL_DEBUG("Failed to open file: cannot read fact data")
+
                 return;
+            }
             
             // The "fact" section mean the wave file is a float stream.
             isFloatStream = true;
+
+            SAL_DEBUG("Floating point PCM data")
             
             // Read the identifier of the next section.
             m_audioFile.read(nextIdentifier, 4);
             if (m_audioFile.fail())
+            {
+                SAL_DEBUG("Failed to open file: failed to read next identifier, not valid WAVE file")
+
                 return;
+            }
         }
         
         // If next identifier is "LIST" identifier.
@@ -151,32 +219,52 @@ void WaveAudioFile::open()
             int listSize = 0;
             m_audioFile.read((char*)&listSize, 4);
             if (listSize <= 0 || m_audioFile.fail())
+            {
+                SAL_DEBUG("Failed to open file: invalid LIST size")
+
                 return;
+            }
             
             // Read track name.
             std::vector<char> trackName(listSize+1);
             memset(trackName.data(), 0, listSize+1);
             m_audioFile.read(trackName.data(), listSize);
             if (m_audioFile.fail())
+            {
+                SAL_DEBUG("Failed to open file: failed to read LIST data (track name)")
+
                 return;
+            }
             
             // Read "data" identifier into nextIdentifier.
             m_audioFile.read(nextIdentifier, 4);
             if (m_audioFile.fail())
+            {
+                SAL_DEBUG("Failed to open file: failed to read next identifier, invalid WAVE file")
+
                 return;
+            }
         }
         else
             return;
 
         // "data" identifier.
         if (strcmp(nextIdentifier, "data") != 0 || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: no data section, invalid WAVE file")
+
             return;
+        }
         
         // Audio file size in bytes.
         unsigned int audioDataSize = 0;
         m_audioFile.read((char*)&audioDataSize, 4);
         if (audioDataSize == 0 || audioDataSize > fileSize || m_audioFile.fail())
+        {
+            SAL_DEBUG("Failed to open file: invalid data size")
+
             return;
+        }
         
         // PCM format
         SampleType pcmFormatType;
@@ -190,7 +278,11 @@ void WaveAudioFile::open()
         else if (bitsPerSample == 32)
             pcmFormatType = SampleType::FLOAT;
         else
+        {
+            SAL_DEBUG("Failed to open file: invalid pcm format type")
+
             return;
+        }
         
         // Then the data will be streamed.
 
@@ -204,12 +296,21 @@ void WaveAudioFile::open()
         setSampleType(pcmFormatType);
         fileOpened();
     }
+#ifndef NDEBUG
+    else
+    {
+        SAL_DEBUG("Failed to open file: cannot open file")
+        return;
+    }
+#endif
 
     SAL_DEBUG("Opening file done")
 }
 
 void WaveAudioFile::close()
 {
+    SAL_DEBUG("Closing file")
+
     if (m_audioFile.is_open())
         m_audioFile.close();
 }
