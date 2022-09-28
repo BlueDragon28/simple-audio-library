@@ -655,9 +655,12 @@ void Player::update()
     static int counter = 0;
     closeStreamWhenNeeded();
     pauseIfBuffering();
+    {
     std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     updateStreamBuffer();
+    }
     continuePlayingIfEnoughBuffering();
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     clearUnneededStream();
     pushFile();
     recreateStream();
@@ -703,7 +706,7 @@ void Player::continuePlayingIfEnoughBuffering()
     {
         bool isStartStreamFailed = false;
         {
-            std::scoped_lock lock(m_paStreamMutex);
+            std::scoped_lock lock(m_paStreamMutex, m_queueOpenedFileMutex);
             for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
             {
                 if (!file->isEnded())
