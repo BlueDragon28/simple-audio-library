@@ -677,6 +677,8 @@ bool Player::isPaused() const
 
 void Player::pauseIfBuffering()
 {
+    SAL_DEBUG("Check if buffering")
+
     if (m_isBuffering && !m_isPaused)
     {
         SAL_DEBUG("Buffering: pausing the stream")
@@ -698,6 +700,8 @@ void Player::pauseIfBuffering()
 
         SAL_DEBUG("Buffering: pausing the stream done")
     }
+
+    SAL_DEBUG("Check if buffering done")
 }
 
 void Player::continuePlayingIfEnoughBuffering()
@@ -802,11 +806,17 @@ void Player::recreateStream()
 
 void Player::closeStreamWhenNeeded()
 {
+    SAL_DEBUG("Check if closing the stream")
+
     if (m_isClosingStreamTheStream)
     {
+        SAL_DEBUG("Closing the stream")
         std::scoped_lock lock(m_paStreamMutex);
         resetStreamInfo();
+        SAL_DEBUG("Closing the stream done")
     }
+
+    SAL_DEBUG("Check if closing the stream done")
 }
 
 void Player::updateStreamBuffer()
