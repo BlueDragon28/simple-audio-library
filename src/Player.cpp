@@ -656,14 +656,17 @@ void Player::update()
     closeStreamWhenNeeded();
     pauseIfBuffering();
     {
-    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
-    updateStreamBuffer();
+        std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
+        updateStreamBuffer();
     }
     continuePlayingIfEnoughBuffering();
-    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
-    clearUnneededStream();
-    pushFile();
+    {
+        std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
+        clearUnneededStream();
+        pushFile();
+    }
     recreateStream();
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     checkIfNoStream();
     streamPosChangeCallback();
 
@@ -782,7 +785,7 @@ void Player::recreateStream()
                 m_isPlaying = false;
             }
             
-            std::scoped_lock lock(m_paStreamMutex);
+            std::scoped_lock lock(m_paStreamMutex, m_queueOpenedFileMutex);
             PaError err = Pa_StartStream(m_paStream.get());
             if (err == paNoError)
             {
