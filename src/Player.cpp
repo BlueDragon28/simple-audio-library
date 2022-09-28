@@ -122,7 +122,7 @@ void Player::play()
 #ifndef NDEBUG
         else
         {
-            SAL_DEBUG("Failed to start playing stream")
+            SAL_DEBUG(std::string("Failed to start playing stream: ") + Pa_GetErrorText(err))
         }
 #endif
 
@@ -167,7 +167,9 @@ void Player::play()
             {
                 m_isPlaying = false;
 
-                SAL_DEBUG("Failed to start playing stream")
+#ifndef NDEBUG
+                SAL_DEBUG(std::string("Failed to start playing stream: ") + Pa_GetErrorText(err))
+#endif
             }
         }
     }
@@ -512,7 +514,9 @@ bool Player::createStream()
     
     if (err != paNoError)
     {
-        SAL_DEBUG("Creating a new stream sink failed: creating portaudio stream failed")
+#ifndef NDEBUG
+        SAL_DEBUG(std::string("Creating a new stream sink failed: creating portaudio stream failed: ") + Pa_GetErrorText(err))
+#endif
 
         resetStreamInfo();
         return false;
@@ -692,7 +696,11 @@ void Player::pauseIfBuffering()
             m_isPaused = true;
             PaError err = Pa_StopStream(m_paStream.get());
             if (err != paNoError)
+            {
                 isError = true;
+
+                SAL_DEBUG(std::string("Failed to pause stream: ") + Pa_GetErrorText(err))
+            }
         }
         if (isError)
         {
@@ -726,7 +734,11 @@ void Player::continuePlayingIfEnoughBuffering()
                         m_isPaused = false;
                         PaError err = Pa_StartStream(m_paStream.get());
                         if (err != paNoError)
+                        {
                             isStartStreamFailed = true;
+                            
+                            SAL_DEBUG(std::string("Failed to remuse stream: ") + Pa_GetErrorText(err))
+                        }
                         streamEnoughBufferingCallback();
                     }
                 }
@@ -799,7 +811,9 @@ void Player::recreateStream()
             }
             else
             {
-                SAL_DEBUG("Recreating a new stream sink failed: starting the stream failed")
+#ifndef NDEBUG
+                SAL_DEBUG(std::string("Recreating a new stream sink failed: starting the stream failed: ") + Pa_GetErrorText(err))
+#endif
 
                 m_isPaused = false;
             }
