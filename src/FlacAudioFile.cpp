@@ -46,7 +46,11 @@ void FlacAudioFile::open()
     // Opening the flac file.
     FLAC__StreamDecoderInitStatus status = init(filePath());
     if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
+    {
+        SAL_DEBUG("Failed to open file")
+        
         m_isError = true;
+    }
 
     // check if an error occured while initializing the flac file.
     if (m_isError)
