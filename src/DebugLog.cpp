@@ -38,22 +38,30 @@ bool DebugLog::setFilePath(const std::string &filePath)
     if (!filePath.empty() && filePath != m_filePath && 
         ((isFileExist && std::filesystem::is_regular_file(filePath)) || !isFileExist))
     {
-        // If the file do not exist, try to create the directory containing it to be sure.
+        // If the file do not exists, try to create the directory containing it to be sure.
         if (!isFileExist)
         {
             createFolder(filePath);
         }
+        // If the file exists, destroying it.
+        else
+        {
+            if (!std::filesystem::remove(filePath))
+            {
+                // If removing fail, no need to continue.
+                return false;
+            }
+        }
 
+        // Check if the file is readable.
         std::ofstream file(filePath);
         if (file.is_open() && file.good())
         {
             // Close the test file stream.
             file.close();
 
-            // If the file exists and is writable, open the file to stream it.
             m_filePath = filePath;
             m_stream.close();
-            m_stream.open(m_filePath);
 
             // Creating the update thread to write the logs
             createUpdateThread();
@@ -85,9 +93,18 @@ void DebugLog::flush()
 {
     std::scoped_lock lock(m_streamMutex);
 
-    // If there is a file opened, flush the data into it.
-    if (m_stream.is_open())
+    // Checking if the log file exists and is readable.
+    if (!m_filePath.empty() && std::filesystem::exists(m_filePath))
     {
+        // Open the log file at the end.
+        m_stream.open(m_filePath, std::ios::app);
+
+        // If the file cannot be open in writing mode, no need to continue.
+        if (!m_stream.is_open()) 
+        {
+            return;
+        }
+
         // Serialize every item in the debug listItems list.
         for (const DebugOutputItem& item : m_listItems)
         {
@@ -97,6 +114,9 @@ void DebugLog::flush()
 
         // Remove every elements in the list.
         m_listItems.clear();
+
+        // Closing the stream.
+        m_stream.close();
     }
 }
 
