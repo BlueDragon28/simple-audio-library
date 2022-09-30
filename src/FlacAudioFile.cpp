@@ -32,6 +32,8 @@ void FlacAudioFile::open()
         return;
     }
 
+	// std::filesystem::exists is broken on windows.
+#ifndef WIN32
     // Check if the file is existing.
     if (!std::filesystem::exists(filePath()))
     {
@@ -39,6 +41,7 @@ void FlacAudioFile::open()
         SAL_DEBUG("Opening file failed: file do no exists")
         return;
     }
+#endif
 
     // Enable md5 checking.
     set_md5_checking(true);
