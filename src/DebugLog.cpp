@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <ctime>
 
-#ifndef NDEBUG
+#ifdef DEBUG_LOG
 namespace SAL
 {
 std::unique_ptr<DebugLog> DebugLog::_instance;

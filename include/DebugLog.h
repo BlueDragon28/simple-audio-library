@@ -1,6 +1,7 @@
 #ifndef SIMPLE_AUDIO_LIBRARY_SMDEBUGLOG_H
 #define SIMPLE_AUDIO_LIBRARY_SMDEBUGLOG_H
 
+#include "config.h"
 #include <string>
 #include <memory>
 #include <fstream>
@@ -10,14 +11,14 @@
 #include <vector>
 
 // Macro to help write debug message.
-#ifndef NDEBUG
+#ifdef DEBUG_LOG
 #define SAL_DEBUG(msg) \
     DebugLog::instance()->append(CLASS_NAME, __func__, msg);
 #else
 #define SAL_DEBUG(msg)
 #endif
 
-#ifndef NDEBUG
+#ifdef DEBUG_LOG
 namespace SAL
 {
 /*
