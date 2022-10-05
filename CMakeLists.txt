@@ -18,7 +18,7 @@ if (DEBUG_LOG)
     option(LOG_OPEN_FILE "Log informations when loading and closing a file" ON)
     option(LOG_READ_FILE "Log informations on reading from file (resource intensive)" OFF)
     option(LOG_READ_STREAM "Log informations on reading stream (resource intensive)" OFF)
-    option(LOG_LOOP_UPDATE "Log informations when the main loop is running" OFF)
+    option(LOG_LOOP_UPDATE "Log informations when the main loop is running (resource intensive)" OFF)
 endif()
 
 # C++ standard
