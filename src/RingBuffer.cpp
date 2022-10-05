@@ -46,9 +46,7 @@ RingBuffer::~RingBuffer()
 
 void RingBuffer::resizeBuffer(size_t bufferSize)
 {
-#ifndef NDEBUG
-    SAL_DEBUG("Resizing ring buffer from " + std::to_string(m_size) + "o to " + std::to_string(bufferSize) + "o");
-#endif
+    SAL_DEBUG("Resizing ring buffer from " + std::to_string(m_size) + "o to " + std::to_string(bufferSize) + "o")
 
     std::scoped_lock lock(m_readMutex);
     delete[] m_data;
@@ -78,9 +76,7 @@ size_t RingBuffer::read(char* buffer, size_t size)
     if (size > readAvailable)
         size = readAvailable;
 
-#ifndef NDEBUG
     SAL_DEBUG("Reading " + std::to_string(size) + "o of data from the ring buffer")
-#endif
     
     // Copy data into the output buffer.
     if (size > m_size-m_tailPos)
@@ -113,9 +109,7 @@ size_t RingBuffer::write(const char* buffer, size_t size)
     if (size > m_writeAvailable)
         size = m_writeAvailable;
 
-#ifndef NDEBUG
     SAL_DEBUG("Writing " + std::to_string(size) + "o of data to the ring buffer")
-#endif
     
     // Copy data from input buffer into the ring buffer.
     if (size > m_size-m_headPos)

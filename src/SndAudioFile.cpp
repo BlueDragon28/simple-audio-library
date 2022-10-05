@@ -25,9 +25,7 @@ SndAudioFile::~SndAudioFile()
 
 void SndAudioFile::open()
 {
-#ifndef NDEBUG
     SAL_DEBUG("Opening file " + filePath());
-#endif
 
     // Opening the file with libsndfile library.
     m_file = std::unique_ptr<SndfileHandle>(new SndfileHandle(filePath()));

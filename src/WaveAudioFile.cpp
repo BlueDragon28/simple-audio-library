@@ -25,9 +25,7 @@ WaveAudioFile::~WaveAudioFile()
 
 void WaveAudioFile::open()
 {
-#ifndef NDEBUG
     SAL_DEBUG("Opening file " + filePath());
-#endif
 
     if (filePath().empty())
         return;

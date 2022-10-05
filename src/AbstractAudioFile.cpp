@@ -84,9 +84,7 @@ void AbstractAudioFile::readFromFile()
 
 void AbstractAudioFile::resizeTmpBuffer(size_t size)
 {
-#ifndef NDEBUG
     SAL_DEBUG("Resizing the tmpBuffer from " + std::to_string(m_tmpSize) + "o to " + std::to_string(size) + "o")
-#endif
 
     // Create a new tmpBuffer with the new size.
     char* tmpBuffer = new char[size];
@@ -346,9 +344,7 @@ void AbstractAudioFile::seek(size_t pos)
     // Check if the pos is less than the size of the stream.
     if (pos < streamSize())
     {
-#ifndef NDEBUG
         SAL_DEBUG("Seeking position " + std::to_string(pos) + " in the stream")
-#endif
 
         // Clear the ring buffer and move the stream to the new position;
         m_ringBuffer.clear();
@@ -364,9 +360,7 @@ void AbstractAudioFile::seek(size_t pos)
             m_isEnded = false;
         }
 
-#ifndef NDEBUG
         SAL_DEBUG("Seeking position " + std::to_string(pos) + " done")
-#endif
     }
 }
 }

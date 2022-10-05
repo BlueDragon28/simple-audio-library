@@ -55,9 +55,7 @@ void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 
 void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callback, TimeType timeType)
 {
-#ifndef NDEBUG
     SAL_DEBUG(std::string("Adding a stream pos in ") + (timeType == TimeType::FRAMES ? "frames" : "seconds") + std::string(" change callback"))
-#endif
 
     if (timeType == TimeType::SECONDS)
     {
@@ -137,9 +135,7 @@ void CallbackInterface::callEndFileCallback(const std::string& filePath)
 
 void CallbackInterface::callStreamPosChangeCallback(size_t streamPos, TimeType timeType)
 {
-#ifndef NDEBUG
     SAL_DEBUG(std::string("Call stream pos in ") + (timeType == TimeType::FRAMES ? "frames" : "seconds") + std::string(" change callback"))
-#endif
 
     // Frames are placed first, because they will be called more often than seconds.
     if (timeType == TimeType::FRAMES)

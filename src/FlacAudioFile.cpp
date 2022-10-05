@@ -21,9 +21,7 @@ FlacAudioFile::~FlacAudioFile()
 
 void FlacAudioFile::open()
 {
-#ifndef NDEBUG
     SAL_DEBUG("Opening file " + filePath());
-#endif
 
     if (filePath().empty())
     {
@@ -207,9 +205,7 @@ void FlacAudioFile::readDataFromFile()
 
 bool FlacAudioFile::updateReadingPos(size_t pos)
 {
-#ifndef NDEBUG
     SAL_DEBUG("Update reading pos to " + std::to_string(pos) + "o")
-#endif
 
     if (seek_absolute(pos))
         return true;

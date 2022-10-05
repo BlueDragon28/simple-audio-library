@@ -52,9 +52,7 @@ Player::~Player()
 
 void Player::open(const std::string& filePath, bool clearQueue)
 {
-#ifndef NDEBUG
     SAL_DEBUG ("Opening file: " + filePath)
-#endif
 
     if (filePath.empty())
     {
@@ -92,9 +90,7 @@ void Player::open(const std::string& filePath, bool clearQueue)
 
 int Player::isReadable(const std::string& filePath) const
 {
-#ifndef NDEBUG
     SAL_DEBUG("Checking is file " + filePath + " is readable")
-#endif
 
     return checkFileFormat(filePath);
 }
@@ -167,9 +163,7 @@ void Player::play()
             {
                 m_isPlaying = false;
 
-#ifndef NDEBUG
                 SAL_DEBUG(std::string("Failed to start playing stream: ") + Pa_GetErrorText(err))
-#endif
             }
         }
     }
@@ -514,9 +508,7 @@ bool Player::createStream()
     
     if (err != paNoError)
     {
-#ifndef NDEBUG
         SAL_DEBUG(std::string("Creating a new stream sink failed: creating portaudio stream failed: ") + Pa_GetErrorText(err))
-#endif
 
         resetStreamInfo();
         return false;
