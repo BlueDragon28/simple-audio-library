@@ -39,7 +39,7 @@ CallbackInterface::~CallbackInterface()
 
 void CallbackInterface::addStartFileCallback(StartFileCallback callback)
 {
-    SAL_DEBUG("Adding a start file callback")
+    SAL_DEBUG_EVENTS("Adding a start file callback")
 
     std::scoped_lock lock(m_startFileCallbackMutex);
     m_startFileCallback.push_back(callback);
@@ -47,7 +47,7 @@ void CallbackInterface::addStartFileCallback(StartFileCallback callback)
 
 void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 {
-    SAL_DEBUG("Adding a end file callback")
+    SAL_DEBUG_EVENTS("Adding a end file callback")
 
     std::scoped_lock lock(m_endFileCallbackMutex);
     m_endFileCallback.push_back(callback);
@@ -55,7 +55,7 @@ void CallbackInterface::addEndFileCallback(EndFileCallback callback)
 
 void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callback, TimeType timeType)
 {
-    SAL_DEBUG(std::string("Adding a stream pos in ") + (timeType == TimeType::FRAMES ? "frames" : "seconds") + std::string(" change callback"))
+    SAL_DEBUG_EVENTS(std::string("Adding a stream pos in ") + (timeType == TimeType::FRAMES ? "frames" : "seconds") + std::string(" change callback"))
 
     if (timeType == TimeType::SECONDS)
     {
@@ -71,7 +71,7 @@ void CallbackInterface::addStreamPosChangeCallback(StreamPosChangeCallback callb
 
 void CallbackInterface::addStreamPausedCallback(StreamPausedCallback callback)
 {
-    SAL_DEBUG("Add stream paused callback")
+    SAL_DEBUG_EVENTS("Add stream paused callback")
 
     std::scoped_lock lock(m_streamPausedMutex);
     m_streamPausedCallback.push_back(callback);
@@ -79,7 +79,7 @@ void CallbackInterface::addStreamPausedCallback(StreamPausedCallback callback)
 
 void CallbackInterface::addStreamPlayingCallback(StreamPlayingCallback callback)
 {
-    SAL_DEBUG("Add stream playing callback")
+    SAL_DEBUG_EVENTS("Add stream playing callback")
 
     std::scoped_lock lock(m_streamPlayingMutex);
     m_streamPlayingCallback.push_back(callback);
@@ -87,7 +87,7 @@ void CallbackInterface::addStreamPlayingCallback(StreamPlayingCallback callback)
 
 void CallbackInterface::addStreamStoppingCallback(StreamStoppingCallback callback)
 {
-    SAL_DEBUG("Add stream stopping callback")
+    SAL_DEBUG_EVENTS("Add stream stopping callback")
 
     std::scoped_lock lock(m_streamStoppingMutex);
     m_streamStoppingCallback.push_back(callback);
@@ -95,7 +95,7 @@ void CallbackInterface::addStreamStoppingCallback(StreamStoppingCallback callbac
 
 void CallbackInterface::addStreamBufferingCallback(StreamBufferingCallback callback)
 {
-    SAL_DEBUG("Add stream buffering callback")
+    SAL_DEBUG_EVENTS("Add stream buffering callback")
 
     std::scoped_lock lock(m_streamBufferingMutex);
     m_streamBufferingCallback.push_back(callback);
@@ -103,7 +103,7 @@ void CallbackInterface::addStreamBufferingCallback(StreamBufferingCallback callb
 
 void CallbackInterface::addStreamEnoughBufferingCallback(StreamEnoughBufferingCallback callback)
 {
-    SAL_DEBUG("Add stream enough buffering callback")
+    SAL_DEBUG_EVENTS("Add stream enough buffering callback")
 
     std::scoped_lock lock(m_streamEnoughBufferingMutex);
     m_streamEnoughBufferingCallback.push_back(callback);
@@ -111,7 +111,7 @@ void CallbackInterface::addStreamEnoughBufferingCallback(StreamEnoughBufferingCa
 
 void CallbackInterface::addIsReadyChangedCallback(IsReadyChangedCallback callback)
 {
-    SAL_DEBUG("Add is ready changed callback")
+    SAL_DEBUG_EVENTS("Add is ready changed callback")
 
     std::scoped_lock lock(m_isReadyChangedMutex);
     m_isReadyChangedCallback.push_back(callback);
