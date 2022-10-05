@@ -283,7 +283,7 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
     if (!m_isOpen || m_ringBuffer.size() == 0 || m_isEnded)
         return 0;
 
-    SAL_DEBUG("Reading data from the temporary buffer")
+    SAL_DEBUG_READ_STREAM("Reading data from the temporary buffer")
     
     // Read data from the ring buffer.
     size_t sizeInBytes = sizeInFrames * numChannels() * sizeof(float);
@@ -305,10 +305,10 @@ size_t AbstractAudioFile::read(char* data, size_t sizeInFrames)
             m_isEnded = true;
         bytesReadedInFrames = 0;
 
-        SAL_DEBUG("End file reached")
+        SAL_DEBUG_READ_STREAM("End file reached")
     }
 
-    SAL_DEBUG("Reading data from the temporary buffer done")
+    SAL_DEBUG_READ_STREAM("Reading data from the temporary buffer done")
 
     return bytesReadedInFrames;
 }

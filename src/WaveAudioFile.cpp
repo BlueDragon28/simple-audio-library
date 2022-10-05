@@ -347,7 +347,7 @@ void WaveAudioFile::readDataFromFile()
 
 bool WaveAudioFile::updateReadingPos(size_t pos)
 {
-    SAL_DEBUG("Update reading position")
+    SAL_DEBUG_READ_STREAM("Update reading position")
 
     // Pos in bytes.
     pos *= bytesPerSample() * numChannels();

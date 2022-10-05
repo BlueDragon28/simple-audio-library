@@ -551,12 +551,12 @@ int Player::streamCallback(
     void* outputBuffer,
     unsigned long framesPerBuffer)
 {
-    SAL_DEBUG("Send audio from ring buffer to PortAudio")
+    SAL_DEBUG_READ_STREAM("Send audio from ring buffer to PortAudio")
 
     std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
     if (m_queueOpenedFile.empty())
     {
-        SAL_DEBUG("No audio data to stream, closing the stream")
+        SAL_DEBUG_READ_STREAM("No audio data to stream, closing the stream")
 
         return paComplete;
     }
@@ -606,7 +606,7 @@ int Player::streamCallback(
 
         if (isBuffering) 
         {
-            SAL_DEBUG("Stream buffering")
+            SAL_DEBUG_READ_STREAM("Stream buffering")
 
             m_isBuffering = true; 
             return paContinue;
@@ -614,13 +614,13 @@ int Player::streamCallback(
 
         if (!m_isBuffering)
         {
-            SAL_DEBUG("No more data to read")
+            SAL_DEBUG_READ_STREAM("No more data to read")
 
             return paComplete;
         }
     }
 
-    SAL_DEBUG("Send audio from ring buffer to PortAudio done")
+    SAL_DEBUG_READ_STREAM("Send audio from ring buffer to PortAudio done")
 
     return paContinue;
 }

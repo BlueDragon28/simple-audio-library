@@ -9,5 +9,6 @@ This file indicate the components that is compiled in the library.
 #cmakedefine USE_FLAC
 #cmakedefine USE_LIBSNDFILE
 #cmakedefine DEBUG_LOG
+#cmakedefine LOG_READ_STREAM
 
 #endif // SIMPLEAUDIOBLIRARY_CONFIG_H_

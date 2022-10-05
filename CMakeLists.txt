@@ -11,6 +11,11 @@ option(USE_FLAC "Use the libFLAC++ backend to read and decode FLAC file. It will
 option(USE_LIBSNDFILE "Use the libsndfile backend to read audio files." OFF)
 option(DEBUG_LOG "Enable debug logs (resource intensive)" OFF)
 
+# Enable and disable DEBUG_LOG information, only available when DEBUG_LOG is enable
+if (DEBUG_LOG)
+    option(LOG_READ_STREAM "Log informations on reading stream (resource intensive)" OFF)
+endif()
+
 # C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

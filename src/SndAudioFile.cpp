@@ -156,7 +156,7 @@ void SndAudioFile::readDataFromFile()
 
 bool SndAudioFile::updateReadingPos(size_t pos)
 {
-    SAL_DEBUG("Update reading position")
+    SAL_DEBUG_READ_STREAM("Update reading position")
 
     size_t newPosition = m_file->seek(pos, SF_SEEK_SET);
     if (newPosition >= 0)
