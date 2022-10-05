@@ -50,6 +50,14 @@
 #define SAL_DEBUG_LOOP_UPDATE(msg)
 #endif
 
+// Only available when the options LOG_STREAM_STATUS is set
+#if defined(DEBUG_LOG) && defined(LOG_STREAM_STATUS)
+#define SAL_DEBUG_STREAM_STATUS(msg) \
+    SAL_DEBUG(msg)
+#else
+#define SAL_DEBUG_STREAM_STATUS(msg)
+#endif
+
 #ifdef DEBUG_LOG
 namespace SAL
 {

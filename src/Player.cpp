@@ -389,7 +389,7 @@ int Player::checkFileFormat(const std::string& filePath) const
 
 void Player::_resetStreamInfo()
 {
-    SAL_DEBUG("Resetting stream informations and closing stream")
+    SAL_DEBUG_STREAM_STATUS("Resetting stream informations and closing stream")
 
     m_paStream.reset();
     m_isClosingStreamTheStream = false;
@@ -411,7 +411,7 @@ void Player::_resetStreamInfo()
     // Restart checking file.
     m_doNotCheckFile = false;
 
-    SAL_DEBUG("Resetting stream informations and closing stream done")
+    SAL_DEBUG_STREAM_STATUS("Resetting stream informations and closing stream done")
 }
 
 void Player::resetStreamInfo()
@@ -438,18 +438,18 @@ bool Player::checkStreamInfo(const AbstractAudioFile* const file) const
 
 bool Player::createStream()
 {
-    SAL_DEBUG("Creating a new stream sink")
+    SAL_DEBUG_STREAM_STATUS("Creating a new stream sink")
 
     if (m_paStream)
     {
-        SAL_DEBUG("Closing current stream sink")
+        SAL_DEBUG_STREAM_STATUS("Closing current stream sink")
 
         m_paStream.reset();
     }
     
     if (m_queueOpenedFile.empty())
     {
-        SAL_DEBUG("Creating a new stream sink failed: no files to stream")
+        SAL_DEBUG_STREAM_STATUS("Creating a new stream sink failed: no files to stream")
 
         return false;
     }
@@ -466,7 +466,7 @@ bool Player::createStream()
     if (m_numChannels == 0 || m_sampleRate == 0 ||
         m_bytesPerSample == 0 || m_sampleType == SampleType::UNKNOWN)
     {
-        SAL_DEBUG("Creating a new stream sink failed: audio data informations not valid")
+        SAL_DEBUG_STREAM_STATUS("Creating a new stream sink failed: audio data informations not valid")
 
         _resetStreamInfo();
         return false;
@@ -485,7 +485,7 @@ bool Player::createStream()
             outParams.sampleFormat = paFloat32;
         else
         {
-            SAL_DEBUG("Creating a new stream sink failed: not valid floating point number")
+            SAL_DEBUG_STREAM_STATUS("Creating a new stream sink failed: not valid floating point number")
 
             resetStreamInfo();
             return false;
@@ -508,7 +508,7 @@ bool Player::createStream()
     
     if (err != paNoError)
     {
-        SAL_DEBUG(std::string("Creating a new stream sink failed: creating portaudio stream failed: ") + Pa_GetErrorText(err))
+        SAL_DEBUG_STREAM_STATUS(std::string("Creating a new stream sink failed: creating portaudio stream failed: ") + Pa_GetErrorText(err))
 
         resetStreamInfo();
         return false;
@@ -522,7 +522,7 @@ bool Player::createStream()
     // checkStreamInfo may be called before createStream, which lead to a fail even if the next stream is compatible.
     m_doNotCheckFile = false;
 
-    SAL_DEBUG("Creating a new stream sink done")
+    SAL_DEBUG_STREAM_STATUS("Creating a new stream sink done")
     
     return true;
 }
@@ -680,7 +680,7 @@ void Player::pauseIfBuffering()
 
     if (m_isBuffering && !m_isPaused)
     {
-        SAL_DEBUG("Buffering: pausing the stream")
+        SAL_DEBUG_STREAM_STATUS("Buffering: pausing the stream")
 
         bool isError = false;
         {
@@ -691,17 +691,17 @@ void Player::pauseIfBuffering()
             {
                 isError = true;
 
-                SAL_DEBUG(std::string("Failed to pause stream: ") + Pa_GetErrorText(err))
+                SAL_DEBUG_STREAM_STATUS(std::string("Failed to pause stream: ") + Pa_GetErrorText(err))
             }
         }
         if (isError)
         {
-            SAL_DEBUG("Buffering: pausing the steam failed: cannot pause the stream")
+            SAL_DEBUG_STREAM_STATUS("Buffering: pausing the steam failed: cannot pause the stream")
 
             _resetStreamInfo();
         }
 
-        SAL_DEBUG("Buffering: pausing the stream done")
+        SAL_DEBUG_STREAM_STATUS("Buffering: pausing the stream done")
     }
 
     SAL_DEBUG_LOOP_UPDATE("Check if buffering done")
@@ -720,7 +720,7 @@ void Player::continuePlayingIfEnoughBuffering()
                 {
                     if (file->isEnoughBuffering())
                     {
-                        SAL_DEBUG("Enough buffering, resume stream")
+                        SAL_DEBUG_STREAM_STATUS("Enough buffering, resume stream")
 
                         m_isBuffering = false;
                         m_isPaused = false;
@@ -729,7 +729,7 @@ void Player::continuePlayingIfEnoughBuffering()
                         {
                             isStartStreamFailed = true;
                             
-                            SAL_DEBUG(std::string("Failed to remuse stream: ") + Pa_GetErrorText(err))
+                            SAL_DEBUG_STREAM_STATUS(std::string("Failed to remuse stream: ") + Pa_GetErrorText(err))
                         }
                         streamEnoughBufferingCallback();
                     }
@@ -738,7 +738,7 @@ void Player::continuePlayingIfEnoughBuffering()
         }
         if (isStartStreamFailed)    
         {
-            SAL_DEBUG("Enough buffering, resume stream failed: starting stream failed")
+            SAL_DEBUG_STREAM_STATUS("Enough buffering, resume stream failed: starting stream failed")
 
             _resetStreamInfo();
         }
@@ -753,7 +753,7 @@ void Player::clearUnneededStream()
             break;
         else
         {
-            SAL_DEBUG("Clearing unneeded streams")
+            SAL_DEBUG_STREAM_STATUS("Clearing unneeded streams")
 
             // Notify that the file ended.
             endStreamingFile(m_queueOpenedFile.at(0)->filePath());
@@ -767,7 +767,7 @@ void Player::clearUnneededStream()
             // Restart checking file.
             m_doNotCheckFile = false;
 
-            SAL_DEBUG("Clearing unneeded streams done")
+            SAL_DEBUG_STREAM_STATUS("Clearing unneeded streams done")
         }
     }
 }
@@ -781,7 +781,7 @@ void Player::recreateStream()
     {
         if (!m_queueOpenedFile.empty())
         {
-            SAL_DEBUG("Recreating a new stream sink (the new file have not the same data informations)")
+            SAL_DEBUG_STREAM_STATUS("Recreating a new stream sink (the new file have not the same data informations)")
 
             if (!createStream())
             {
@@ -793,7 +793,7 @@ void Player::recreateStream()
             PaError err = Pa_StartStream(m_paStream.get());
             if (err == paNoError)
             {
-                SAL_DEBUG("Recreating a new stream sink done")
+                SAL_DEBUG_STREAM_STATUS("Recreating a new stream sink done")
 
                 m_isPlaying = true;
                 
@@ -804,7 +804,7 @@ void Player::recreateStream()
             else
             {
 #ifndef NDEBUG
-                SAL_DEBUG(std::string("Recreating a new stream sink failed: starting the stream failed: ") + Pa_GetErrorText(err))
+                SAL_DEBUG_STREAM_STATUS(std::string("Recreating a new stream sink failed: starting the stream failed: ") + Pa_GetErrorText(err))
 #endif
 
                 m_isPaused = false;

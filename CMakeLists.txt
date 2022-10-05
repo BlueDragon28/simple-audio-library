@@ -13,6 +13,7 @@ option(DEBUG_LOG "Enable debug logs (resource intensive)" OFF)
 
 # Enable and disable DEBUG_LOG information, only available when DEBUG_LOG is enable
 if (DEBUG_LOG)
+    option(LOG_STREAM_STATUS "Log informations on the status of the stream" ON)
     option(LOG_OPEN_FILE "Log informations when loading and closing a file" ON)
     option(LOG_READ_FILE "Log informations on reading from file (resource intensive)" OFF)
     option(LOG_READ_STREAM "Log informations on reading stream (resource intensive)" OFF)
