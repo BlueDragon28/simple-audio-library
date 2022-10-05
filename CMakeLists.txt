@@ -9,6 +9,7 @@ project(simple-audio-library
 option(USE_WAVE "Use the built-in WAVE file reader. It will be used to open WAVE file instead of libsndfile (if on)." ON)
 option(USE_FLAC "Use the libFLAC++ backend to read and decode FLAC file. It will be used to open FLAC file instead of libsndfile (if on)." ON)
 option(USE_LIBSNDFILE "Use the libsndfile backend to read audio files." OFF)
+option(DEBUG_LOG "Enable debug logs (resource intensive)" OFF)
 
 # C++ standard
 set(CMAKE_CXX_STANDARD 17)

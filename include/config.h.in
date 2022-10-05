@@ -8,5 +8,6 @@ This file indicate the components that is compiled in the library.
 #cmakedefine USE_WAVE
 #cmakedefine USE_FLAC
 #cmakedefine USE_LIBSNDFILE
+#cmakedefine DEBUG_LOG
 
 #endif // SIMPLEAUDIOBLIRARY_CONFIG_H_
