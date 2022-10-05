@@ -50,12 +50,20 @@
 #define SAL_DEBUG_LOOP_UPDATE(msg)
 #endif
 
-// Only available when the options LOG_STREAM_STATUS is set
+// Only available when the option LOG_STREAM_STATUS is set
 #if defined(DEBUG_LOG) && defined(LOG_STREAM_STATUS)
 #define SAL_DEBUG_STREAM_STATUS(msg) \
     SAL_DEBUG(msg)
 #else
 #define SAL_DEBUG_STREAM_STATUS(msg)
+#endif
+
+// Only available when the option LOG_SAL_INIT is set
+#if defined(DEBUG_LOG) && defined(LOG_SAL_INIT)
+#define SAL_DEBUG_SAL_INIT(msg) \
+    SAL_DEBUG(msg)
+#else
+#define SAL_DEBUG_SAL_INIT(msg)
 #endif
 
 #ifdef DEBUG_LOG

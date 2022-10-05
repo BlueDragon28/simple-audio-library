@@ -23,7 +23,7 @@ AudioPlayer::AudioPlayer() :
     m_isRunning(false),
     m_sleepTime(SLEEP_PAUSED)
 {
-    SAL_DEBUG("Initializing SAL")
+    SAL_DEBUG_SAL_INIT("Initializing SAL")
 
     // Initializing DebugLog
 #ifndef NDEBUG
@@ -44,7 +44,7 @@ AudioPlayer::AudioPlayer() :
         m_loopThread = std::thread(&AudioPlayer::loop, this);
     }
 
-    SAL_DEBUG("Initialization done")
+    SAL_DEBUG_SAL_INIT("Initialization done")
 }
 
 AudioPlayer::~AudioPlayer()
@@ -60,7 +60,7 @@ AudioPlayer::~AudioPlayer()
     if (m_loopThread.joinable())
         m_loopThread.join();
 
-    SAL_DEBUG("Deinitializing SAL")
+    SAL_DEBUG_SAL_INIT("Deinitializing SAL")
 }
 
 void AudioPlayer::open(const std::string& filePath, bool clearQueue)
@@ -87,7 +87,7 @@ void AudioPlayer::loop()
     if (!m_isInit)
         return;
     
-    SAL_DEBUG_LOOP_UPDATE("Starting main loop")
+    SAL_DEBUG_SAL_INIT("Starting main loop")
 
     while (isRunning())
     {
