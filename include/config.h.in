@@ -12,5 +12,6 @@ This file indicate the components that is compiled in the library.
 #cmakedefine LOG_READ_STREAM
 #cmakedefine LOG_READ_FILE
 #cmakedefine LOG_OPEN_FILE
+#cmakedefine LOG_LOOP_UPDATE
 
 #endif // SIMPLEAUDIOBLIRARY_CONFIG_H_

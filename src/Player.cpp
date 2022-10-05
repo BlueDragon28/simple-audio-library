@@ -294,7 +294,7 @@ void Player::pushFile()
         m_queueFilePath.size() == 0 || m_doNotCheckFile)
         return;
 
-    SAL_DEBUG("Preparing a file to be streamed")
+    SAL_DEBUG_LOOP_UPDATE("Preparing a file to be streamed")
 
     std::unique_ptr<AbstractAudioFile> pAudioFile(
         detectAndOpenFile(m_queueFilePath.at(0)));
@@ -303,7 +303,7 @@ void Player::pushFile()
     {
         m_queueFilePath.erase(m_queueFilePath.begin());
 
-        SAL_DEBUG("Preparing a file to be streamed failed: invalid file")
+        SAL_DEBUG_LOOP_UPDATE("Preparing a file to be streamed failed: invalid file")
 
         return;
     }
@@ -312,7 +312,7 @@ void Player::pushFile()
     {
         if (!checkStreamInfo(pAudioFile.get()))
         {
-            SAL_DEBUG("Preparing a file to be streamed failed: data information not the same has current stream")
+            SAL_DEBUG_LOOP_UPDATE("Preparing a file to be streamed failed: data information not the same has current stream")
 
             m_doNotCheckFile = true;
             return;
@@ -322,12 +322,12 @@ void Player::pushFile()
     m_queueOpenedFile.push_back(std::move(pAudioFile));
     m_queueFilePath.erase(m_queueFilePath.begin());
 
-    SAL_DEBUG("Preparing a file to be streamed done")
+    SAL_DEBUG_LOOP_UPDATE("Preparing a file to be streamed done")
 }
 
 AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
 {
-    SAL_DEBUG("Detecting audio format type of a file and opening it")
+    SAL_DEBUG_LOOP_UPDATE("Detecting audio format type of a file and opening it")
 
     AbstractAudioFile* pAudioFile = nullptr;
 
@@ -363,7 +363,7 @@ AbstractAudioFile* Player::detectAndOpenFile(const std::string& filePath) const
     {} break;
     }
 
-    SAL_DEBUG("Detecting audio format type of a file and opening it done")
+    SAL_DEBUG_LOOP_UPDATE("Detecting audio format type of a file and opening it done")
     
     return pAudioFile;
 }
@@ -646,7 +646,7 @@ void Player::streamEndCallback()
 
 void Player::update()
 {
-    SAL_DEBUG("update loop: reading data from file and clearing unneeded streams")
+    SAL_DEBUG_LOOP_UPDATE("update loop: reading data from file and clearing unneeded streams")
 
     static int counter = 0;
     closeStreamWhenNeeded();
@@ -666,7 +666,7 @@ void Player::update()
     checkIfNoStream();
     streamPosChangeCallback();
 
-    SAL_DEBUG("update loop: reading data from file and clearing unneeded streams done")
+    SAL_DEBUG_LOOP_UPDATE("update loop: reading data from file and clearing unneeded streams done")
 }
 
 bool Player::isPaused() const
@@ -676,7 +676,7 @@ bool Player::isPaused() const
 
 void Player::pauseIfBuffering()
 {
-    SAL_DEBUG("Check if buffering")
+    SAL_DEBUG_LOOP_UPDATE("Check if buffering")
 
     if (m_isBuffering && !m_isPaused)
     {
@@ -704,7 +704,7 @@ void Player::pauseIfBuffering()
         SAL_DEBUG("Buffering: pausing the stream done")
     }
 
-    SAL_DEBUG("Check if buffering done")
+    SAL_DEBUG_LOOP_UPDATE("Check if buffering done")
 }
 
 void Player::continuePlayingIfEnoughBuffering()
@@ -815,7 +815,7 @@ void Player::recreateStream()
 
 void Player::closeStreamWhenNeeded()
 {
-    SAL_DEBUG("Check if closing the stream")
+    SAL_DEBUG_LOOP_UPDATE("Check if closing the stream")
 
     if (m_isClosingStreamTheStream)
     {
@@ -825,12 +825,12 @@ void Player::closeStreamWhenNeeded()
         SAL_DEBUG("Closing the stream done")
     }
 
-    SAL_DEBUG("Check if closing the stream done")
+    SAL_DEBUG_LOOP_UPDATE("Check if closing the stream done")
 }
 
 void Player::updateStreamBuffer()
 {
-    SAL_DEBUG("Reading data from files")
+    SAL_DEBUG_LOOP_UPDATE("Reading data from files")
 
     for (std::unique_ptr<AbstractAudioFile>& audioFile : m_queueOpenedFile)
     {
@@ -838,7 +838,7 @@ void Player::updateStreamBuffer()
         audioFile->flush();
     }
 
-    SAL_DEBUG("Reading data from files done")
+    SAL_DEBUG_LOOP_UPDATE("Reading data from files done")
 }
 
 void Player::checkIfNoStream()

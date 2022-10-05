@@ -42,6 +42,14 @@
 #define SAL_DEBUG_OPEN_FILE(msg)
 #endif
 
+// Only available when the option LOG_LOOP_UPDATE is set
+#if defined(DEBUG_LOG) && defined(LOG_LOOP_UPDATE)
+#define SAL_DEBUG_LOOP_UPDATE(msg) \
+    SAL_DEBUG(msg)
+#else
+#define SAL_DEBUG_LOOP_UPDATE(msg)
+#endif
+
 #ifdef DEBUG_LOG
 namespace SAL
 {

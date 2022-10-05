@@ -87,11 +87,11 @@ void AudioPlayer::loop()
     if (!m_isInit)
         return;
     
-    SAL_DEBUG("Starting main loop")
+    SAL_DEBUG_LOOP_UPDATE("Starting main loop")
 
     while (isRunning())
     {
-        SAL_DEBUG("Main loop iteration")
+        SAL_DEBUG_LOOP_UPDATE("Main loop iteration")
 
         // Call the callbacks.
         m_callbackInterface.callback();
@@ -110,7 +110,7 @@ void AudioPlayer::loop()
 
 void AudioPlayer::processEvents()
 {
-    SAL_DEBUG("Processing pending events")
+    SAL_DEBUG_LOOP_UPDATE("Processing pending events")
 
     while (m_events.containEvents())
     {
@@ -210,7 +210,7 @@ void AudioPlayer::processEvents()
         }
     }
 
-    SAL_DEBUG("Processing pending events done")
+    SAL_DEBUG_LOOP_UPDATE("Processing pending events done")
 }
 
 bool AudioPlayer::isPlaying(bool isWaiting)
