@@ -205,7 +205,7 @@ void FlacAudioFile::readDataFromFile()
 
 bool FlacAudioFile::updateReadingPos(size_t pos)
 {
-    SAL_DEBUG("Update reading pos to " + std::to_string(pos) + "o")
+    SAL_DEBUG_EVENTS("Update reading pos to " + std::to_string(pos) + "o")
 
     if (seek_absolute(pos))
         return true;

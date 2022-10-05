@@ -14,6 +14,7 @@ option(DEBUG_LOG "Enable debug logs (resource intensive)" OFF)
 # Enable and disable DEBUG_LOG information, only available when DEBUG_LOG is enable
 if (DEBUG_LOG)
     option(LOG_SAL_INIT "Log informations on initialization and deinitialization of SAL" ON)
+    option(LOG_EVENTS "Log informations on events" ON)
     option(LOG_STREAM_STATUS "Log informations on the status of the stream" ON)
     option(LOG_OPEN_FILE "Log informations when loading and closing a file" ON)
     option(LOG_READ_FILE "Log informations on reading from file (resource intensive)" OFF)

@@ -66,6 +66,14 @@
 #define SAL_DEBUG_SAL_INIT(msg)
 #endif
 
+// Only availabel when the option LOG_EVENTS is set
+#if defined (DEBUG_LOG) && defined (LOG_EVENTS)
+#define SAL_DEBUG_EVENTS(msg) \
+    SAL_DEBUG(msg)
+#else
+#define SAL_DEBUG_EVENTS(msg)
+#endif
+
 #ifdef DEBUG_LOG
 namespace SAL
 {

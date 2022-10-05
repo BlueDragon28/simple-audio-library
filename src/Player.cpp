@@ -52,18 +52,18 @@ Player::~Player()
 
 void Player::open(const std::string& filePath, bool clearQueue)
 {
-    SAL_DEBUG ("Opening file: " + filePath)
+    SAL_DEBUG_EVENTS("Opening file: " + filePath)
 
     if (filePath.empty())
     {
-        SAL_DEBUG("Opening file failed: file path empty")
+        SAL_DEBUG_EVENTS("Opening file failed: file path empty")
         return;
     }
     
     bool isCurrentPlaying = isPlaying();
     if (clearQueue)
     {
-        SAL_DEBUG("Opening file: clearing the playing/pending queue")
+        SAL_DEBUG_EVENTS("Opening file: clearing the playing/pending queue")
 
         stop();
     }
@@ -71,7 +71,7 @@ void Player::open(const std::string& filePath, bool clearQueue)
     bool isExisting = std::filesystem::exists(filePath);
     if (!isExisting)
     {
-        SAL_DEBUG("Opening file failed: the file do not exists")
+        SAL_DEBUG_EVENTS("Opening file failed: the file do not exists")
 
         return;
     }
@@ -85,12 +85,12 @@ void Player::open(const std::string& filePath, bool clearQueue)
     if (clearQueue && isCurrentPlaying)
         play();
 
-    SAL_DEBUG("Opening file done")
+    SAL_DEBUG_EVENTS("Opening file done")
 }
 
 int Player::isReadable(const std::string& filePath) const
 {
-    SAL_DEBUG("Checking is file " + filePath + " is readable")
+    SAL_DEBUG_EVENTS("Checking is file " + filePath + " is readable")
 
     return checkFileFormat(filePath);
 }
@@ -100,7 +100,7 @@ void Player::play()
     if (m_isPlaying)
         return;
 
-    SAL_DEBUG("Start playing stream")
+    SAL_DEBUG_EVENTS("Start playing stream")
     
     std::scoped_lock lock(m_paStreamMutex);
     
@@ -113,12 +113,12 @@ void Player::play()
                 streamPlayingCallback();
             m_isPlaying = true;
 
-            SAL_DEBUG("Start playing stream done")
+            SAL_DEBUG_EVENTS("Start playing stream done")
         }
 #ifndef NDEBUG
         else
         {
-            SAL_DEBUG(std::string("Failed to start playing stream: ") + Pa_GetErrorText(err))
+            SAL_DEBUG_EVENTS(std::string("Failed to start playing stream: ") + Pa_GetErrorText(err))
         }
 #endif
 
@@ -139,7 +139,7 @@ void Player::play()
                 resetStreamInfo();
                 m_isPlaying = false;
 
-                SAL_DEBUG("Failed to start playing stream")
+                SAL_DEBUG_EVENTS("Failed to start playing stream")
             }
             PaError err = Pa_StartStream(m_paStream.get());
             if (err == paNoError)
@@ -157,13 +157,13 @@ void Player::play()
                 m_isPlaying = true;
                 streamPlayingCallback();
 
-                SAL_DEBUG("Start playing stream done")
+                SAL_DEBUG_EVENTS("Start playing stream done")
             }
             else
             {
                 m_isPlaying = false;
 
-                SAL_DEBUG(std::string("Failed to start playing stream: ") + Pa_GetErrorText(err))
+                SAL_DEBUG_EVENTS(std::string("Failed to start playing stream: ") + Pa_GetErrorText(err))
             }
         }
     }
@@ -171,7 +171,7 @@ void Player::play()
 
 void Player::pause()
 {
-    SAL_DEBUG("Pausing stream")
+    SAL_DEBUG_EVENTS("Pausing stream")
 
     std::scoped_lock lock(m_paStreamMutex);
     m_isPaused = true;
@@ -181,12 +181,12 @@ void Player::pause()
         streamPausedCallback();
     m_isPlaying = false;
 
-    SAL_DEBUG("Pausing stream done")
+    SAL_DEBUG_EVENTS("Pausing stream done")
 }
 
 void Player::stop()
 {
-    SAL_DEBUG("Stopping stream")
+    SAL_DEBUG_EVENTS("Stopping stream")
 
     // Notify that the stream is stopping.
     bool hasAStreamPlaying = false;
@@ -220,12 +220,12 @@ void Player::stop()
     resetStreamInfo();
     m_isStopping = false;
 
-    SAL_DEBUG("Stopping stream done")
+    SAL_DEBUG_EVENTS("Stopping stream done")
 }
 
 void Player::next()
 {
-    SAL_DEBUG("Playing next file in the queue")
+    SAL_DEBUG_EVENTS("Playing next file in the queue")
 
     if (m_queueOpenedFile.size() > 1 || (m_queueOpenedFile.size() == 1 && m_queueFilePath.size() >= 1))
     {
@@ -256,7 +256,7 @@ void Player::next()
             startStreamingFile(m_queueOpenedFile.at(0)->filePath());
     }
 
-    SAL_DEBUG("Playing next file in the queue done")
+    SAL_DEBUG_EVENTS("Playing next file in the queue done")
 }
 
 bool Player::isPlaying() const

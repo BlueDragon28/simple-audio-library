@@ -10,7 +10,7 @@ const std::string CLASS_NAME = "AudioPlayer";
 
 // MACRO for redudent code of processEvents
 #define SAL_DEBUG_PROCESS_EVENTS(type) \
-    SAL_DEBUG(std::string("Processing ") + type + " event")
+    SAL_DEBUG_EVENTS(std::string("Processing ") + type + " event")
 
 namespace SAL
 {
@@ -65,21 +65,21 @@ AudioPlayer::~AudioPlayer()
 
 void AudioPlayer::open(const std::string& filePath, bool clearQueue)
 {
-    SAL_DEBUG(std::string("Opening the file \"") + filePath + "\" with clear queue set to " + (clearQueue ? "true" : " false"))
+    SAL_DEBUG_EVENTS(std::string("Opening the file \"") + filePath + "\" with clear queue set to " + (clearQueue ? "true" : " false"))
 
     if (!isRunning())
     {
-        SAL_DEBUG("Failed to open the file, main loop not running")
+        SAL_DEBUG_EVENTS("Failed to open the file, main loop not running")
         return;
     }
     
-    SAL_DEBUG("Adding the file into the event list with the type OPEN_FILE")
+    SAL_DEBUG_EVENTS("Adding the file into the event list with the type OPEN_FILE")
 
     // Push the event into the events list.
     LoadFile loadFile = { filePath, clearQueue };
     m_events.push(EventType::OPEN_FILE, loadFile);
 
-    SAL_DEBUG("Adding the file into the event list done")
+    SAL_DEBUG_EVENTS("Adding the file into the event list done")
 }
 
 void AudioPlayer::loop()

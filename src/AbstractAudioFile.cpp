@@ -344,7 +344,7 @@ void AbstractAudioFile::seek(size_t pos)
     // Check if the pos is less than the size of the stream.
     if (pos < streamSize())
     {
-        SAL_DEBUG("Seeking position " + std::to_string(pos) + " in the stream")
+        SAL_DEBUG_EVENTS("Seeking position " + std::to_string(pos) + " in the stream")
 
         // Clear the ring buffer and move the stream to the new position;
         m_ringBuffer.clear();
@@ -360,7 +360,7 @@ void AbstractAudioFile::seek(size_t pos)
             m_isEnded = false;
         }
 
-        SAL_DEBUG("Seeking position " + std::to_string(pos) + " done")
+        SAL_DEBUG_EVENTS("Seeking position " + std::to_string(pos) + " done")
     }
 }
 }
