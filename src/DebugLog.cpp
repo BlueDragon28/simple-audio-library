@@ -91,10 +91,30 @@ void DebugLog::append(const std::string &className, const std::string &functionN
 
 void DebugLog::flush()
 {
-    std::scoped_lock lock(m_streamMutex);
+    // In this list will be copied the data inside m_listItems.
+    std::vector<DebugOutputItem> m_listItemsCopy;
+
+    // Copying data only if there is data inside m_listItems, otherwise, leaving.
+    {
+        std::scoped_lock lock(m_streamMutex);
+        if (!m_listItems.empty() && !m_filePath.empty())
+        {
+            m_listItemsCopy.insert(
+                m_listItemsCopy.cbegin(),
+                m_listItems.cbegin(),
+                m_listItems.cend());
+            
+            // Removing items from the original list
+            m_listItems.clear();
+        }
+        else 
+        {
+            return;
+        }
+    }
 
     // Checking if the log file exists and is readable.
-    if (!m_filePath.empty() && std::filesystem::exists(m_filePath))
+    if (std::filesystem::exists(m_filePath))
     {
         // Open the log file at the end.
         m_stream.open(m_filePath, std::ios::app);
@@ -106,14 +126,11 @@ void DebugLog::flush()
         }
 
         // Serialize every item in the debug listItems list.
-        for (const DebugOutputItem& item : m_listItems)
+        for (const DebugOutputItem& item : m_listItemsCopy)
         {
             // Convert the item into a string and send it into the file.
             m_stream << item.toString() + '\n';
         }
-
-        // Remove every elements in the list.
-        m_listItems.clear();
 
         // Closing the stream.
         m_stream.close();
