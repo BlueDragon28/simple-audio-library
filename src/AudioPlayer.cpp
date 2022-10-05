@@ -53,7 +53,7 @@ AudioPlayer::~AudioPlayer()
     // deleting the ptr if the user delete the ptr
     // by itself.
     if (!doNotReset)
-        obj.release();
+        (void)obj.release();
 
     // Stopping the loop and wait for the thread to stop.
     m_isRunning = false;
