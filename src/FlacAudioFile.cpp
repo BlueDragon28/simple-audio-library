@@ -88,7 +88,7 @@ void FlacAudioFile::open()
 
 void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
 {
-    SAL_DEBUG("Processing metadata")
+    SAL_DEBUG_READ_FILE("Processing metadata")
 
     // Reading the streaming information of the FLAC file.
     if (metadata->type == FLAC__METADATA_TYPE_STREAMINFO)
@@ -102,12 +102,12 @@ void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
         setSampleType(SampleType::INT);
     }
 
-    SAL_DEBUG("Processing metadata done")
+    SAL_DEBUG_READ_FILE("Processing metadata done")
 }
 
 FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* frame, const FLAC__int32* const buffer[])
 {
-    SAL_DEBUG("Read data from file")
+    SAL_DEBUG_READ_FILE("Read data from file")
 
     // Check if the header information of the block is valid.
     if (frame->header.blocksize == 0 ||
@@ -118,7 +118,7 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
         m_isError = true;
         endFile(true);
 
-        SAL_DEBUG("Read data from file failed: data information are not valid")
+        SAL_DEBUG_READ_FILE("Read data from file failed: data information are not valid")
 
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
@@ -131,7 +131,7 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
         m_isError = true;
         endFile(true);
 
-        SAL_DEBUG("Read data from file failed: data informations not the same has the stream")
+        SAL_DEBUG_READ_FILE("Read data from file failed: data informations not the same has the stream")
 
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
@@ -144,7 +144,7 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
             m_isError = true;
             endFile(true);
 
-            SAL_DEBUG("Read data from file failed: buffers not valid")
+            SAL_DEBUG_READ_FILE("Read data from file failed: buffers not valid")
 
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
@@ -170,7 +170,7 @@ FLAC__StreamDecoderWriteStatus FlacAudioFile::write_callback(const FLAC__Frame* 
     insertDataInfoTmpBuffer(data.data(), dataPos);
     incrementReadPos(dataPos);
 
-    SAL_DEBUG("Read data from file done")
+    SAL_DEBUG_READ_FILE("Read data from file done")
 
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
@@ -188,7 +188,7 @@ void FlacAudioFile::readDataFromFile()
     if (m_isError || streamSizeInBytes() == 0)
         return;
 
-    SAL_DEBUG("Reading a frame")
+    SAL_DEBUG_READ_FILE("Reading a frame")
 
     // Reading a block from the flac file.
     if (!process_single())
@@ -200,7 +200,7 @@ void FlacAudioFile::readDataFromFile()
     if (get_state() == FLAC__STREAM_DECODER_END_OF_STREAM)
         endFile(true);
 
-    SAL_DEBUG("Reading a frame done")
+    SAL_DEBUG_READ_FILE("Reading a frame done")
 }
 
 bool FlacAudioFile::updateReadingPos(size_t pos)

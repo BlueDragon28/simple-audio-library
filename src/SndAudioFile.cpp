@@ -120,7 +120,7 @@ void SndAudioFile::open()
 
 void SndAudioFile::readDataFromFile()
 {
-    SAL_DEBUG("Read data from file")
+    SAL_DEBUG_READ_FILE("Read data from file")
 
     if (streamSizeInBytes() == 0 || !m_file || !*m_file.get() || sampleType() != SampleType::FLOAT)
         return;
@@ -151,7 +151,7 @@ void SndAudioFile::readDataFromFile()
         incrementReadPos(itemsRead);
     }
 
-    SAL_DEBUG("Read data from file done")
+    SAL_DEBUG_READ_FILE("Read data from file done")
 }
 
 bool SndAudioFile::updateReadingPos(size_t pos)

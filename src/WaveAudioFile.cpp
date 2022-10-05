@@ -319,7 +319,7 @@ void WaveAudioFile::readDataFromFile()
     if (!m_audioFile.is_open() || streamSizeInBytes() == 0)
         return;
 
-    SAL_DEBUG("Reading data from file")
+    SAL_DEBUG_READ_FILE("Reading data from file")
     
     // Get the size of the tmp buffer.
     size_t readSize = minimumSizeTemporaryBuffer();
@@ -342,7 +342,7 @@ void WaveAudioFile::readDataFromFile()
     insertDataInfoTmpBuffer(data.data(), readSize);
     incrementReadPos(readSize);
 
-    SAL_DEBUG("Reading data from file done")
+    SAL_DEBUG_READ_FILE("Reading data from file done")
 }
 
 bool WaveAudioFile::updateReadingPos(size_t pos)

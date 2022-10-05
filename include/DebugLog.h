@@ -26,6 +26,14 @@
 #define SAL_DEBUG_READ_STREAM(msg)
 #endif
 
+// Only available when the option LOG_READ_FILE is set
+#if defined(DEBUG_LOG) && defined(LOG_READ_FILE)
+#define SAL_DEBUG_READ_FILE(msg) \
+    SAL_DEBUG(msg)
+#else
+#define SAL_DEBUG_READ_FILE(msg)
+#endif
+
 #ifdef DEBUG_LOG
 namespace SAL
 {

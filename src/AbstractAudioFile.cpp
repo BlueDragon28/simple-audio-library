@@ -74,17 +74,17 @@ void AbstractAudioFile::readFromFile()
     
     if (m_tmpWritePos < m_tmpMinimumSize)
     {
-        SAL_DEBUG("Reading from file into temporary buffer")
+        SAL_DEBUG_READ_FILE("Reading from file into temporary buffer")
 
         readDataFromFile();
 
-        SAL_DEBUG("Reading from file into temporary buffer done")
+        SAL_DEBUG_READ_FILE("Reading from file into temporary buffer done")
     }
 }
 
 void AbstractAudioFile::resizeTmpBuffer(size_t size)
 {
-    SAL_DEBUG("Resizing the tmpBuffer from " + std::to_string(m_tmpSize) + "o to " + std::to_string(size) + "o")
+    SAL_DEBUG_READ_FILE("Resizing the tmpBuffer from " + std::to_string(m_tmpSize) + "o to " + std::to_string(size) + "o")
 
     // Create a new tmpBuffer with the new size.
     char* tmpBuffer = new char[size];
@@ -111,7 +111,7 @@ void AbstractAudioFile::resizeTmpBuffer(size_t size)
     if (m_tmpWritePos > size)
         m_tmpWritePos = size;
 
-    SAL_DEBUG("Resizing tmpBuffer done")
+    SAL_DEBUG_READ_FILE("Resizing tmpBuffer done")
 }
 
 // Template to convert data from an integer to a float number.
@@ -191,7 +191,7 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
     if (size == 0)
         return;
 
-    SAL_DEBUG("Inserting data into the temporary buffer")
+    SAL_DEBUG_READ_FILE("Inserting data into the temporary buffer")
 
     std::vector<float> data;
 
@@ -250,7 +250,7 @@ void AbstractAudioFile::insertDataInfoTmpBuffer(char* buffer, size_t size)
     m_tmpWritePos += sizeDataInBytes;
     m_tmpSizeDataWritten += sizeDataInBytes;
 
-    SAL_DEBUG("Inserting data into the temporary buffer done")
+    SAL_DEBUG_READ_FILE("Inserting data into the temporary buffer done")
 }
 
 void AbstractAudioFile::flush()
@@ -259,12 +259,12 @@ void AbstractAudioFile::flush()
     if (m_tmpTailPos == m_tmpSizeDataWritten || !m_tmpBuffer)
         return;
 
-    SAL_DEBUG("Flushing data from the temporary buffer to the ring buffer")
+    SAL_DEBUG_READ_FILE("Flushing data from the temporary buffer to the ring buffer")
     
     size_t nbWrited = m_ringBuffer.write(m_tmpBuffer+m_tmpTailPos, m_tmpSizeDataWritten-m_tmpTailPos);
     m_tmpTailPos += nbWrited;
 
-    SAL_DEBUG("Flushing data from the temporary buffer to the ring buffer done")
+    SAL_DEBUG_READ_FILE("Flushing data from the temporary buffer to the ring buffer done")
 }
 
 void AbstractAudioFile::updateStreamSizeInfo()
