@@ -182,7 +182,7 @@ void CallbackInterface::callIsReadyChangedCallback(bool isReady)
 
 void CallbackInterface::callback() 
 {
-    SAL_DEBUG("Processing callbacks")
+    SAL_DEBUG_LOOP_UPDATE("Processing callbacks")
 
     std::scoped_lock lock(m_callbackCallMutex);
     for (const CallbackData& data : m_callbackCall)
@@ -334,7 +334,7 @@ void CallbackInterface::callback()
     }
     m_callbackCall.clear();
 
-    SAL_DEBUG("Removing unneeded threads")
+    SAL_DEBUG_LOOP_UPDATE("Removing unneeded threads")
 
     // Remove unneeded threads.
     std::scoped_lock btLock(m_backgroundThreadMutex);
@@ -348,7 +348,7 @@ void CallbackInterface::callback()
         }
     }
 
-    SAL_DEBUG("Processing callbacks done")
+    SAL_DEBUG_LOOP_UPDATE("Processing callbacks done")
 }
 
 /*
