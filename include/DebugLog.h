@@ -34,6 +34,14 @@
 #define SAL_DEBUG_READ_FILE(msg)
 #endif
 
+// Only available when the option LOG_OPEN_FILE is set
+#if defined(DEBUG_LOG) && defined(LOG_OPEN_FILE)
+#define SAL_DEBUG_OPEN_FILE(msg) \
+    SAL_DEBUG(msg)
+#else
+#define SAL_DEBUG_OPEN_FILE(msg)
+#endif
+
 #ifdef DEBUG_LOG
 namespace SAL
 {

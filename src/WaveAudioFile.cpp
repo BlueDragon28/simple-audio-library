@@ -25,7 +25,7 @@ WaveAudioFile::~WaveAudioFile()
 
 void WaveAudioFile::open()
 {
-    SAL_DEBUG("Opening file " + filePath());
+    SAL_DEBUG_OPEN_FILE("Opening file " + filePath());
 
     if (filePath().empty())
         return;
@@ -38,7 +38,7 @@ void WaveAudioFile::open()
         m_audioFile.read(RIFF, 4);
         if (strcmp(RIFF, "RIFF") != 0 || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: RIFF identifier not available")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: RIFF identifier not available")
 
             return;
         }
@@ -47,7 +47,7 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&fileSize, 4);
         if (fileSize == 0 || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: invalid file size")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: invalid file size")
 
             return;
         }
@@ -57,7 +57,7 @@ void WaveAudioFile::open()
         m_audioFile.read(WAVE, 4);
         if (strcmp(WAVE, "WAVE") != 0 || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: WAVE indentifier not available")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: WAVE indentifier not available")
 
             return;
         }
@@ -67,7 +67,7 @@ void WaveAudioFile::open()
         m_audioFile.read(fmt_, 4);
         if (strcmp(fmt_, "fmt ") != 0 || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: \"fmt \" identifier not available")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: \"fmt \" identifier not available")
 
             return;
         }
@@ -78,7 +78,7 @@ void WaveAudioFile::open()
         if (fmt_size != 16 && fmt_size != 18 
             && fmt_size != 40 || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: invalid fmt_size section")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: invalid fmt_size section")
 
             return;
         }
@@ -88,7 +88,7 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&pcmFormat, 2);
         if ((pcmFormat != 1 && pcmFormat != 65534) || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: invalid pcm format")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: invalid pcm format")
 
             return;
         }
@@ -98,7 +98,7 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&channels, 2);
         if (channels < 1 && channels > 6 || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: invalid channels number")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: invalid channels number")
 
             return;
         }
@@ -108,7 +108,7 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&sampleRate, 4);
         if (sampleRate <= 0 || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: invalid sample rate")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: invalid sample rate")
 
             return;
         }
@@ -118,7 +118,7 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&dummyInteger, 4);
         if (m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file")
+            SAL_DEBUG_OPEN_FILE("Failed to open file")
 
             return;
         }
@@ -127,7 +127,7 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&dummyInteger, 2);
         if (m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file")
+            SAL_DEBUG_OPEN_FILE("Failed to open file")
 
             return;
         }
@@ -139,12 +139,12 @@ void WaveAudioFile::open()
             bitsPerSample != 24 && bitsPerSample != 32 ||
             m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: invalid bits per sample")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: invalid bits per sample")
 
             return;
         }
 
-        SAL_DEBUG(std::string("bits per sample: ") + std::to_string(bitsPerSample))
+        SAL_DEBUG_OPEN_FILE(std::string("bits per sample: ") + std::to_string(bitsPerSample))
         
         // Read extra bytes.
         if (fmt_size == 18 || fmt_size == 40)
@@ -153,7 +153,7 @@ void WaveAudioFile::open()
             m_audioFile.read(extraBytes.data(), fmt_size-16);
             if (m_audioFile.fail())
             {
-                SAL_DEBUG("Failed to open file")
+                SAL_DEBUG_OPEN_FILE("Failed to open file")
 
                 return;
             }
@@ -164,7 +164,7 @@ void WaveAudioFile::open()
         m_audioFile.read(nextIdentifier, 4);
         if (m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: failed to read next identifier, not valid WAVE file")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: failed to read next identifier, not valid WAVE file")
 
             return;
         }
@@ -179,7 +179,7 @@ void WaveAudioFile::open()
             m_audioFile.read((char*)&factSize, 4);
             if (factSize <= 0 || m_audioFile.fail())
             {
-                SAL_DEBUG("Failed to open file: invalid fact size")
+                SAL_DEBUG_OPEN_FILE("Failed to open file: invalid fact size")
 
                 return;
             }
@@ -190,7 +190,7 @@ void WaveAudioFile::open()
             m_audioFile.read(factData.data(), factSize);
             if (m_audioFile.fail())
             {
-                SAL_DEBUG("Failed to open file: cannot read fact data")
+                SAL_DEBUG_OPEN_FILE("Failed to open file: cannot read fact data")
 
                 return;
             }
@@ -198,13 +198,13 @@ void WaveAudioFile::open()
             // The "fact" section mean the wave file is a float stream.
             isFloatStream = true;
 
-            SAL_DEBUG("Floating point PCM data")
+            SAL_DEBUG_OPEN_FILE("Floating point PCM data")
             
             // Read the identifier of the next section.
             m_audioFile.read(nextIdentifier, 4);
             if (m_audioFile.fail())
             {
-                SAL_DEBUG("Failed to open file: failed to read next identifier, not valid WAVE file")
+                SAL_DEBUG_OPEN_FILE("Failed to open file: failed to read next identifier, not valid WAVE file")
 
                 return;
             }
@@ -218,7 +218,7 @@ void WaveAudioFile::open()
             m_audioFile.read((char*)&listSize, 4);
             if (listSize <= 0 || m_audioFile.fail())
             {
-                SAL_DEBUG("Failed to open file: invalid LIST size")
+                SAL_DEBUG_OPEN_FILE("Failed to open file: invalid LIST size")
 
                 return;
             }
@@ -229,7 +229,7 @@ void WaveAudioFile::open()
             m_audioFile.read(trackName.data(), listSize);
             if (m_audioFile.fail())
             {
-                SAL_DEBUG("Failed to open file: failed to read LIST data (track name)")
+                SAL_DEBUG_OPEN_FILE("Failed to open file: failed to read LIST data (track name)")
 
                 return;
             }
@@ -238,7 +238,7 @@ void WaveAudioFile::open()
             m_audioFile.read(nextIdentifier, 4);
             if (m_audioFile.fail())
             {
-                SAL_DEBUG("Failed to open file: failed to read next identifier, invalid WAVE file")
+                SAL_DEBUG_OPEN_FILE("Failed to open file: failed to read next identifier, invalid WAVE file")
 
                 return;
             }
@@ -249,7 +249,7 @@ void WaveAudioFile::open()
         // "data" identifier.
         if (strcmp(nextIdentifier, "data") != 0 || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: no data section, invalid WAVE file")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: no data section, invalid WAVE file")
 
             return;
         }
@@ -259,7 +259,7 @@ void WaveAudioFile::open()
         m_audioFile.read((char*)&audioDataSize, 4);
         if (audioDataSize == 0 || audioDataSize > fileSize || m_audioFile.fail())
         {
-            SAL_DEBUG("Failed to open file: invalid data size")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: invalid data size")
 
             return;
         }
@@ -277,7 +277,7 @@ void WaveAudioFile::open()
             pcmFormatType = SampleType::FLOAT;
         else
         {
-            SAL_DEBUG("Failed to open file: invalid pcm format type")
+            SAL_DEBUG_OPEN_FILE("Failed to open file: invalid pcm format type")
 
             return;
         }
@@ -297,17 +297,17 @@ void WaveAudioFile::open()
 #ifndef NDEBUG
     else
     {
-        SAL_DEBUG("Failed to open file: cannot open file")
+        SAL_DEBUG_OPEN_FILE("Failed to open file: cannot open file")
         return;
     }
 #endif
 
-    SAL_DEBUG("Opening file done")
+    SAL_DEBUG_OPEN_FILE("Opening file done")
 }
 
 void WaveAudioFile::close()
 {
-    SAL_DEBUG("Closing file")
+    SAL_DEBUG_OPEN_FILE("Closing file")
 
     if (m_audioFile.is_open())
         m_audioFile.close();

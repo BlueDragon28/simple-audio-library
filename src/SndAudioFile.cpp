@@ -25,13 +25,13 @@ SndAudioFile::~SndAudioFile()
 
 void SndAudioFile::open()
 {
-    SAL_DEBUG("Opening file " + filePath());
+    SAL_DEBUG_OPEN_FILE("Opening file " + filePath());
 
     // Opening the file with libsndfile library.
     m_file = std::unique_ptr<SndfileHandle>(new SndfileHandle(filePath()));
     if (!*m_file.get())
     {
-        SAL_DEBUG("Opening file failed: sndfile cannot read file")
+        SAL_DEBUG_OPEN_FILE("Opening file failed: sndfile cannot read file")
 
         return;
     }
@@ -42,7 +42,7 @@ void SndAudioFile::open()
 
     if (numChannels() <= 0 || sampleRate() <= 0)
     {
-        SAL_DEBUG("Opening file failed: number of channels and/or sample rate invalid")
+        SAL_DEBUG_OPEN_FILE("Opening file failed: number of channels and/or sample rate invalid")
 
         return;
     }
@@ -96,7 +96,7 @@ void SndAudioFile::open()
     // Not a compatible format, leaving.
     default:
     {
-        SAL_DEBUG("Opening file failed: incompatible file format")
+        SAL_DEBUG_OPEN_FILE("Opening file failed: incompatible file format")
 
         return;
     } break;
@@ -106,7 +106,7 @@ void SndAudioFile::open()
     setSizeStream(m_file->frames() * numChannels() * bytesPerSample());
     if (streamSizeInBytes() == 0)
     {
-        SAL_DEBUG("Opening file failed: invalid stream size")
+        SAL_DEBUG_OPEN_FILE("Opening file failed: invalid stream size")
 
         return;
     }
@@ -115,7 +115,7 @@ void SndAudioFile::open()
     // The file opened successfully.
     fileOpened();
 
-    SAL_DEBUG("Opening file done")
+    SAL_DEBUG_OPEN_FILE("Opening file done")
 }
 
 void SndAudioFile::readDataFromFile()

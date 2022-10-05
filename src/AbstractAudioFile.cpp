@@ -45,12 +45,12 @@ AbstractAudioFile::AbstractAudioFile(const std::string& filePath) :
     // Streaming pos from audio file.
     m_readPos(0)
 {
-    SAL_DEBUG("Preparing to open the file " + filePath)
+    SAL_DEBUG_OPEN_FILE("Preparing to open the file " + filePath)
 }
 
 AbstractAudioFile::~AbstractAudioFile()
 {
-    SAL_DEBUG("Destroying the file " + m_filePath);
+    SAL_DEBUG_OPEN_FILE("Destroying the file " + m_filePath);
 
     delete[] m_tmpBuffer;
 }

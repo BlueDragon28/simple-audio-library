@@ -21,12 +21,12 @@ FlacAudioFile::~FlacAudioFile()
 
 void FlacAudioFile::open()
 {
-    SAL_DEBUG("Opening file " + filePath());
+    SAL_DEBUG_OPEN_FILE("Opening file " + filePath());
 
     if (filePath().empty())
     {
         m_isError = true;
-        SAL_DEBUG("Opening file failed: file path empty")
+        SAL_DEBUG_OPEN_FILE("Opening file failed: file path empty")
         return;
     }
 
@@ -36,7 +36,7 @@ void FlacAudioFile::open()
     if (!std::filesystem::exists(filePath()))
     {
         m_isError = true;
-        SAL_DEBUG("Opening file failed: file do no exists")
+        SAL_DEBUG_OPEN_FILE("Opening file failed: file do no exists")
         return;
     }
 #endif
@@ -48,7 +48,7 @@ void FlacAudioFile::open()
     FLAC__StreamDecoderInitStatus status = init(filePath());
     if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
     {
-        SAL_DEBUG("Failed to open file")
+        SAL_DEBUG_OPEN_FILE("Failed to open file")
         
         m_isError = true;
     }
@@ -56,7 +56,7 @@ void FlacAudioFile::open()
     // check if an error occured while initializing the flac file.
     if (m_isError)
     {
-        SAL_DEBUG("Opening file failed while initializing")
+        SAL_DEBUG_OPEN_FILE("Opening file failed while initializing")
         return;
     }
     
@@ -65,7 +65,7 @@ void FlacAudioFile::open()
     if (!result || m_isError)
     {
         m_isError = true;
-        SAL_DEBUG("Opening file failed while processing metadata")
+        SAL_DEBUG_OPEN_FILE("Opening file failed while processing metadata")
         return;
     }
 
@@ -77,13 +77,13 @@ void FlacAudioFile::open()
         streamSizeInBytes() == 0)
     {
         m_isError = true;
-        SAL_DEBUG("Opening file failed: file data info is not valid")
+        SAL_DEBUG_OPEN_FILE("Opening file failed: file data info is not valid")
         return;
     }
 
     fileOpened();
 
-    SAL_DEBUG("Opening file done")
+    SAL_DEBUG_OPEN_FILE("Opening file done")
 }
 
 void FlacAudioFile::metadata_callback(const FLAC__StreamMetadata* metadata)
