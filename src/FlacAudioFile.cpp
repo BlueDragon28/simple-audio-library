@@ -4,6 +4,10 @@
 #include <cstring>
 #include <vector>
 
+#ifdef WIN32
+#include "UTFConvertion.h"
+#endif
+
 // Define CLASS_NAME to have the name of the class.
 const std::string CLASS_NAME = "FlacAudioFile";
 
@@ -32,14 +36,16 @@ void FlacAudioFile::open()
 
 	// std::filesystem::exists is broken on windows.
     // Check if the file is existing.
-#ifndef WIN32
+#ifdef WIN32
+    if (!std::filesystem::exists(UTFConvertion::toWString(filePath())))
+#else
     if (!std::filesystem::exists(filePath()))
+#endif
     {
         m_isError = true;
         SAL_DEBUG_OPEN_FILE("Opening file failed: file do no exists")
         return;
     }
-#endif
 
     // Enable md5 checking.
     set_md5_checking(true);

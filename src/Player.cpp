@@ -7,6 +7,10 @@
 #include <functional>
 #include <limits>
 
+#ifdef WIN32
+#include "UTFConvertion.h"
+#endif
+
 #ifdef USE_WAVE
 #include "WaveAudioFile.h"
 #endif
@@ -68,15 +72,17 @@ void Player::open(const std::string& filePath, bool clearQueue)
         stop();
     }
 
-#ifndef WIN32
+#ifdef WIN32
+    bool isExisting = std::filesystem::exists(UTFConvertion::toWString(filePath));
+#else
     bool isExisting = std::filesystem::exists(filePath);
+#endif
     if (!isExisting)
     {
         SAL_DEBUG_EVENTS("Opening file failed: the file do not exists")
 
         return;
     }
-#endif
     
     {
         std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
