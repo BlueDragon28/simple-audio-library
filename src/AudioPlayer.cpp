@@ -26,7 +26,7 @@ AudioPlayer::AudioPlayer() :
     SAL_DEBUG_SAL_INIT("Initializing SAL")
 
     // Initializing DebugLog
-#ifndef NDEBUG
+#ifdef DEBUG_LOG
     DebugLog::instance();
 #endif
 
