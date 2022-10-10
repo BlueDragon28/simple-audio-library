@@ -4,6 +4,10 @@
 #include <cstring>
 #include <vector>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 // Define CLASS_NAME to have the name of the class.
 const std::string CLASS_NAME = "FlacAudioFile";
 
@@ -31,15 +35,19 @@ void FlacAudioFile::open()
     }
 
 	// std::filesystem::exists is broken on windows.
-#ifndef WIN32
     // Check if the file is existing.
+#ifdef WIN32
+    DWORD fileAttributes = GetFileAttributes(filePath().c_str());
+    if (fileAttributes != INVALID_FILE_ATTRIBUTES &&
+        !(FILE_ATTRIBUTE_DIRECTORY & fileAttributes))
+#else
     if (!std::filesystem::exists(filePath()))
+#endif
     {
         m_isError = true;
         SAL_DEBUG_OPEN_FILE("Opening file failed: file do no exists")
         return;
     }
-#endif
 
     // Enable md5 checking.
     set_md5_checking(true);
