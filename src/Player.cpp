@@ -68,6 +68,7 @@ void Player::open(const std::string& filePath, bool clearQueue)
         stop();
     }
 
+#ifndef WIN32
     bool isExisting = std::filesystem::exists(filePath);
     if (!isExisting)
     {
@@ -75,6 +76,7 @@ void Player::open(const std::string& filePath, bool clearQueue)
 
         return;
     }
+#endif
     
     {
         std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
