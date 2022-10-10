@@ -3,6 +3,10 @@
 #include <cstring>
 #include <vector>
 
+#ifdef WIN32
+#include "UTFConvertion.h"
+#endif
+
 // Define CLASS_NAME to have the name of the class.
 const std::string CLASS_NAME = "SndAudioFile";
 
@@ -28,7 +32,7 @@ void SndAudioFile::open()
     SAL_DEBUG_OPEN_FILE("Opening file " + filePath());
 
     // Opening the file with libsndfile library.
-    m_file = std::unique_ptr<SndfileHandle>(new SndfileHandle(filePath()));
+    m_file = std::unique_ptr<SndfileHandle>(new SndfileHandle(UTFConvertion::toWString(filePath()).c_str()));
     if (!*m_file.get())
     {
         SAL_DEBUG_OPEN_FILE("Opening file failed: sndfile cannot read file")

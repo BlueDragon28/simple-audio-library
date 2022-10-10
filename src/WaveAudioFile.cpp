@@ -3,6 +3,10 @@
 #include <cstring>
 #include <vector>
 
+#ifdef WIN32
+#include "UTFConvertion.h"
+#endif
+
 // Define CLASS_NAME to have the name of the class.
 const std::string CLASS_NAME = "WaveAudioFile";
 
@@ -30,7 +34,11 @@ void WaveAudioFile::open()
     if (filePath().empty())
         return;
     
+#ifdef WIN32
+    m_audioFile.open(UTFConvertion::toWString(filePath()), std::fstream::binary);
+#else
     m_audioFile.open(filePath(), std::fstream::binary);
+#endif
     if (m_audioFile.is_open())
     {
         // RIFF identifier.
