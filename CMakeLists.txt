@@ -31,7 +31,7 @@ if (WIN32)
     # Find PortAudio
     if (
         (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/include/portaudio.h") AND
-        (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib"))
+        (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio_x64.lib"))
         # Include directory of PortAudio
         include_directories(${CMAKE_SOURCE_DIR}/dependencies/portaudio/include)
     else()
