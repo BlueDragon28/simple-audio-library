@@ -32,7 +32,11 @@ void SndAudioFile::open()
     SAL_DEBUG_OPEN_FILE("Opening file " + filePath());
 
     // Opening the file with libsndfile library.
+#ifdef WIN32
     m_file = std::unique_ptr<SndfileHandle>(new SndfileHandle(UTFConvertion::toWString(filePath()).c_str()));
+#else
+    m_file = std::unique_ptr<SndfileHandle>(new SndfileHandle(filePath().c_str()));
+#endif
     if (!*m_file.get())
     {
         SAL_DEBUG_OPEN_FILE("Opening file failed: sndfile cannot read file")
