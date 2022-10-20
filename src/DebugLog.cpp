@@ -144,6 +144,8 @@ void DebugLog::update()
 
     while (m_isRunning)
     {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
         // Flush the logs once every seconds.
         if (counter % 3000 == 0)
         {
@@ -152,7 +154,6 @@ void DebugLog::update()
             continue;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         counter += 50;
     }
 }
