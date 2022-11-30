@@ -82,6 +82,20 @@ void AudioPlayer::open(const std::string& filePath, bool clearQueue)
     SAL_DEBUG_EVENTS("Adding the file into the event list done")
 }
 
+void AudioPlayer::open(const std::vector<std::string>& filesPath, bool clearQueue)
+{
+    // Using a loop to add each file into the event queue.
+    for (const std::string& filePath : filesPath)
+    {
+        open(filePath, clearQueue);
+
+        if (clearQueue)
+        {
+            clearQueue = false;
+        }
+    }
+}
+
 void AudioPlayer::loop()
 {
     if (!m_isInit)

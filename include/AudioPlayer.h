@@ -94,6 +94,13 @@ public:
     void open(const std::string& filePath, bool clearQueue = false);
 
     /*
+    Add multiple files into the playing list.
+    filesPath: a list of file path to open. The path must be a valid UTF-8 string.
+    clearQueue: stop the player and clear the playing list.
+    */
+    void open(const std::vector<std::string>& filesPath, bool clearQueue = false);
+
+    /*
     Checking if a file is readable by the simple-audio-library.
     The path must be a valid UTF-8 string.
     */
