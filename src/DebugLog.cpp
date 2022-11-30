@@ -215,7 +215,7 @@ std::string DebugLog::getFolderPart(const std::string& filePath) const
         // If it fail, check using the windows backdash instead.
         if (dashPos == std::string::npos)
         {
-            dashPos == filePath.find_last_of('\\');
+            dashPos = filePath.find_last_of('\\');
         }
 #endif
 
