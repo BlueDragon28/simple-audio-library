@@ -157,6 +157,7 @@ elseif(WIN32)
         ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib
         "${FLAC_LIBRARY}"
         ${LIBSNDFILE_LIBRARY})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC SAL_BUILDING)
 endif()
 
 # If CMAKE_INSTALL_LIBDIR is not define, set it to libdir
