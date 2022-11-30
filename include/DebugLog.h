@@ -95,6 +95,7 @@ public:
 
     /*
     Set the file path to output the debug informations into.
+    The path must be a valid UTF-8 string.
     */
     bool setFilePath(const std::string& filePath);
 

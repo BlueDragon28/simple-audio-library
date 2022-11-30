@@ -88,13 +88,14 @@ public:
 
     /*
     Add a file into the playing list.
-    filePath: the file path to open.
+    filePath: the file path to open. The path must be a valid UTF-8 string.
     clearQueue: stop the player and clear the playing list.
     */
     void open(const std::string& filePath, bool clearQueue = false);
 
     /*
     Checking if a file is readable by the simple-audio-library.
+    The path must be a valid UTF-8 string.
     */
     inline int isReadable(const std::string& filePath) const;
 
