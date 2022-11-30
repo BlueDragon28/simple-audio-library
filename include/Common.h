@@ -4,6 +4,19 @@
 #include <variant>
 #include <string>
 
+/*
+Export defenition into the dll.
+*/
+#ifdef WIN32
+#ifdef SAL_BUILDING
+#define SAL_EXPORT_DLL __declspec(dllexport)
+#else
+#define SAL_EXPORT_DLL __declspec(dllimport)
+#endif
+#else
+#define SAL_EXPORT_DLL
+#endif
+
 namespace SAL
 {
 enum class SampleType
