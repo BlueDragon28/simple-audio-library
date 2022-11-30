@@ -1,9 +1,20 @@
 #include "AudioPlayer.h"
 #include "Common.h"
+#include "config.h"
 #include <chrono>
 
 #define SLEEP_PLAYING 10
 #define SLEEP_PAUSED 50
+
+std::string SAL::AudioPlayer::description()
+{
+    return SAL_DESCRIPTION;
+}
+
+std::string SAL::AudioPlayer::version()
+{
+    return SAL_VERSION;
+}
 
 // Define CLASS_NAME to have the name of the class.
 const std::string CLASS_NAME = "AudioPlayer";

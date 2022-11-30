@@ -29,6 +29,16 @@ public:
     ~AudioPlayer();
 
     /*
+    Description of the library.
+    */
+    static std::string description();
+
+    /*
+    Version of the library.
+    */
+    static std::string version();
+
+    /*
     Create or return the existing instance
     of the AudioPlayer class. The instance
     is deleted by itself.
