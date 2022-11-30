@@ -23,7 +23,7 @@ them when necessary.
 
 The stream is always readed has 32 bits floating point numbers.
 */
-class Player
+class SAL_EXPORT_DLL Player
 {
     Player(const Player& other) = delete;
 public:

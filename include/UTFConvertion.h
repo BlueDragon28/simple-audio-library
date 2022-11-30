@@ -2,6 +2,7 @@
 #define SIMPLE_AUDIO_LIBRARY_UTFCONVERTION_H_
 
 #ifdef WIN32
+#include "Common.h"
 #include <string>
 
 namespace SAL
@@ -9,7 +10,7 @@ namespace SAL
 /*
 Helper function to convert UTF8 string to UTF16 wstring and vice versa on Windows.
 */
-class UTFConvertion
+class SAL_EXPORT_DLL UTFConvertion
 {
 public:
 	/*

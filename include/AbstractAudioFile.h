@@ -26,7 +26,7 @@ Howether, the size and position of the stream is
 based on the actual raw PCM size and not in the
 converted stream.
 */
-class AbstractAudioFile
+class SAL_EXPORT_DLL AbstractAudioFile
 {
     AbstractAudioFile(const AbstractAudioFile& other) = delete;
 public:

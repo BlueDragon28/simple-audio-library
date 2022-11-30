@@ -1,6 +1,7 @@
 #ifndef SIMPLE_AUDIO_LIBRARY_RINGBUFFER_H_
 #define SIMPLE_AUDIO_LIBRARY_RINGBUFFER_H_
 
+#include "Common.h"
 #include <cstddef>
 #include <atomic>
 #include <mutex>
@@ -10,7 +11,7 @@ namespace SAL
 /*
 Circular buffer used to stream audio.
 */
-class RingBuffer
+class SAL_EXPORT_DLL RingBuffer
 {
 public:
     RingBuffer();

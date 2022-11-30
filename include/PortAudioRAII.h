@@ -1,9 +1,11 @@
 #ifndef SIMPLE_AUDIO_LIBRARY_PORTAUDIORAII_H_
 #define SIMPLE_AUDIO_LIBRARY_PORTAUDIORAII_H_
 
+#include "Common.h"
+
 namespace SAL
 {
-class PortAudioRAII
+class SAL_EXPORT_DLL PortAudioRAII
 {
     PortAudioRAII(const PortAudioRAII&) = delete;
 public:
