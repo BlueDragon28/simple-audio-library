@@ -5,6 +5,9 @@ project(simple-audio-library
     LANGUAGES CXX)
 
 # Options
+#build shared libs
+option(BUILD_SHARED "Build the shared library instead of the static one." OFF)
+
 # Use the libsndfile to read audio files.
 option(USE_WAVE "Use the built-in WAVE file reader. It will be used to open WAVE file instead of libsndfile (if on)." ON)
 option(USE_FLAC "Use the libFLAC++ backend to read and decode FLAC file. It will be used to open FLAC file instead of libsndfile (if on)." ON)
@@ -145,8 +148,14 @@ if (USE_LIBSNDFILE)
         "src/SndAudioFile.cpp")
 endif()
 
-# Default static library
-add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
+# Check if compile library has static or shared
+if (BUILD_SHARED)
+    set(COMPILE_TYPE SHARED)
+else()
+    set(COMPILE_TYPE STATIC)
+endif()
+# Build library.
+add_library(${PROJECT_NAME} ${COMPILE_TYPE} ${PROJECT_SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 # On linux link the libraries with the variable made by pkgconfig.
