@@ -163,7 +163,7 @@ if (UNIX)
     target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES} ${LIBSNDFILE_LIBRARIES})
 elseif(WIN32)
     target_link_libraries(${PROJECT_NAME} 
-        ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib
+        ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio_x64.lib
         "${FLAC_LIBRARY}"
         ${LIBSNDFILE_LIBRARY})
     if (BUILD_SHARED)
