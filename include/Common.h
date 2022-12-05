@@ -1,13 +1,14 @@
 #ifndef SIMPLE_AUDIO_LIBRARY_COMMON_H_
 #define SIMPLE_AUDIO_LIBRARY_COMMON_H_
 
+#include "config.h"
 #include <variant>
 #include <string>
 
 /*
 Export defenition into the dll.
 */
-#ifdef WIN32
+#if defined(WIN32) && defined(BUILD_SHARED)
 #ifdef SAL_BUILDING
 #define SAL_EXPORT_DLL __declspec(dllexport)
 #else

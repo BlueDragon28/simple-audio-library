@@ -17,6 +17,8 @@ This file indicate the components that is compiled in the library.
 #cmakedefine LOG_SAL_INIT
 #cmakedefine LOG_EVENTS
 
+#cmakedefine BUILD_SHARED
+
 #define SAL_DESCRIPTION "@PROJECT_DESCRIPTION@"
 #define SAL_VERSION "@PROJECT_VERSION@"
 
