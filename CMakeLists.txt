@@ -190,7 +190,8 @@ if (WIN32)
     install(
         TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION bin)
+        LIBRARY DESTINATION bin
+        RUNTIME DESTINATION bin)
 else ()
     install(
         TARGETS ${PROJECT_NAME}
