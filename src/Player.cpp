@@ -656,7 +656,6 @@ void Player::update()
 {
     SAL_DEBUG_LOOP_UPDATE("update loop: reading data from file and clearing unneeded streams")
 
-    static int counter = 0;
     closeStreamWhenNeeded();
     pauseIfBuffering();
     {
