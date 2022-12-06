@@ -197,6 +197,7 @@ void FlacAudioFile::readDataFromFile()
     SAL_DEBUG_READ_FILE("Reading a frame")
 
     // Reading a block from the flac file.
+    long long counter = 0;
     while (true)
     {
         if (!process_single())
@@ -209,7 +210,7 @@ void FlacAudioFile::readDataFromFile()
         if (get_state() == FLAC__STREAM_DECODER_END_OF_STREAM)
             endFile(true);
 
-        if ((!isEnded() && getTmpBufferSizeWriten() > (getTmpBufferSize() / 2)) || isEnded())
+        if ((!isEndFile() && getTmpBufferSizeWriten() > (getTmpBufferSize() / 2)) || isEndFile())
         {
             break;
         }
