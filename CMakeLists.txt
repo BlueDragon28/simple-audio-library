@@ -183,8 +183,8 @@ endif()
 # Generate the pkgconfig file (only on linux)
 if (UNIX)
     configure_file(
-        "${CMAKE_SOURCE_DIR}/simple-audio-library_static.pc.in"
-        "${CMAKE_BINARY_DIR}/simple-audio-library_static.pc"
+        "${CMAKE_SOURCE_DIR}/simple-audio-library.pc.in"
+        "${CMAKE_BINARY_DIR}/simple-audio-library.pc"
         @ONLY)
 endif()
 
@@ -211,6 +211,6 @@ install (
 # Copy the pkgconfig file (only on linux)
 if (UNIX)
     install (
-        FILES ${CMAKE_BINARY_DIR}/simple-audio-library_static.pc
+        FILES ${CMAKE_BINARY_DIR}/simple-audio-library.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
