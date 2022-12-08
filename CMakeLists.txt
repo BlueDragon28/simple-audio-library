@@ -76,13 +76,17 @@ if (UNIX)
     # FLAC library
     if (USE_FLAC)
         pkg_check_modules(FLAC++ REQUIRED flac++)
-        set(LIBFLAC_PKG_LINK "-lFLAC++")
+        if (NOT BUILD_SHARED)
+            set(LIBFLAC_PKG_LINK "-lFLAC++")
+        endif()
     endif()
 
     # libsndfile library
     if (USE_LIBSNDFILE)
         pkg_check_modules(LIBSNDFILE REQUIRED sndfile)
-        set(LIBSNDFILE_PKG_LINK "-lsndfile")
+        if (NOT BUILD_SHARED)
+            set(LIBSNDFILE_PKG_LINK "-lsndfile")
+        endif()
     endif()
 endif()
 
