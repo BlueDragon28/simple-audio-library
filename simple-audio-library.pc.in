@@ -3,7 +3,7 @@ exec_prefix=${prefix}
 libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
 includedir=${prefix}/include/
 
-Name: simple-audio-library
+Name: @PROJECT_NAME@
 Description: @PROJECT_DESCRIPTION@
 Version: @CMAKE_PROJECT_VERSION@
 Cflags: -I${includedir}

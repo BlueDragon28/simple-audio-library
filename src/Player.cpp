@@ -656,7 +656,6 @@ void Player::update()
 {
     SAL_DEBUG_LOOP_UPDATE("update loop: reading data from file and clearing unneeded streams")
 
-    static int counter = 0;
     closeStreamWhenNeeded();
     pauseIfBuffering();
     {
@@ -739,6 +738,9 @@ void Player::continuePlayingIfEnoughBuffering()
                             
                             SAL_DEBUG_STREAM_STATUS(std::string("Failed to remuse stream: ") + Pa_GetErrorText(err))
                         }
+
+                        break; // Leaving the loop, no need try to restart another time PortAudio on the next file.
+
                         streamEnoughBufferingCallback();
                     }
                 }

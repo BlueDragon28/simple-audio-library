@@ -9,7 +9,7 @@ namespace SAL
 /*
 Interface to stream a FLAC audio file.
 */
-class FlacAudioFile : public AbstractAudioFile, protected FLAC::Decoder::File
+class SAL_EXPORT_DLL FlacAudioFile : public AbstractAudioFile, protected FLAC::Decoder::File
 {
     FlacAudioFile(const FlacAudioFile&) = delete;
 public:

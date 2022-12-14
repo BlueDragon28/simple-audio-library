@@ -1,6 +1,7 @@
 #ifndef SIMPLE_AUDIO_LIBRARY_SMDEBUGLOG_H
 #define SIMPLE_AUDIO_LIBRARY_SMDEBUGLOG_H
 
+#include "Common.h"
 #include "config.h"
 #include <string>
 #include <memory>
@@ -80,7 +81,7 @@ namespace SAL
 /*
 Singleton class to handle debug output into a file.
 */
-class DebugLog
+class SAL_EXPORT_DLL DebugLog
 {
     DebugLog();
     DebugLog(const DebugLog& other) = delete;

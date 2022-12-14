@@ -1,6 +1,7 @@
 #ifndef SIMPLEAUDIOLIBRARY_SNDAUDIOFILE_H_
 #define SIMPLEAUDIOLIBRARY_SNDAUDIOFILE_H_
 
+#include "Common.h"
 #include "AbstractAudioFile.h"
 #include <sndfile.hh>
 #include <memory>
@@ -10,7 +11,7 @@ namespace SAL
 /*
 Open files with the libsndfile audio library.
 */
-class SndAudioFile : public AbstractAudioFile
+class SAL_EXPORT_DLL SndAudioFile : public AbstractAudioFile
 {
 public:
     SndAudioFile(const std::string& filePath);

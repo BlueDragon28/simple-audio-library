@@ -9,7 +9,7 @@ namespace SAL
 /*
 Interface to stream a Wave audio file.
 */
-class WaveAudioFile : public AbstractAudioFile
+class SAL_EXPORT_DLL WaveAudioFile : public AbstractAudioFile
 {
     WaveAudioFile(const WaveAudioFile& other) = delete;
 public:

@@ -5,6 +5,9 @@ project(simple-audio-library
     LANGUAGES CXX)
 
 # Options
+#build shared libs
+option(BUILD_SHARED "Build the shared library instead of the static one." OFF)
+
 # Use the libsndfile to read audio files.
 option(USE_WAVE "Use the built-in WAVE file reader. It will be used to open WAVE file instead of libsndfile (if on)." ON)
 option(USE_FLAC "Use the libFLAC++ backend to read and decode FLAC file. It will be used to open FLAC file instead of libsndfile (if on)." ON)
@@ -73,13 +76,17 @@ if (UNIX)
     # FLAC library
     if (USE_FLAC)
         pkg_check_modules(FLAC++ REQUIRED flac++)
-        set(LIBFLAC_PKG_LINK "-lFLAC++")
+        if (NOT BUILD_SHARED)
+            set(LIBFLAC_PKG_LINK "-lFLAC++")
+        endif()
     endif()
 
     # libsndfile library
     if (USE_LIBSNDFILE)
         pkg_check_modules(LIBSNDFILE REQUIRED sndfile)
-        set(LIBSNDFILE_PKG_LINK "-lsndfile")
+        if (NOT BUILD_SHARED)
+            set(LIBSNDFILE_PKG_LINK "-lsndfile")
+        endif()
     endif()
 endif()
 
@@ -145,8 +152,14 @@ if (USE_LIBSNDFILE)
         "src/SndAudioFile.cpp")
 endif()
 
-# Default static library
-add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
+# Check if compile library has static or shared
+if (BUILD_SHARED)
+    set(COMPILE_TYPE SHARED)
+else()
+    set(COMPILE_TYPE STATIC)
+endif()
+# Build library.
+add_library(${PROJECT_NAME} ${COMPILE_TYPE} ${PROJECT_SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 # On linux link the libraries with the variable made by pkgconfig.
@@ -154,9 +167,12 @@ if (UNIX)
     target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES} ${LIBSNDFILE_LIBRARIES})
 elseif(WIN32)
     target_link_libraries(${PROJECT_NAME} 
-        ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib
+        ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio_x64.lib
         "${FLAC_LIBRARY}"
         ${LIBSNDFILE_LIBRARY})
+    if (BUILD_SHARED)
+        target_compile_definitions(${PROJECT_NAME} PUBLIC SAL_BUILDING)
+    endif()
 endif()
 
 # If CMAKE_INSTALL_LIBDIR is not define, set it to libdir
@@ -167,8 +183,8 @@ endif()
 # Generate the pkgconfig file (only on linux)
 if (UNIX)
     configure_file(
-        "${CMAKE_SOURCE_DIR}/simple-audio-library_static.pc.in"
-        "${CMAKE_BINARY_DIR}/simple-audio-library_static.pc"
+        "${CMAKE_SOURCE_DIR}/simple-audio-library.pc.in"
+        "${CMAKE_BINARY_DIR}/simple-audio-library.pc"
         @ONLY)
 endif()
 
@@ -178,7 +194,8 @@ if (WIN32)
     install(
         TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION bin)
+        LIBRARY DESTINATION bin
+        RUNTIME DESTINATION bin)
 else ()
     install(
         TARGETS ${PROJECT_NAME}
@@ -194,6 +211,6 @@ install (
 # Copy the pkgconfig file (only on linux)
 if (UNIX)
     install (
-        FILES ${CMAKE_BINARY_DIR}/simple-audio-library_static.pc
+        FILES ${CMAKE_BINARY_DIR}/simple-audio-library.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()

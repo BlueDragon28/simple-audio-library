@@ -16,7 +16,7 @@ namespace SAL
 This class store the callbacks to notify the user
 of any change in the stream.
 */
-class CallbackInterface
+class SAL_EXPORT_DLL CallbackInterface
 {
     enum class CallbackType
     {

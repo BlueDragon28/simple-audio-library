@@ -21,7 +21,7 @@ Initializing this class will start a main loop
 inside another thread which you can communicate with
 the methods inside this class.
 */
-class AudioPlayer
+class SAL_EXPORT_DLL AudioPlayer
 {
     AudioPlayer(const AudioPlayer&) = delete;
     AudioPlayer();

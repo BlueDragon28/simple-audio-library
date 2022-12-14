@@ -26,7 +26,7 @@ Howether, the size and position of the stream is
 based on the actual raw PCM size and not in the
 converted stream.
 */
-class AbstractAudioFile
+class SAL_EXPORT_DLL AbstractAudioFile
 {
     AbstractAudioFile(const AbstractAudioFile& other) = delete;
 public:
@@ -190,6 +190,16 @@ protected:
     The data is converted to 32 bits floating point number.
     */
     void insertDataInfoTmpBuffer(char* buffer, size_t size);
+
+    /*
+    Getting the size of data writen into the temporary buffer.
+    */
+    inline size_t getTmpBufferSizeWriten() const;
+
+    /*
+    Getting the size of the temporary buffer.
+    */
+    inline size_t getTmpBufferSize() const;
 
     /*
     Update sample rate.
@@ -592,6 +602,22 @@ Return the stream bytes per frame. It is equal to sizeof(float) * numChannels.
 inline int AbstractAudioFile::streamBytesPerFrame() const noexcept
 {
     return sizeof(float) * m_numChannels;
+}
+
+/*
+Getting the size of data writen into the temporary buffer.
+*/
+inline size_t AbstractAudioFile::getTmpBufferSizeWriten() const
+{
+    return m_tmpSizeDataWritten;
+}
+
+/*
+Getting the size of the temporary buffer.
+*/
+inline size_t AbstractAudioFile::getTmpBufferSize() const
+{
+    return m_tmpSize;
 }
 
 /*
