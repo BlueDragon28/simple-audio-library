@@ -13,7 +13,7 @@ The library has a main **loop** running in a **separate thread**, the call like 
 SAL use the **PortAudio** library to play the audio stream.
 All the audio files read are converted to **32 bits float stream**.
 The library has a built-in **WAVE** file support.
-It uses the **FLAC++** library to stream **FLAC** files and the **libsndfile** library (which support a lot of audio files format). 
+It uses the **FLAC++** library to stream **FLAC** files and the **libsndfile** library (which support a lot of audio files format) for any overs files formats. 
 
 ## Compilation
 
@@ -72,7 +72,7 @@ The **CallbackInterface** is an interface between your callback functions and th
   bool isReady(bool isWaiting = false);
   ```
   - Are audio files ready to play or are playing.
-    - **isWaiting**: If true, the method wait until the next iteration of the main loop.
+    - **isWaiting**: If true, the method hang until the next iteration of the main loop.
 
 - ``` C++
   inline void play() noexcept;
@@ -93,7 +93,7 @@ The **CallbackInterface** is an interface between your callback functions and th
   bool isPlaying(bool isWaiting = false);
   ```
   - Return true if the player is playing.
-    - **isWaiting**: If true, the method wait until the next iteration of the main loop.
+    - **isWaiting**: If true, the method hang until the next iteration of the main loop.
 
 - ``` C++
   inline void seek(size_t pos, bool inSeconds = true) noexcept;
@@ -111,13 +111,13 @@ The **CallbackInterface** is an interface between your callback functions and th
   inline size_t streamSize(TimeType timeType = TimeType::SECONDS) const noexcept;
   ```
   - Return the stream size (size of the PCM data in the currently played audio file).
-    - **timeType**: Type in which the size should be return. Either `TimeType::SECONDS` or `TimeType::FRAMES`.
+    - **timeType**: In which type the size should be return. Either `TimeType::SECONDS` or `TimeType::FRAMES`.
 
 - ``` C++
   inline size_t streamPos(TimeType timeType = TimeType::SECONDS) const noexcept;
   ```
   - Return the stream position of the currently played audio file.
-    - **timeType**: Type in which the size should be return. Either `TimeType::SECONDS` or `TimeType::FRAMES`.
+    - **timeType**: In which type the size should be return. Either `TimeType::SECONDS` or `TimeType::FRAMES`.
 
 - ``` C++
   inline CallbackInterface& callback() noexcept;
