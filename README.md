@@ -65,8 +65,15 @@ The **CallbackInterface** is an interface between your callback functions and th
   void open(const std::string& filePath, bool clearQueue = false);
   ```
   - Add a file into the list queue, waiting to be played.
-    - **filePath**: the path to the file to open.
+    - **filePath**: the path to the file to open. It must be a valid UTF-8 string.
     - **clearQueue**: Stop streaming and clear the current playing list. If the player was playing, it will start automatically playing the new file.
+
+- ``` C++
+  void open(const std::vector<std::string>& filesPath, bool clearQueue = false);
+  ```
+  - Add a file into the list queue, waiting to be played.
+    - **filePath**: A list of path of files to open. Each path must be a valid UTF-8 string.
+    - **clearQueue**: Stop streaming and clear the current playing list. If the player was playing, it will start automatically playing the new files.
 
 - ``` C++
   bool isReady(bool isWaiting = false);
