@@ -1,7 +1,10 @@
 #include "AudioPlayer.h"
 #include "Common.h"
 #include "config.h"
+#include <bits/chrono.h>
 #include <chrono>
+#include <cstdint>
+#include <ratio>
 
 #define SLEEP_PLAYING 10
 #define SLEEP_PAUSED 50
@@ -118,6 +121,9 @@ void AudioPlayer::loop()
     {
         SAL_DEBUG_LOOP_UPDATE("Main loop iteration")
 
+        // Retrieve the time at the beguinning of the loop iteration.
+        const auto timeBegin = std::chrono::system_clock::now();
+
         // Call the callbacks.
         m_callbackInterface.callback();
 
@@ -128,8 +134,18 @@ void AudioPlayer::loop()
         // playing queue.
         m_player->update();
 
-        // Wait time before next iteration.
-        std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
+        // Getting the time the loop iteration take to process.
+        const auto elapsedTime = 
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now() - timeBegin);
+
+        // If the elapsed time is less than the time required between each iteration,
+        // wait required time minus the elapsed time.
+        if (elapsedTime.count() < m_sleepTime) {
+            // Wait time before next iteration.
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(m_sleepTime - elapsedTime.count()));
+        }
     }
 }
 
