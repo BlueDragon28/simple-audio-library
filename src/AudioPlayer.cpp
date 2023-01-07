@@ -230,6 +230,14 @@ void AudioPlayer::processEvents()
             m_player->next();
         } break;
 
+        // Remove all but the current playing playback
+        case EventType::REMOVE_ALL_BUT_CURRENT_PLAYBACK:
+        {
+            SAL_DEBUG_PROCESS_EVENTS("REMOVE_ALL_BUT_CURRENT_PLAYBACK")
+
+            m_player->removeNotPlayedPlayback();
+        } break;
+
         // Quit
         case EventType::QUIT:
         {

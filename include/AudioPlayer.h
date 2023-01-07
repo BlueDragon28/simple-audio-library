@@ -144,6 +144,12 @@ public:
     inline void next() noexcept;
 
     /*
+    Remove all in queue files but keep only the current one.
+    This is useful when enabling or disabling shuffle playback.
+    */
+    inline void keepOnlyCurrentPlayback() noexcept;
+
+    /*
     Stop the loop of AudioPlayer and stop playing audio stream.
     */
     inline void quit() noexcept;
@@ -325,6 +331,18 @@ inline void AudioPlayer::next() noexcept
 {
     if (isReady())
         m_events.push(EventType::NEXT);
+}
+
+/*
+Remove all in queue files but keep only the current one.
+This is useful when enabling or disabling shuffle playback.
+*/
+inline void AudioPlayer::keepOnlyCurrentPlayback() noexcept
+{
+    if (isReady())
+    {
+        m_events.push(EventType::REMOVE_ALL_BUT_CURRENT_PLAYBACK);
+    }
 }
 
 /*

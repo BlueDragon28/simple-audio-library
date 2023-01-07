@@ -40,6 +40,7 @@ enum class SAL_EXPORT_DLL EventType
     SEEK,
     SEEK_SECONDS,
     NEXT,
+    REMOVE_ALL_BUT_CURRENT_PLAYBACK,
 };
 
 /*

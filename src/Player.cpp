@@ -6,6 +6,7 @@
 #include <cstring>
 #include <functional>
 #include <limits>
+#include <mutex>
 
 #ifdef WIN32
 #include "UTFConvertion.h"
@@ -265,6 +266,23 @@ void Player::next()
     }
 
     SAL_DEBUG_EVENTS("Playing next file in the queue done")
+}
+
+void Player::removeNotPlayedPlayback()
+{
+    SAL_DEBUG_EVENTS("Remove all in queue playback but keep the current one")
+
+    std::scoped_lock lock(m_queueFilePathMutex, m_queueOpenedFileMutex);
+
+    m_queueFilePath.clear();
+
+    if (m_queueOpenedFile.size() >= 2) {
+        m_queueOpenedFile.erase(
+            m_queueOpenedFile.cbegin()+1,
+            m_queueOpenedFile.cend());
+    }
+
+    SAL_DEBUG_EVENTS("Remove all in queue playback but keep the current one done")
 }
 
 bool Player::isPlaying() const

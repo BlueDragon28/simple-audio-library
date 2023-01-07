@@ -117,6 +117,12 @@ public:
     */
     inline void setCallbackInterface(CallbackInterface* callbackInterface) noexcept;
 
+    /*
+    Remove all in queue files but keep only the current one.
+    This is useful when enabling or disabling shuffle playback.
+    */
+    void removeNotPlayedPlayback();
+
 private:
     /*
     Remove ended file from m_queueOpenedFile and
