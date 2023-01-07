@@ -115,6 +115,12 @@ The **CallbackInterface** is an interface between your callback functions and th
   - Play next audio file.
 
 - ``` C++
+  inline void keepOnlyCurrentPlayback() noexcept;
+  ```
+  - Remove all in queue files but keep only the current one.
+    This is useful when enabling or disabling shuffle playback.
+
+- ``` C++
   inline size_t streamSize(TimeType timeType = TimeType::SECONDS) const noexcept;
   ```
   - Return the stream size (size of the PCM data in the currently played audio file).
