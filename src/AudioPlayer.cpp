@@ -198,6 +198,7 @@ void AudioPlayer::processEvents()
                 continue;
             }
             m_player->open(fileInfo.filePath, fileInfo.clearQueue);
+            m_player->update();
         } break;
 
         // Play
