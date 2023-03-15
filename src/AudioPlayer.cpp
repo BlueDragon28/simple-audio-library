@@ -1,7 +1,6 @@
 #include "AudioPlayer.h"
 #include "Common.h"
 #include "config.h"
-#include <bits/chrono.h>
 #include <chrono>
 #include <cstdint>
 #include <ratio>
