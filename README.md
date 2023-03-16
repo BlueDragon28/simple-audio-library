@@ -151,6 +151,22 @@ The **CallbackInterface** is an interface between your callback functions and th
   inline void quit() noexcept;
   ```
   - Stop streaming and stop the AudioPlayer main loop. Cannot be restarted.
+  
+- ```C++
+  std::vector<BackendAudio> availableBackendAudio() const;
+  ```
+  - Return a list of available backends audio.
+  
+- ```C++
+  inline BackendAudio getBackendAudio() const;
+  ```
+  - Return the currently set backend audio. If no backend as been set, it return the system default.
+  
+- ```C++
+  inline void setBackendAudio(BackendAudio backend);
+  ```
+  - Set the audio backend used to play the audio stream.
+    - **backend** : one of the item of the **SAL::BackendAudio** enum. **SAL::BackendAudio::SYSTEM_DEFAULT** to use the system default.
 
 ### CallbackInterface class
 
