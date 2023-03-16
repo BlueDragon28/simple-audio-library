@@ -532,7 +532,7 @@ bool Player::createStream()
         nullptr,
         &outParams,
         (double)m_sampleRate,
-        6144,
+        paFramesPerBufferUnspecified,
         paNoFlag,
         staticPortAudioStreamCallback,
         this);
