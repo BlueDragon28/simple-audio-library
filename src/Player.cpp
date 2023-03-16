@@ -509,11 +509,12 @@ bool Player::createStream()
     }
 
     // Retrieve the default output device.
-    int defaultOutputDevice = Pa_GetDefaultOutputDevice();
+    PaHostApiIndex hostApiIndex = Pa_HostApiTypeIdToHostApiIndex(fromBackendEnumToHostAPI(m_backendAudio));
+    PaDeviceIndex outputDevice = Pa_GetHostApiInfo(hostApiIndex)->defaultOutputDevice;
 
     // Set the info of the PortAudio stream.
     PaStreamParameters outParams = {};
-    outParams.device = defaultOutputDevice;
+    outParams.device = outputDevice;
     outParams.channelCount = m_numChannels;
     if (m_sampleType == SampleType::FLOAT)
     {
@@ -527,7 +528,7 @@ bool Player::createStream()
             return false;
         }
     }
-    outParams.suggestedLatency = Pa_GetDeviceInfo(defaultOutputDevice)->defaultHighOutputLatency;
+    outParams.suggestedLatency = Pa_GetDeviceInfo(outputDevice)->defaultHighOutputLatency;
     outParams.hostApiSpecificStreamInfo = nullptr;
 
     // Create the PortAudio stream.
