@@ -31,18 +31,21 @@ namespace SAL
 Player::Player() :
     // PortAudio stream interface.
     m_paStream(nullptr, Pa_CloseStream),
+
+    m_backendAudio(getSystemDefaultBackendAudio()),
+
     m_isClosingStreamTheStream(false),
 
     // If the stream is playing or not.
     m_isPlaying(false),
 
-    // Maximum of same stream in the m_queueOpenedFile queue.
-    m_maxInStreamQueue(2),
-
     // Indicate if the stream is paused and not stopped.
     m_isPaused(false),
 
     m_isBuffering(false),
+
+    // Maximum of same stream in the m_queueOpenedFile queue.
+    m_maxInStreamQueue(2),
 
     m_callbackInterface(nullptr),
 
@@ -50,7 +53,9 @@ Player::Player() :
 
     m_doNotCheckFile(false),
     m_isStopping(false)
-{}
+{
+    retrieveAvailableHostApi();
+}
 
 Player::~Player()
 {}
@@ -880,6 +885,78 @@ void Player::checkIfNoStream()
     {
         m_isPlaying = false;
         m_isPaused = false;
+    }
+}
+
+void Player::retrieveAvailableHostApi()
+{
+    const PaHostApiIndex hostApiCount = Pa_GetHostApiCount();
+    for (int i = 0; i < hostApiCount; i++)
+    {
+        m_availableHostApi.push_back(i);
+    }
+}
+
+void Player::setBackendAudio(BackendAudio backend)
+{
+    if (backend == BackendAudio::INVALID_API || backend == BackendAudio::SYSTEM_DEFAULT)
+    {
+        m_backendAudio = getSystemDefaultBackendAudio();
+        return;
+    }
+
+    m_backendAudio = backend;
+}
+
+BackendAudio Player::getSystemDefaultBackendAudio() const
+{
+    PaHostApiIndex hostApiIndex = Pa_GetDefaultHostApi();
+    return fromHostAPIToBackendEnum(hostApiIndex);
+}
+
+BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiIndex apiIndex) const
+{
+    switch(apiIndex)
+    {
+    case paDirectSound:
+        return BackendAudio::DIRECT_SOUND;
+    case paMME:
+        return BackendAudio::MME;
+    case paASIO:
+        return BackendAudio::ASIO;
+    case paWASAPI:
+        return BackendAudio::WASAPI;
+    case paOSS:
+        return BackendAudio::OSS;
+    case paALSA:
+        return BackendAudio::ALSA;
+    case paJACK:
+        return BackendAudio::JACK;
+    default:
+        return BackendAudio::INVALID_API;
+    }
+}
+
+PaHostApiIndex Player::fromBackendEnumToHostAPI(BackendAudio backend) const
+{
+    switch(backend)
+    {
+    case BackendAudio::DIRECT_SOUND:
+        return paDirectSound;
+    case BackendAudio::MME:
+        return paMME;
+    case BackendAudio::ASIO:
+        return paASIO;
+    case BackendAudio::WASAPI:
+        return paWASAPI;
+    case BackendAudio::OSS:
+        return paOSS;
+    case BackendAudio::ALSA:
+        return paALSA;
+    case BackendAudio::JACK:
+        return paJACK;
+    default:
+        return paInvalidDevice;
     }
 }
 

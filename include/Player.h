@@ -123,6 +123,14 @@ public:
     */
     void removeNotPlayedPlayback();
 
+    inline BackendAudio getBackendAudio() const;
+    void setBackendAudio(BackendAudio backend);
+
+    /*
+    Convert host api enum to backend audio enum.
+    */
+    BackendAudio fromHostAPIToBackendEnum(PaHostApiIndex apiIndex) const;
+
 private:
     /*
     Remove ended file from m_queueOpenedFile and
@@ -293,6 +301,18 @@ private:
     */
     void streamEnoughBufferingCallback();
 
+    /*
+    Retrieve the list of backend API available.
+    */
+    void retrieveAvailableHostApi();
+
+    BackendAudio getSystemDefaultBackendAudio() const;
+
+    /*
+    Convert backend audio enum to host api enum.
+    */
+    PaHostApiIndex fromBackendEnumToHostAPI(BackendAudio backend) const;
+
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
     std::mutex m_queueFilePathMutex;
@@ -306,6 +326,7 @@ private:
 
     // PortAudio stream interface.
     std::unique_ptr<PaStream, decltype(&Pa_CloseStream)> m_paStream;
+    std::atomic<BackendAudio> m_backendAudio;
     std::mutex m_paStreamMutex;
     std::atomic<bool> m_isClosingStreamTheStream; // When a stream stop, it ask to close the stream.
 
@@ -340,6 +361,9 @@ private:
 
     // Prevent streamEndCallback to call endStreamingFile callback if the stop method is called.
     bool m_isStopping;
+
+    // List of available backend audio.
+    std::vector<PaHostApiIndex> m_availableHostApi;
 };
 
 /*
@@ -425,6 +449,11 @@ inline size_t Player::_streamPos(TimeType timeType) const noexcept
     }
     else
         return 0;
+}
+
+inline BackendAudio Player::getBackendAudio() const
+{
+    return m_backendAudio;
 }
 }
 

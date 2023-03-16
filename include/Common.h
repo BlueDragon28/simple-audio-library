@@ -81,6 +81,19 @@ struct SAL_EXPORT_DLL FakeInt24
 {
     uint8_t c[3];
 };
+
+enum class SAL_EXPORT_DLL BackendAudio
+{
+    INVALID_API = -1,
+    SYSTEM_DEFAULT,
+    DIRECT_SOUND,
+    MME,
+    ASIO,
+    WASAPI,
+    OSS,
+    ALSA,
+    JACK
+};
 }
 
 #endif // SIMPLE_AUDIO_LIBRARY_COMMON_H_

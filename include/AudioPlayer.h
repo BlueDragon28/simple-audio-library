@@ -155,6 +155,19 @@ public:
     */
     inline void quit() noexcept;
 
+    /*
+    Return the audio backend name.
+    */
+    static std::string getAudioBackendName(BackendAudio backend);
+
+    /*
+    Set the audio backend used to play the audio stream.
+
+    Parameters:
+    - backend : one of the item of the SAL::BackendAudio enum. SAL::BackendAudio::SYSTEM_DEFAULT to use the system default.
+    */
+    inline void setAudioBackend(BackendAudio backend);
+
 private:
     /*
     Initialize portaudio and Player interface.
@@ -376,6 +389,11 @@ Checking if a file is readable by the simple-audio-library.
 inline int AudioPlayer::isReadable(const std::string& filePath) const
 {
     return m_player->isReadable(filePath);
+}
+
+inline void AudioPlayer::setAudioBackend(BackendAudio backend)
+{
+    m_player->setBackendAudio(backend);
 }
 }
 
