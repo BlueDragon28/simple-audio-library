@@ -348,6 +348,11 @@ void Player::pushFile()
     m_queueOpenedFile.push_back(std::move(pAudioFile));
     m_queueFilePath.erase(m_queueFilePath.begin());
 
+    if (m_queueOpenedFile.size() == 1)
+    {
+        updateStreamBuffer();
+    }
+
     SAL_DEBUG_LOOP_UPDATE("Preparing a file to be streamed done")
 }
 
