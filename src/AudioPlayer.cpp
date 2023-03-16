@@ -360,4 +360,9 @@ std::string AudioPlayer::getAudioBackendName(BackendAudio backend)
         return u8"Invalid API";
     }
 }
+
+std::vector<BackendAudio> AudioPlayer::availableBackendAudio() const
+{
+    return m_player->availableBackendAudio();
+}
 }

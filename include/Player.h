@@ -131,6 +131,8 @@ public:
     */
     BackendAudio fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const;
 
+    std::vector<BackendAudio> availableBackendAudio() const;
+
 private:
     /*
     Remove ended file from m_queueOpenedFile and

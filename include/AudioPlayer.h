@@ -170,6 +170,11 @@ public:
     */
     inline void setBackendAudio(BackendAudio backend);
 
+    /*
+    Retrieve a list of available backend audio.
+    */
+    std::vector<BackendAudio> availableBackendAudio() const;
+
 private:
     /*
     Initialize portaudio and Player interface.

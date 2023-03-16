@@ -917,6 +917,18 @@ BackendAudio Player::getSystemDefaultBackendAudio() const
     return fromHostAPIToBackendEnum(hostApiInfo->type);
 }
 
+std::vector<BackendAudio> Player::availableBackendAudio() const
+{
+    std::vector<BackendAudio> backendsAudio;
+
+    for (PaHostApiTypeId id : m_availableHostApi)
+    {
+        backendsAudio.push_back(fromHostAPIToBackendEnum(id));
+    }
+
+    return backendsAudio;
+}
+
 BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const
 {
     switch(apiIndex)
