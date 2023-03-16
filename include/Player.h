@@ -129,7 +129,7 @@ public:
     /*
     Convert host api enum to backend audio enum.
     */
-    BackendAudio fromHostAPIToBackendEnum(PaHostApiIndex apiIndex) const;
+    BackendAudio fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const;
 
 private:
     /*
@@ -311,7 +311,7 @@ private:
     /*
     Convert backend audio enum to host api enum.
     */
-    PaHostApiIndex fromBackendEnumToHostAPI(BackendAudio backend) const;
+    PaHostApiTypeId fromBackendEnumToHostAPI(BackendAudio backend) const;
 
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
@@ -363,7 +363,7 @@ private:
     bool m_isStopping;
 
     // List of available backend audio.
-    std::vector<PaHostApiIndex> m_availableHostApi;
+    std::vector<PaHostApiTypeId> m_availableHostApi;
 };
 
 /*

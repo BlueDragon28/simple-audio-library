@@ -893,7 +893,8 @@ void Player::retrieveAvailableHostApi()
     const PaHostApiIndex hostApiCount = Pa_GetHostApiCount();
     for (int i = 0; i < hostApiCount; i++)
     {
-        m_availableHostApi.push_back(i);
+        PaHostApiTypeId hostApiID = Pa_GetHostApiInfo(i)->type;
+        m_availableHostApi.push_back(hostApiID);
     }
 }
 
@@ -911,10 +912,11 @@ void Player::setBackendAudio(BackendAudio backend)
 BackendAudio Player::getSystemDefaultBackendAudio() const
 {
     PaHostApiIndex hostApiIndex = Pa_GetDefaultHostApi();
-    return fromHostAPIToBackendEnum(hostApiIndex);
+    const PaHostApiInfo* hostApiInfo = Pa_GetHostApiInfo(hostApiIndex);
+    return fromHostAPIToBackendEnum(hostApiInfo->type);
 }
 
-BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiIndex apiIndex) const
+BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const
 {
     switch(apiIndex)
     {
@@ -937,7 +939,7 @@ BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiIndex apiIndex) const
     }
 }
 
-PaHostApiIndex Player::fromBackendEnumToHostAPI(BackendAudio backend) const
+PaHostApiTypeId Player::fromBackendEnumToHostAPI(BackendAudio backend) const
 {
     switch(backend)
     {
@@ -956,7 +958,7 @@ PaHostApiIndex Player::fromBackendEnumToHostAPI(BackendAudio backend) const
     case BackendAudio::JACK:
         return paJACK;
     default:
-        return paInvalidDevice;
+        return paInDevelopment;
     }
 }
 
