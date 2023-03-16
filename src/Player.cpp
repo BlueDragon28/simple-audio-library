@@ -762,9 +762,9 @@ void Player::continuePlayingIfEnoughBuffering()
                             SAL_DEBUG_STREAM_STATUS(std::string("Failed to remuse stream: ") + Pa_GetErrorText(err))
                         }
 
-                        break; // Leaving the loop, no need try to restart another time PortAudio on the next file.
-
                         streamEnoughBufferingCallback();
+
+                        break; // Leaving the loop, no need try to restart another time PortAudio on the next file.
                     }
                 }
             }
