@@ -160,13 +160,15 @@ public:
     */
     static std::string getAudioBackendName(BackendAudio backend);
 
+    inline BackendAudio getBackendAudio() const;
+
     /*
     Set the audio backend used to play the audio stream.
 
     Parameters:
     - backend : one of the item of the SAL::BackendAudio enum. SAL::BackendAudio::SYSTEM_DEFAULT to use the system default.
     */
-    inline void setAudioBackend(BackendAudio backend);
+    inline void setBackendAudio(BackendAudio backend);
 
 private:
     /*
@@ -391,9 +393,14 @@ inline int AudioPlayer::isReadable(const std::string& filePath) const
     return m_player->isReadable(filePath);
 }
 
-inline void AudioPlayer::setAudioBackend(BackendAudio backend)
+inline void AudioPlayer::setBackendAudio(BackendAudio backend)
 {
     m_player->setBackendAudio(backend);
+}
+
+inline BackendAudio AudioPlayer::getBackendAudio() const
+{
+    return m_player->getBackendAudio();
 }
 }
 
