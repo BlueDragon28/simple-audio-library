@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Common.h"
 #include "DebugLog.h"
 #include "config.h"
 #include <filesystem>
@@ -923,7 +924,10 @@ std::vector<BackendAudio> Player::availableBackendAudio() const
 
     for (PaHostApiTypeId id : m_availableHostApi)
     {
-        backendsAudio.push_back(fromHostAPIToBackendEnum(id));
+        const BackendAudio backend = fromHostAPIToBackendEnum(id);
+        if (backend != BackendAudio::INVALID_API) {
+            backendsAudio.push_back(backend);
+        }
     }
 
     return backendsAudio;
