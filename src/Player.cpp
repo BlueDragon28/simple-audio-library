@@ -8,6 +8,7 @@
 #include <functional>
 #include <limits>
 #include <mutex>
+#include <portaudio.h>
 
 #ifdef WIN32
 #include "UTFConvertion.h"
@@ -945,6 +946,8 @@ BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const
         return BackendAudio::ASIO;
     case paWASAPI:
         return BackendAudio::WASAPI;
+    case paWDMKS:
+        return BackendAudio::WDMKS;
     case paOSS:
         return BackendAudio::OSS;
     case paALSA:
@@ -968,6 +971,8 @@ PaHostApiTypeId Player::fromBackendEnumToHostAPI(BackendAudio backend) const
         return paASIO;
     case BackendAudio::WASAPI:
         return paWASAPI;
+    case BackendAudio::WDMKS:
+        return paWDMKS;
     case BackendAudio::OSS:
         return paOSS;
     case BackendAudio::ALSA:

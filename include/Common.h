@@ -90,6 +90,7 @@ enum class SAL_EXPORT_DLL BackendAudio
     MME,
     ASIO,
     WASAPI,
+    WDMKS,
     OSS,
     ALSA,
     JACK

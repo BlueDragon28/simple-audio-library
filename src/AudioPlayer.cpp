@@ -348,6 +348,8 @@ std::string AudioPlayer::getAudioBackendName(BackendAudio backend)
         return u8"ASIO";
     case BackendAudio::WASAPI:
         return u8"WASAPI";
+    case BackendAudio::WDMKS:
+        return u8"WDMKS";
     case BackendAudio::OSS:
         return u8"OSS";
     case BackendAudio::ALSA:
