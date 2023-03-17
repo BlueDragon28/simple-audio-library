@@ -51,7 +51,7 @@ void FlacAudioFile::open()
     set_md5_checking(true);
 
     // Opening the flac file.
-    FLAC__StreamDecoderInitStatus status = init(filePath());
+    FLAC__StreamDecoderInitStatus status = init(filePath().c_str());
     if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
     {
         SAL_DEBUG_OPEN_FILE("Failed to open file")
