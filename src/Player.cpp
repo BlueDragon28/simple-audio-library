@@ -348,6 +348,11 @@ void Player::pushFile()
     m_queueOpenedFile.push_back(std::move(pAudioFile));
     m_queueFilePath.erase(m_queueFilePath.begin());
 
+    if (m_queueOpenedFile.size() == 1)
+    {
+        updateStreamBuffer();
+    }
+
     SAL_DEBUG_LOOP_UPDATE("Preparing a file to be streamed done")
 }
 
@@ -527,7 +532,7 @@ bool Player::createStream()
         nullptr,
         &outParams,
         (double)m_sampleRate,
-        6144,
+        paFramesPerBufferUnspecified,
         paNoFlag,
         staticPortAudioStreamCallback,
         this);
@@ -707,24 +712,24 @@ void Player::pauseIfBuffering()
     {
         SAL_DEBUG_STREAM_STATUS("Buffering: pausing the stream")
 
-        bool isError = false;
+//        bool isError = false;
         {
-            std::scoped_lock lock(m_paStreamMutex);
+//            std::scoped_lock lock(m_paStreamMutex);
             m_isPaused = true;
-            PaError err = Pa_StopStream(m_paStream.get());
-            if (err != paNoError)
-            {
-                isError = true;
+//            PaError err = Pa_StopStream(m_paStream.get());
+//            if (err != paNoError)
+//            {
+//                isError = true;
 
-                SAL_DEBUG_STREAM_STATUS(std::string("Failed to pause stream: ") + Pa_GetErrorText(err))
-            }
+//                SAL_DEBUG_STREAM_STATUS(std::string("Failed to pause stream: ") + Pa_GetErrorText(err))
+//            }
         }
-        if (isError)
-        {
-            SAL_DEBUG_STREAM_STATUS("Buffering: pausing the steam failed: cannot pause the stream")
+//        if (isError)
+//        {
+//            SAL_DEBUG_STREAM_STATUS("Buffering: pausing the steam failed: cannot pause the stream")
 
-            _resetStreamInfo();
-        }
+//            _resetStreamInfo();
+//        }
 
         SAL_DEBUG_STREAM_STATUS("Buffering: pausing the stream done")
     }
@@ -736,7 +741,7 @@ void Player::continuePlayingIfEnoughBuffering()
 {
     if (_isPlaying() && m_isBuffering)
     {
-        bool isStartStreamFailed = false;
+//        bool isStartStreamFailed = false;
         {
             std::scoped_lock lock(m_paStreamMutex, m_queueOpenedFileMutex);
             for (const std::unique_ptr<AbstractAudioFile>& file : m_queueOpenedFile)
@@ -749,27 +754,27 @@ void Player::continuePlayingIfEnoughBuffering()
 
                         m_isBuffering = false;
                         m_isPaused = false;
-                        PaError err = Pa_StartStream(m_paStream.get());
-                        if (err != paNoError)
-                        {
-                            isStartStreamFailed = true;
+//                        PaError err = Pa_StartStream(m_paStream.get());
+//                        if (err != paNoError)
+//                        {
+//                            isStartStreamFailed = true;
                             
-                            SAL_DEBUG_STREAM_STATUS(std::string("Failed to remuse stream: ") + Pa_GetErrorText(err))
-                        }
-
-                        break; // Leaving the loop, no need try to restart another time PortAudio on the next file.
+//                            SAL_DEBUG_STREAM_STATUS(std::string("Failed to remuse stream: ") + Pa_GetErrorText(err))
+//                        }
 
                         streamEnoughBufferingCallback();
+
+                        break; // Leaving the loop, no need try to restart another time PortAudio on the next file.
                     }
                 }
             }
         }
-        if (isStartStreamFailed)    
-        {
-            SAL_DEBUG_STREAM_STATUS("Enough buffering, resume stream failed: starting stream failed")
+//        if (isStartStreamFailed)
+//        {
+//            SAL_DEBUG_STREAM_STATUS("Enough buffering, resume stream failed: starting stream failed")
 
-            _resetStreamInfo();
-        }
+//            _resetStreamInfo();
+//        }
     }
 }
 

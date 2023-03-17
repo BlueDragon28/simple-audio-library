@@ -11,6 +11,7 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <condition_variable>
 
 namespace SAL
 {
@@ -156,6 +157,11 @@ public:
 
 private:
     /*
+    Initialize portaudio and Player interface.
+    */
+    void initialize();
+
+    /*
     This loop is executed in another thread
     and wait until the user want the api to stop.
     The loop process every event and send them to
@@ -178,6 +184,8 @@ private:
     The thread where the loop is executed.
     */
     std::thread m_loopThread;
+    std::mutex m_initMutex;
+    std::condition_variable m_cvInit;
 
     bool m_isInit;
     bool m_isRunning;

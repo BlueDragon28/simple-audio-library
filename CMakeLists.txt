@@ -34,9 +34,15 @@ if (WIN32)
     # Find PortAudio
     if (
         (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/include/portaudio.h") AND
-        (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio_x64.lib"))
+        ((EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio_x64.lib") OR (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib")))
         # Include directory of PortAudio
         include_directories(${CMAKE_SOURCE_DIR}/dependencies/portaudio/include)
+
+        if (EXISTS "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio_x64.lib")
+            set(PORTAUDIO_DLL "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio_x64.lib")
+        else()
+            set(PORTAUDIO_DLL "${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio.lib")
+        endif()
     else()
         message(FATAL_ERROR "Cannot find portaudio")
     endif()
@@ -167,7 +173,7 @@ if (UNIX)
     target_link_libraries(${PROJECT_NAME} ${PORTAUDIO_LIBRARIES} ${FLAC++_LIBRARIES} ${LIBSNDFILE_LIBRARIES})
 elseif(WIN32)
     target_link_libraries(${PROJECT_NAME} 
-        ${CMAKE_SOURCE_DIR}/dependencies/portaudio/lib/portaudio_x64.lib
+        ${PORTAUDIO_DLL}
         "${FLAC_LIBRARY}"
         ${LIBSNDFILE_LIBRARY})
     if (BUILD_SHARED)

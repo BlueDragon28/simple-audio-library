@@ -1,10 +1,10 @@
 #include "AudioPlayer.h"
 #include "Common.h"
 #include "config.h"
-#include <bits/chrono.h>
 #include <chrono>
 #include <cstdint>
 #include <ratio>
+#include <iostream>
 
 #define SLEEP_PLAYING 10
 #define SLEEP_PAUSED 50
@@ -44,18 +44,14 @@ AudioPlayer::AudioPlayer() :
     DebugLog::instance();
 #endif
 
-    m_pa = std::unique_ptr<PortAudioRAII>(new PortAudioRAII());
-    if (m_pa->isInit())
+    // To work without errors, PortAudio must be initialized in the same thread that using it.
+    m_loopThread = std::thread(&AudioPlayer::loop, this);
+
+    std::unique_lock lock(m_initMutex);
+
+    if (!m_isInit)
     {
-        m_isInit = true;
-        m_isRunning = true;
-        m_player = std::unique_ptr<Player>(new Player());
-        m_player->setCallbackInterface(&m_callbackInterface);
-
-        // Enable the callback interface to get access of some getters of this class.
-        m_callbackInterface.setIsReadyGetter(std::bind(&Player::isFileReady, m_player.get()));
-
-        m_loopThread = std::thread(&AudioPlayer::loop, this);
+        m_cvInit.wait(lock);
     }
 
     SAL_DEBUG_SAL_INIT("Initialization done")
@@ -110,10 +106,36 @@ void AudioPlayer::open(const std::vector<std::string>& filesPath, bool clearQueu
     }
 }
 
+void AudioPlayer::initialize()
+{
+    SAL_DEBUG_SAL_INIT("Initialize audio system")
+
+    std::unique_lock lock(m_initMutex);
+
+    m_pa = std::unique_ptr<PortAudioRAII>(new PortAudioRAII());
+
+    if (m_pa->isInit())
+    {
+        m_isRunning = true;
+        m_player = std::unique_ptr<Player>(new Player());
+        m_player->setCallbackInterface(&m_callbackInterface);
+
+        // Enable the callback interface to get access of some getters of this class.
+        m_callbackInterface.setIsReadyGetter(std::bind(&Player::isFileReady, m_player.get()));
+    } else
+    {
+        m_isRunning = false;
+    }
+
+    m_isInit = true;
+    m_cvInit.notify_one();
+
+    SAL_DEBUG_SAL_INIT("Initialize audio system done!")
+}
+
 void AudioPlayer::loop()
 {
-    if (!m_isInit)
-        return;
+    initialize();
     
     SAL_DEBUG_SAL_INIT("Starting main loop")
 
@@ -147,6 +169,8 @@ void AudioPlayer::loop()
                 std::chrono::milliseconds(m_sleepTime - elapsedTime.count()));
         }
     }
+
+    m_pa.reset();
 }
 
 void AudioPlayer::processEvents()
@@ -174,6 +198,7 @@ void AudioPlayer::processEvents()
                 continue;
             }
             m_player->open(fileInfo.filePath, fileInfo.clearQueue);
+//            m_player->update();
         } break;
 
         // Play
