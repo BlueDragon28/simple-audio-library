@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Common.h"
 #include "DebugLog.h"
 #include "config.h"
 #include <filesystem>
@@ -7,6 +8,7 @@
 #include <functional>
 #include <limits>
 #include <mutex>
+#include <portaudio.h>
 
 #ifdef WIN32
 #include "UTFConvertion.h"
@@ -31,18 +33,21 @@ namespace SAL
 Player::Player() :
     // PortAudio stream interface.
     m_paStream(nullptr, Pa_CloseStream),
+
+    m_backendAudio(getSystemDefaultBackendAudio()),
+
     m_isClosingStreamTheStream(false),
 
     // If the stream is playing or not.
     m_isPlaying(false),
 
-    // Maximum of same stream in the m_queueOpenedFile queue.
-    m_maxInStreamQueue(2),
-
     // Indicate if the stream is paused and not stopped.
     m_isPaused(false),
 
     m_isBuffering(false),
+
+    // Maximum of same stream in the m_queueOpenedFile queue.
+    m_maxInStreamQueue(2),
 
     m_callbackInterface(nullptr),
 
@@ -50,7 +55,9 @@ Player::Player() :
 
     m_doNotCheckFile(false),
     m_isStopping(false)
-{}
+{
+    retrieveAvailableHostApi();
+}
 
 Player::~Player()
 {}
@@ -504,11 +511,12 @@ bool Player::createStream()
     }
 
     // Retrieve the default output device.
-    int defaultOutputDevice = Pa_GetDefaultOutputDevice();
+    PaHostApiIndex hostApiIndex = Pa_HostApiTypeIdToHostApiIndex(fromBackendEnumToHostAPI(m_backendAudio));
+    PaDeviceIndex outputDevice = Pa_GetHostApiInfo(hostApiIndex)->defaultOutputDevice;
 
     // Set the info of the PortAudio stream.
     PaStreamParameters outParams = {};
-    outParams.device = defaultOutputDevice;
+    outParams.device = outputDevice;
     outParams.channelCount = m_numChannels;
     if (m_sampleType == SampleType::FLOAT)
     {
@@ -522,7 +530,7 @@ bool Player::createStream()
             return false;
         }
     }
-    outParams.suggestedLatency = Pa_GetDeviceInfo(defaultOutputDevice)->defaultHighOutputLatency;
+    outParams.suggestedLatency = Pa_GetDeviceInfo(outputDevice)->defaultHighOutputLatency;
     outParams.hostApiSpecificStreamInfo = nullptr;
 
     // Create the PortAudio stream.
@@ -880,6 +888,99 @@ void Player::checkIfNoStream()
     {
         m_isPlaying = false;
         m_isPaused = false;
+    }
+}
+
+void Player::retrieveAvailableHostApi()
+{
+    const PaHostApiIndex hostApiCount = Pa_GetHostApiCount();
+    for (int i = 0; i < hostApiCount; i++)
+    {
+        PaHostApiTypeId hostApiID = Pa_GetHostApiInfo(i)->type;
+        m_availableHostApi.push_back(hostApiID);
+    }
+}
+
+void Player::setBackendAudio(BackendAudio backend)
+{
+    if (backend == BackendAudio::INVALID_API || backend == BackendAudio::SYSTEM_DEFAULT)
+    {
+        m_backendAudio = getSystemDefaultBackendAudio();
+        return;
+    }
+
+    m_backendAudio = backend;
+}
+
+BackendAudio Player::getSystemDefaultBackendAudio() const
+{
+    PaHostApiIndex hostApiIndex = Pa_GetDefaultHostApi();
+    const PaHostApiInfo* hostApiInfo = Pa_GetHostApiInfo(hostApiIndex);
+    return fromHostAPIToBackendEnum(hostApiInfo->type);
+}
+
+std::vector<BackendAudio> Player::availableBackendAudio() const
+{
+    std::vector<BackendAudio> backendsAudio;
+
+    for (PaHostApiTypeId id : m_availableHostApi)
+    {
+        const BackendAudio backend = fromHostAPIToBackendEnum(id);
+        if (backend != BackendAudio::INVALID_API) {
+            backendsAudio.push_back(backend);
+        }
+    }
+
+    return backendsAudio;
+}
+
+BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const
+{
+    switch(apiIndex)
+    {
+    case paDirectSound:
+        return BackendAudio::DIRECT_SOUND;
+    case paMME:
+        return BackendAudio::MME;
+    case paASIO:
+        return BackendAudio::ASIO;
+    case paWASAPI:
+        return BackendAudio::WASAPI;
+    case paWDMKS:
+        return BackendAudio::WDMKS;
+    case paOSS:
+        return BackendAudio::OSS;
+    case paALSA:
+        return BackendAudio::ALSA;
+    case paJACK:
+        return BackendAudio::JACK;
+    default:
+        return BackendAudio::INVALID_API;
+    }
+}
+
+PaHostApiTypeId Player::fromBackendEnumToHostAPI(BackendAudio backend) const
+{
+    switch(backend)
+    {
+    case BackendAudio::DIRECT_SOUND:
+        return paDirectSound;
+    case BackendAudio::MME:
+        return paMME;
+    case BackendAudio::ASIO:
+        return paASIO;
+    case BackendAudio::WASAPI:
+        return paWASAPI;
+    case BackendAudio::WDMKS:
+        return paWDMKS;
+    case BackendAudio::OSS:
+        return paOSS;
+    case BackendAudio::ALSA:
+        return paALSA;
+    case BackendAudio::JACK:
+        return paJACK;
+    default:
+        return paInDevelopment;
     }
 }
 

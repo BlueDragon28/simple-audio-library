@@ -335,4 +335,36 @@ void AudioPlayer::waitEvent()
         std::this_thread::sleep_for(std::chrono::microseconds(m_sleepTime));
     }
 }
+
+std::string AudioPlayer::getAudioBackendName(BackendAudio backend)
+{
+    switch(backend)
+    {
+    case BackendAudio::DIRECT_SOUND:
+        return u8"Direct Sound";
+    case BackendAudio::MME:
+        return u8"MME";
+    case BackendAudio::ASIO:
+        return u8"ASIO";
+    case BackendAudio::WASAPI:
+        return u8"WASAPI";
+    case BackendAudio::WDMKS:
+        return u8"WDMKS";
+    case BackendAudio::OSS:
+        return u8"OSS";
+    case BackendAudio::ALSA:
+        return u8"ALSA";
+    case BackendAudio::JACK:
+        return u8"JACK";
+    case BackendAudio::SYSTEM_DEFAULT:
+    case BackendAudio::INVALID_API:
+    default:
+        return u8"Invalid API";
+    }
+}
+
+std::vector<BackendAudio> AudioPlayer::availableBackendAudio() const
+{
+    return m_player->availableBackendAudio();
+}
 }
