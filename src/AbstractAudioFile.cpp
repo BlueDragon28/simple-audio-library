@@ -120,28 +120,28 @@ std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
 {
     std::vector<float> fBuffer(samples);
 
-    for (size_t i = 0; i < samples; i++)
+    uint32_t max = 0;
+    uint32_t min = 0;
+
+    // Get max and min value based on the type.
+    if (sizeof(T) == 1)
     {
-        uint32_t max = 0;
-        uint32_t min = 0;
+        max = 0x7F; // 127
+        min = 0x80; // 128 : the max negative number is always one number higher.
+    }
+    else if (sizeof(T) == 2)
+    {
+        max = 0x7FFF;
+        min = 0x8000;
+    }
+    else if (sizeof(T) == 4)
+    {
+        max = 0x7FFFFFFF;
+        min = 0x80000000;
+    }
 
-        // Get max and min value based on the type.
-        if (sizeof(T) == 1)
-        {
-            max = 0x7F; // 127
-            min = 0x80; // 128 : the max negative number is always one number higher.
-        }
-        else if (sizeof(T) == 2)
-        {
-            max = 0x7FFF;
-            min = 0x8000;
-        }
-        else if (sizeof(T) == 4)
-        {
-            max = 0x7FFFFFFF;
-            min = 0x80000000;
-        }
-
+    for (int i = 0; i < samples; i++)
+    {
         // Convert int to float and in the range [-1,1].
         float number = (float)iBuffer[i];
         fBuffer[i] = number / (number < 0 ? (float)min : (float)max);
