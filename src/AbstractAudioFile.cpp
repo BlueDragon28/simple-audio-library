@@ -155,14 +155,14 @@ std::vector<float> intArrayToFloatArray(T* iBuffer, size_t samples)
 template<>
 std::vector<float> intArrayToFloatArray(FakeInt24* iBuffer, size_t samples)
 {
+    // Min and max value.
+    uint32_t max = 0x7FFFFF;
+    uint32_t min = 0x800000;
+
     std::vector<float> fBuffer(samples);
 
     for (size_t i = 0; i < samples; i++)
     {
-        // Min and max value.
-        uint32_t max = 0x7FFFFF;
-        uint32_t min = 0x800000;
-
         FakeInt24 number24 = iBuffer[i];
         int number32 = 0;
 
