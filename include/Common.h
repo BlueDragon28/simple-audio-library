@@ -4,6 +4,7 @@
 #include "config.h"
 #include <variant>
 #include <string>
+#include <cstdint>
 
 /*
 Export defenition into the dll.
