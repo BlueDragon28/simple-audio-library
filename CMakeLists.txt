@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8.0)
 project(simple-audio-library
     DESCRIPTION "A simple audio library written in C++"
-    VERSION 0.1
+    VERSION 0.2
     LANGUAGES CXX)
 
 # Options
