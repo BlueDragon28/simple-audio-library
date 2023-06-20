@@ -135,13 +135,10 @@ endif()
 
 # Compile the FLAC file if it is used.
 if (USE_FLAC)
-    set(PROJECT_HEADERS 
-        "${PROJECT_HEADERS}"
-        "include/FlacAudioFile.h")
-    
     set(PROJECT_SOURCES 
         "${PROJECT_SOURCES}"
-        "src/FlacAudioFile.cpp")
+        "src/FlacAudioFile.cpp"
+        "src/FlacAudioFile.h")
 endif()
 
 # Compile the libsndfile if it is used.
