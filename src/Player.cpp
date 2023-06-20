@@ -30,6 +30,11 @@ const std::string CLASS_NAME = "Player";
 
 namespace SAL
 {
+int Player::_destroyStream(void* stream)
+{
+    return Pa_CloseStream(stream);
+}
+
 Player::Player() :
     // PortAudio stream interface.
     m_paStream(nullptr, Pa_CloseStream),
@@ -511,7 +516,7 @@ bool Player::createStream()
     }
 
     // Retrieve the default output device.
-    PaHostApiIndex hostApiIndex = Pa_HostApiTypeIdToHostApiIndex(fromBackendEnumToHostAPI(m_backendAudio));
+    PaHostApiIndex hostApiIndex = Pa_HostApiTypeIdToHostApiIndex((PaHostApiTypeId)fromBackendEnumToHostAPI(m_backendAudio));
     PaDeviceIndex outputDevice = Pa_GetHostApiInfo(hostApiIndex)->defaultOutputDevice;
 
     // Set the info of the PortAudio stream.
@@ -571,7 +576,7 @@ int Player::staticPortAudioStreamCallback(
     void* outputBuffer,
     unsigned long framesPerBuffer,
     const PaStreamCallbackTimeInfo* timeInfo,
-    PaStreamCallbackFlags flags,
+    unsigned long flags,
     void* data)
 {
     Player* pPlayer = static_cast<Player*>(data);
@@ -923,7 +928,7 @@ std::vector<BackendAudio> Player::availableBackendAudio() const
 {
     std::vector<BackendAudio> backendsAudio;
 
-    for (PaHostApiTypeId id : m_availableHostApi)
+    for (int id : m_availableHostApi)
     {
         const BackendAudio backend = fromHostAPIToBackendEnum(id);
         if (backend != BackendAudio::INVALID_API) {
@@ -934,7 +939,7 @@ std::vector<BackendAudio> Player::availableBackendAudio() const
     return backendsAudio;
 }
 
-BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const
+BackendAudio Player::fromHostAPIToBackendEnum(int apiIndex) const
 {
     switch(apiIndex)
     {
@@ -959,7 +964,7 @@ BackendAudio Player::fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const
     }
 }
 
-PaHostApiTypeId Player::fromBackendEnumToHostAPI(BackendAudio backend) const
+int Player::fromBackendEnumToHostAPI(BackendAudio backend) const
 {
     switch(backend)
     {

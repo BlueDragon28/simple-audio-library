@@ -3,12 +3,14 @@
 
 #include "AbstractAudioFile.h"
 #include "Common.h"
-#include <portaudio.h>
 #include <vector>
 #include <string>
 #include <memory>
 #include <atomic>
 #include <mutex>
+
+struct PaStreamCallbackTimeInfo;
+typedef void PaStream;
 
 namespace SAL
 {
@@ -129,7 +131,7 @@ public:
     /*
     Convert host api enum to backend audio enum.
     */
-    BackendAudio fromHostAPIToBackendEnum(PaHostApiTypeId apiIndex) const;
+    BackendAudio fromHostAPIToBackendEnum(int apiIndex) const;
 
     std::vector<BackendAudio> availableBackendAudio() const;
 
@@ -237,7 +239,7 @@ private:
         void* outputBuffer,
         unsigned long framesPerBuffer,
         const PaStreamCallbackTimeInfo* timeInfo,
-        PaStreamCallbackFlags flags,
+        unsigned long flags,
         void* data);
     static void staticPortAudioEndStream(void* data);
     
@@ -313,7 +315,7 @@ private:
     /*
     Convert backend audio enum to host api enum.
     */
-    PaHostApiTypeId fromBackendEnumToHostAPI(BackendAudio backend) const;
+    int fromBackendEnumToHostAPI(BackendAudio backend) const;
 
     // Next file to be opened after current file ended.
     std::vector<std::string> m_queueFilePath;
@@ -327,7 +329,8 @@ private:
     mutable std::mutex m_queueOpenedFileMutex;
 
     // PortAudio stream interface.
-    std::unique_ptr<PaStream, decltype(&Pa_CloseStream)> m_paStream;
+    static int _destroyStream(PaStream* stream);
+    std::unique_ptr<PaStream, decltype(&_destroyStream)> m_paStream;
     std::atomic<BackendAudio> m_backendAudio;
     std::mutex m_paStreamMutex;
     std::atomic<bool> m_isClosingStreamTheStream; // When a stream stop, it ask to close the stream.
@@ -365,7 +368,7 @@ private:
     bool m_isStopping;
 
     // List of available backend audio.
-    std::vector<PaHostApiTypeId> m_availableHostApi;
+    std::vector<int> m_availableHostApi;
 };
 
 /*
