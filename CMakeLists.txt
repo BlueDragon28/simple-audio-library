@@ -79,6 +79,10 @@ if (UNIX)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 
+    if (NOT BUILD_SHARED)
+        set(PORTAUDIO_PKG_LINK "-lportaudio -lasound -lm")
+    endif()
+
     # FLAC library
     if (USE_FLAC)
         pkg_check_modules(FLAC++ REQUIRED flac++)

@@ -7,4 +7,4 @@ Name: @PROJECT_NAME@
 Description: @PROJECT_DESCRIPTION@
 Version: @CMAKE_PROJECT_VERSION@
 Cflags: -I${includedir}
-Libs: -L${libdir} -lsimple-audio-library @LIBFLAC_PKG_LINK@ -lportaudio -lasound -lm -lpthread @LIBSNDFILE_PKG_LINK@
+Libs: -L${libdir} -lsimple-audio-library @LIBFLAC_PKG_LINK@ @PORTAUDIO_PKG_LINK@ -lpthread @LIBSNDFILE_PKG_LINK@
