@@ -143,13 +143,10 @@ endif()
 
 # Compile the libsndfile if it is used.
 if (USE_LIBSNDFILE)
-    set(PROJECT_HEADERS 
-        "${PROJECT_HEADERS}"
-        "include/SndAudioFile.h")
-    
     set(PROJECT_SOURCES 
         "${PROJECT_SOURCES}"
-        "src/SndAudioFile.cpp")
+        "src/SndAudioFile.cpp"
+        "src/SndAudioFile.h")
 endif()
 
 # Check if compile library has static or shared
