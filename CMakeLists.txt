@@ -127,13 +127,10 @@ set(PROJECT_SOURCES
 
 # Compile the WAVE file if it is used.
 if (USE_WAVE)
-    set(PROJECT_HEADERS 
-        "${PROJECT_HEADERS}"
-        "include/WaveAudioFile.h")
-
     set(PROJECT_SOURCES 
         "${PROJECT_SOURCES}"
-        "src/WaveAudioFile.cpp")
+        "src/WaveAudioFile.cpp"
+        "src/WaveAudioFile.h")
 endif()
 
 # Compile the FLAC file if it is used.
